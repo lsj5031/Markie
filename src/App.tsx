@@ -82,6 +82,7 @@ const App: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [editorWidth, setEditorWidth] = useState(50); // percentage
   const [isDragging, setIsDragging] = useState(false);
+  const [showMultiPagePreview, setShowMultiPagePreview] = useState(false);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
@@ -512,6 +513,16 @@ const App: React.FC = () => {
                 style={{ backgroundColor: "rgba(26,26,27,0.15)" }}
               />
               <span className="pane-meta">{markdown.length} chars</span>
+              <button
+                onClick={() => setShowMultiPagePreview(!showMultiPagePreview)}
+                className="text-[9px] font-mono uppercase tracking-wider px-2 py-1 border rounded"
+                style={{
+                  borderColor: "rgba(26,26,27,0.2)",
+                  color: "var(--studio-text)",
+                }}
+              >
+                {showMultiPagePreview ? "Single" : "Multi"} Page
+              </button>
             </div>
           </div>
 
