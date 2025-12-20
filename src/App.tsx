@@ -7,9 +7,11 @@ import React, {
 } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
-import { THEMES, INITIAL_MARKDOWN } from "./constants/themes";
+import { THEMES } from "./constants/themes";
 import { ExportFormat, ExportSize, Theme } from "./types";
 import { exportPreview } from "./services/exportService";
+import { MultiPageViewer } from "./components/MultiPageViewer";
+import { SinglePageViewer } from "./components/SinglePageViewer";
 
 const Icons = {
   Export: () => (
@@ -68,9 +70,59 @@ const Icons = {
   ),
 };
 
+const LONG_INITIAL_MARKDOWN = `# This is a long document to test pagination
+
+## Chapter 1: The Beginning
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus.
+
+Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio. Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus. In pellentesque faucibus vestibulum. Nulla at nulla justo, eget luctus tortor. Nulla facilisi. Duis aliquet egestas purus in blandit.
+
+Curabitur vulputate, ligula lacinia scelerisque tempor, lacus lacus ornare ante, ac egestas est urna sit amet arcu. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed molestie augue sit amet leo consequat posuere. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Proin vel ante a orci tempus eleifend ut et magna.
+
+## Chapter 2: The Middle
+
+Donec regista sapien eget diam rhoncus et scelerisque quam salute. Ut consequat, sem vitae tempus suscipit, enim lacus tincidunt duius, et vulputate lectus justo quis mi. Maecenas sem elit, semper eu pulvinar vel, customizely ut dui. Integer consectetur, massa id tincidunt proofread, sapien eros Mollis lacus, nec suscipit nulla mi sed justo.
+
+### A subsection
+
+Fusce lacinia, nunc sit amet tincidunt venenatis, enim sapien varius metus, eget ultricies sapien quam vitae est. Fusce sed dolor et Tormentum placerat. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget odio.
+
+- One
+- Two
+- Three
+- Four
+- Five
+
+## Chapter 3: The End
+
+Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.
+
+\`\`\`javascript
+function helloWorld() {
+  console.log("Hello, world!");
+}
+\`\`\`
+
+A table:
+
+| Header 1 | Header 2 | Header 3 |
+| :--- | :--- | :--- |
+| Row 1, Col 1 | Row 1, Col 2 | Row 1, Col 3 |
+| Row 2, Col 1 | Row 2, Col 2 | Row 2, Col 3 |
+
+This should be plenty of content to cause pagination.
+
+![A placeholder image](https://via.placeholder.com/600x400)
+
+More text to push it over the edge. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus.
+
+And a final paragraph to make sure we have enough content to spill over to at least a second, and possibly a third page, depending on the font size and other theme settings. This is crucial for testing the pagination logic and ensuring that the page breaks are happening correctly.
+`;
+
 const App: React.FC = () => {
   const [markdown, setMarkdown] = useState<string>(
-    () => localStorage.getItem("lumina_md") || INITIAL_MARKDOWN,
+    () => localStorage.getItem("lumina_md") || LONG_INITIAL_MARKDOWN,
   );
   const [themeId, setThemeId] = useState<string>(
     () => localStorage.getItem("lumina_theme") || THEMES[0].id,
@@ -158,6 +210,7 @@ const App: React.FC = () => {
         format,
         exportSize,
         projectName.toLowerCase().replace(/\s+/g, "-"),
+        activeTheme,
       );
     }
   };
@@ -539,7 +592,7 @@ const App: React.FC = () => {
             <div
               ref={previewRef}
               id="designer-canvas"
-              className="canvas-shadow transition-all duration-500 ease-in-out overflow-hidden"
+              className="canvas-shadow transition-all duration-500 ease-in-out overflow-hidden markdown-body"
               style={{
                 ...themeVars,
                 width: "90%",
@@ -598,11 +651,16 @@ const App: React.FC = () => {
                 }}
               />
 
-              <div
-                id="preview-content"
-                className="markdown-body"
-                dangerouslySetInnerHTML={{ __html: renderedHtml }}
-              />
+              {/* Render either single or multi-page viewer */}
+              {showMultiPagePreview ? (
+                <MultiPageViewer
+                  htmlContent={renderedHtml}
+                  theme={activeTheme}
+                  exportSize={exportSize}
+                />
+              ) : (
+                <SinglePageViewer htmlContent={renderedHtml} />
+              )}
             </div>
           </div>
         </section>
