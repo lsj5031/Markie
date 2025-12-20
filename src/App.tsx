@@ -8,7 +8,7 @@ import React, {
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { THEMES } from "./constants/themes";
-import { ExportFormat, ExportSize, Theme } from "./types";
+import { ExportFormat, ExportSize, ExportMode, Theme } from "./types";
 import { exportPreview } from "./services/exportService";
 import { MultiPageViewer } from "./components/MultiPageViewer";
 import { SinglePageViewer } from "./components/SinglePageViewer";
@@ -131,6 +131,8 @@ const App: React.FC = () => {
     () => localStorage.getItem("lumina_project") || "Untitled Design",
   );
   const [exportSize, setExportSize] = useState<ExportSize>("A4");
+  const [exportPadding, setExportPadding] = useState(40); // Default padding in pixels
+  const [exportMode, setExportMode] = useState<ExportMode>("PAGES"); // Default to pages mode
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [editorWidth, setEditorWidth] = useState(50); // percentage
   const [isDragging, setIsDragging] = useState(false);
@@ -211,6 +213,8 @@ const App: React.FC = () => {
         exportSize,
         projectName.toLowerCase().replace(/\s+/g, "-"),
         activeTheme,
+        exportPadding,
+        exportMode,
       );
     }
   };
@@ -346,10 +350,78 @@ const App: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* Export Mode Control */}
+          <div className="hidden lg:flex items-center gap-3">
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] opacity-40">
+              Mode
+            </span>
+            <div className="segmented-control">
+              {[
+                { value: "PAGES", label: "Pages" },
+                { value: "CONTINUOUS", label: "Long" },
+                { value: "SQUARE", label: "Square" }
+              ].map((mode) => (
+                <button
+                  key={mode.value}
+                  onClick={() =>
+                    setExportMode(mode.value as ExportMode)
+                  }
+                  className={`segmented-option ${exportMode === mode.value ? "active" : ""}`}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Padding Control */}
+          <div className="hidden md:flex items-center gap-2">
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] opacity-40">
+              Padding
+            </span>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              step="5"
+              value={exportPadding}
+              onChange={(e) => setExportPadding(Number(e.target.value))}
+              className="w-16 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer slider"
+              title={`${exportPadding}px padding`}
+            />
+            <span className="text-[10px] font-semibold opacity-60 min-w-[32px]">
+              {exportPadding}px
+            </span>
+          </div>
         </div>
 
-        {/* Right: Actions (SVG Export + Export dropdown) */}
+        {/* Right: Actions (Multi-page toggle + SVG Export + Export dropdown) */}
         <div className="flex items-center gap-3 shrink-0">
+          {/* Multi-page Preview Toggle */}
+          <button
+            onClick={() => setShowMultiPagePreview(!showMultiPagePreview)}
+            title="Toggle multi-page preview"
+            className={`action-btn ${showMultiPagePreview ? "primary" : "secondary"}`}
+          >
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="9" y1="9" x2="15" y2="9"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+            <span className="hidden xl:inline">
+              {showMultiPagePreview ? "Single Page" : "Multi Page"}
+            </span>
+          </button>
+
           {/* SVG Export button (replaces Enhance button) */}
           <button
             onClick={() => handleExport("SVG")}

@@ -1,5 +1,5 @@
 import * as htmlToImage from "html-to-image";
-import { ExportFormat, ExportSize, Theme } from "../types";
+import { ExportFormat, ExportSize, ExportMode, Theme } from "../types";
 import { paginateHtml } from "../utils/pagination";
 
 /**
@@ -45,10 +45,11 @@ const prepareCloneForSinglePageExport = (
   clone: HTMLElement,
   width: number,
   height: number,
+  padding: number = 40,
 ): void => {
   const originalPadding =
     getComputedStyle(originalElement).getPropertyValue("--theme-padding") ||
-    "4rem";
+    `${padding}px`;
 
   Object.assign(clone.style, {
     width: `${width}px`,
@@ -63,6 +64,114 @@ const prepareCloneForSinglePageExport = (
 };
 
 /**
+ * Creates a continuous export by rendering the entire content as one tall image.
+ */
+const createContinuousExport = async (
+  element: HTMLElement,
+  fileName: string,
+  width: number,
+  height: number,
+  padding: number,
+  backgroundColor: string,
+): Promise<void> => {
+  const sandbox = createSandbox();
+  
+  try {
+    const container = document.createElement("div");
+    Object.assign(container.style, {
+      width: `${width}px`,
+      height: "auto",
+      padding: `${padding}px`,
+      margin: "0",
+      display: "block",
+      boxSizing: "border-box",
+      backgroundColor,
+    });
+
+    const contentClone = element.cloneNode(true) as HTMLElement;
+    Object.assign(contentClone.style, {
+      width: "100%",
+      height: "auto",
+      margin: "0",
+      padding: "0",
+      transform: "none",
+    });
+
+    container.appendChild(contentClone);
+    sandbox.appendChild(container);
+
+    await (document as any).fonts?.ready;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const dataUrl = await htmlToImage.toPng(container, {
+      quality: 1.0,
+      pixelRatio: 2,
+      backgroundColor,
+    });
+
+    downloadFile(dataUrl, `${fileName}-continuous.png`);
+  } finally {
+    document.body.removeChild(sandbox);
+  }
+};
+
+/**
+ * Creates a square export by cropping or resizing the content.
+ */
+const createSquareExport = async (
+  element: HTMLElement,
+  fileName: string,
+  width: number,
+  height: number,
+  padding: number,
+  backgroundColor: string,
+): Promise<void> => {
+  const sandbox = createSandbox();
+  
+  try {
+    const container = document.createElement("div");
+    const squareSize = Math.min(width, height);
+    
+    Object.assign(container.style, {
+      width: `${squareSize}px`,
+      height: `${squareSize}px`,
+      padding: `${padding}px`,
+      margin: "0",
+      display: "block",
+      boxSizing: "border-box",
+      backgroundColor,
+      overflow: "hidden",
+    });
+
+    const contentClone = element.cloneNode(true) as HTMLElement;
+    Object.assign(contentClone.style, {
+      width: "100%",
+      height: "100%",
+      margin: "0",
+      padding: "0",
+      transform: "none",
+      objectFit: "contain",
+    });
+
+    container.appendChild(contentClone);
+    sandbox.appendChild(container);
+
+    await (document as any).fonts?.ready;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const dataUrl = await htmlToImage.toPng(container, {
+      quality: 1.0,
+      pixelRatio: 2,
+      backgroundColor,
+    });
+
+    downloadFile(dataUrl, `${fileName}-square.png`);
+  } finally {
+    document.body.removeChild(sandbox);
+  }
+};
+
+/**
  * Downloads a file from a data URL.
  */
 const downloadFile = (dataUrl: string, name: string): void => {
@@ -74,7 +183,7 @@ const downloadFile = (dataUrl: string, name: string): void => {
 
 /**
  * Exports the provided element to the specified format (PNG, SVG).
- * Handles both single-page and multi-page exports.
+ * Handles both single-page and multi-page exports with configurable padding and modes.
  */
 export const exportPreview = async (
   element: HTMLElement,
@@ -82,6 +191,8 @@ export const exportPreview = async (
   size: ExportSize,
   fileName: string,
   theme: Theme, // The active theme is now required for pagination
+  padding: number = 40, // Default padding
+  mode: ExportMode = "PAGES", // Default to pages mode
 ): Promise<void> => {
   if (!element) return;
 
@@ -96,11 +207,12 @@ export const exportPreview = async (
   const sandbox = createSandbox();
   try {
     const { width, height } = getExportDimensions(size);
+    const backgroundColor = getComputedStyle(element).backgroundColor;
 
     // SVG is always single-page and uses a simplified export path.
     if (format === "SVG") {
       const clone = element.cloneNode(true) as HTMLElement;
-      prepareCloneForSinglePageExport(element, clone, width, height);
+      prepareCloneForSinglePageExport(element, clone, width, height, padding);
       sandbox.appendChild(clone);
 
       await (document as any).fonts?.ready;
@@ -109,57 +221,87 @@ export const exportPreview = async (
       const dataUrl = await htmlToImage.toSvg(clone, {
         quality: 1.0,
         pixelRatio: 1,
-        backgroundColor: getComputedStyle(element).backgroundColor,
+        backgroundColor,
       });
       downloadFile(dataUrl, `${fileName}.svg`);
       return;
     }
 
-    // For PNG, use the new pagination utility.
+    // Handle PNG exports with different modes
     if (format === "PNG") {
-      const pages = await paginateHtml(
-        originalContent.innerHTML,
-        width,
-        height,
-        theme,
-      );
+      switch (mode) {
+        case "CONTINUOUS":
+          // Export as one continuous tall image
+          await createContinuousExport(
+            originalContent,
+            fileName,
+            width,
+            height,
+            padding,
+            backgroundColor,
+          );
+          break;
+          
+        case "SQUARE":
+          // Export as a square image
+          await createSquareExport(
+            originalContent,
+            fileName,
+            width,
+            height,
+            padding,
+            backgroundColor,
+          );
+          break;
+          
+        case "PAGES":
+        default:
+          // Original paginated export (multiple page PNGs)
+          const pages = await paginateHtml(
+            originalContent.innerHTML,
+            width,
+            height,
+            theme,
+          );
 
-      for (let i = 0; i < pages.length; i++) {
-        const pageHtml = pages[i];
+          for (let i = 0; i < pages.length; i++) {
+            const pageHtml = pages[i];
 
-        // Create a container for the page that matches the preview canvas styles.
-        const pageContainer = document.createElement("div");
-        pageContainer.className = element.className;
-        pageContainer.style.cssText = element.style.cssText;
+            // Create a container for the page that matches the preview canvas styles.
+            const pageContainer = document.createElement("div");
+            pageContainer.className = element.className;
+            pageContainer.style.cssText = element.style.cssText;
 
-        Object.assign(pageContainer.style, {
-          width: `${width}px`,
-          height: `${height}px`,
-          padding: "0", // Padding is part of the paginated content now
-          margin: "0",
-          display: "block",
-          overflow: "hidden", // Important for the CSS transform trick
-        });
+            Object.assign(pageContainer.style, {
+              width: `${width}px`,
+              height: `${height}px`,
+              padding: `${padding}px`, // Apply configurable padding
+              margin: "0",
+              display: "block",
+              overflow: "hidden",
+            });
 
-        pageContainer.innerHTML = pageHtml;
-        sandbox.appendChild(pageContainer);
+            pageContainer.innerHTML = pageHtml;
+            sandbox.appendChild(pageContainer);
 
-        await (document as any).fonts?.ready;
-        await new Promise((resolve) => setTimeout(resolve, 200));
+            await (document as any).fonts?.ready;
+            await new Promise((resolve) => setTimeout(resolve, 200));
 
-        const dataUrl = await htmlToImage.toPng(pageContainer, {
-          quality: 1.0,
-          pixelRatio: 2, // Higher pixel ratio for sharper images
-          backgroundColor: getComputedStyle(element).backgroundColor,
-        });
+            const dataUrl = await htmlToImage.toPng(pageContainer, {
+              quality: 1.0,
+              pixelRatio: 2, // Higher pixel ratio for sharper images
+              backgroundColor,
+            });
 
-        const pageFileName =
-          pages.length > 1
-            ? `${fileName}-page-${i + 1}.png`
-            : `${fileName}.png`;
-        downloadFile(dataUrl, pageFileName);
+            const pageFileName =
+              pages.length > 1
+                ? `${fileName}-page-${i + 1}.png`
+                : `${fileName}.png`;
+            downloadFile(dataUrl, pageFileName);
 
-        sandbox.removeChild(pageContainer); // Clean up after each page
+            sandbox.removeChild(pageContainer); // Clean up after each page
+          }
+          break;
       }
     }
   } catch (error: any) {

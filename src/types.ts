@@ -1,6 +1,7 @@
 
 export type ExportFormat = 'PNG' | 'SVG';
 export type ExportSize = 'SQUARE' | 'A4' | 'CUSTOM';
+export type ExportMode = 'PAGES' | 'CONTINUOUS' | 'SQUARE';
 
 export interface Theme {
   id: string;
@@ -26,4 +27,13 @@ export interface AppState {
   exportSize: ExportSize;
   customWidth?: number;
   customHeight?: number;
+  exportPadding?: number;
+  exportMode?: ExportMode;
+}
+
+export interface ExportOptions {
+  format: ExportFormat;
+  size: ExportSize;
+  padding: number;
+  mode: ExportMode;
 }

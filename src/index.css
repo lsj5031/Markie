@@ -702,3 +702,58 @@ button:not(:disabled):active {
     font-family: 'JetBrains Mono', monospace;
     color: var(--studio-muted);
 }
+
+/* ============================================
+   Slider Component Styles
+============================================ */
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.slider::-webkit-slider-track {
+    background: var(--studio-border);
+    height: 4px;
+    border-radius: 2px;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--studio-accent);
+    border: 2px solid var(--studio-surface);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    background: var(--studio-tertiary);
+    transform: scale(1.1);
+}
+
+.slider::-moz-range-track {
+    background: var(--studio-border);
+    height: 4px;
+    border-radius: 2px;
+    border: none;
+}
+
+.slider::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--studio-accent);
+    border: 2px solid var(--studio-surface);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+    background: var(--studio-tertiary);
+    transform: scale(1.1);
+}
