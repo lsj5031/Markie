@@ -73,6 +73,9 @@ export const exportPreview = async (
       pixelRatio: 2, // 2x for retina-like quality
       cacheBust: true,
       backgroundColor: getComputedStyle(element).backgroundColor,
+      // Skip embedding external fonts to avoid CORS issues with Google Fonts
+      // Fonts will still render correctly from the page's CSS
+      skipFonts: true,
       // Pass the computed styles explicitly if needed
       style: {
         transform: 'scale(1)',
