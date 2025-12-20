@@ -1,5 +1,5 @@
 
-export type ExportFormat = 'PNG' | 'SVG' | 'PDF';
+export type ExportFormat = 'PNG' | 'SVG';
 export type ExportSize = 'SQUARE' | 'A4' | 'CUSTOM';
 
 export interface Theme {
