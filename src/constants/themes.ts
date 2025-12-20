@@ -107,12 +107,12 @@ export const THEMES: Theme[] = [
       headingFont: "'Inter', sans-serif",
       backgroundColor: '#ffffff',
       textColor: '#000000',
-      accentColor: '#ffffff',
+      accentColor: '#000000',
       codeBackground: '#f0f0f0',
       borderRadius: '0px',
-      containerPadding: '3rem',
+      containerPadding: '4rem',
       border: '3px solid #000',
-      shadow: '10px 10px 0px #000'
+      shadow: '6px 6px 0px #000'
     }
   }
 ];

@@ -39,6 +39,14 @@ const App: React.FC = () => {
     localStorage.setItem('lumina_project', projectName);
   }, [markdown, themeId, projectName]);
 
+  // Auto-scroll to active theme in sidebar on mount
+  useEffect(() => {
+    const activeCard = document.querySelector('.theme-card[data-active="true"]');
+    if (activeCard) {
+      activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, []); // Only on mount
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
@@ -280,20 +288,29 @@ const App: React.FC = () => {
             boxShadow: 'inset -8px 0 20px rgba(26, 26, 27, 0.02)'
           }}
         >
-          {/* Sidebar header */}
-          <div className="px-5 py-4 border-b-2" style={{ borderColor: 'rgba(26,26,27,0.1)' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2" style={{ backgroundColor: 'var(--studio-accent)' }} />
-                <p className="text-[11px] font-black uppercase tracking-[0.15em]" style={{ color: 'var(--studio-text)' }}>Design Systems</p>
+          {/* Sidebar Toggle Button - now inside sidebar, anchored to right edge */}
+          <button
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="sidebar-toggle hidden xl:flex"
+            title={isSidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
+          >
+            <Icons.ChevronLeft />
+          </button>
+
+          {/* Sidebar header - with proper flex layout to prevent clipping */}
+          <div className="sidebar-header">
+            <div className="sidebar-header-content">
+              <div className="sidebar-header-left">
+                <div className="w-2 h-2 shrink-0" style={{ backgroundColor: 'var(--studio-accent)' }} />
+                <p className="text-[11px] font-black uppercase tracking-[0.15em] truncate" style={{ color: 'var(--studio-text)' }}>Design Systems</p>
               </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5" style={{ backgroundColor: 'rgba(235, 59, 90, 0.1)', color: 'var(--studio-accent)' }}>
-                {THEMES.length}
+              <span className="sidebar-header-badge">
+                {THEMES.length} Themes
               </span>
             </div>
           </div>
 
-          {/* Theme list with redesigned cards */}
+          {/* Theme list with redesigned cards - auto-scrolls to active theme */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {THEMES.map(t => {
               const isActive = themeId === t.id;
@@ -301,6 +318,7 @@ const App: React.FC = () => {
                 <button
                   key={t.id}
                   onClick={() => setThemeId(t.id)}
+                  data-active={isActive}
                   className={`theme-card w-full text-left ${isActive ? 'active' : ''}`}
                 >
                   {/* Horizontal color swatch strip */}
@@ -333,15 +351,16 @@ const App: React.FC = () => {
           </div>
         </aside>
 
-        {/* Sidebar Toggle Button */}
-        <button
-          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          className={`sidebar-toggle hidden xl:flex ${isSidebarCollapsed ? 'collapsed' : ''}`}
-          style={{ left: isSidebarCollapsed ? 0 : '320px' }}
-          title={isSidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
-        >
-          {isSidebarCollapsed ? <Icons.ChevronRight /> : <Icons.ChevronLeft />}
-        </button>
+        {/* Collapsed sidebar toggle - positioned at left edge when collapsed */}
+        {isSidebarCollapsed && (
+          <button
+            onClick={() => setIsSidebarCollapsed(false)}
+            className="sidebar-toggle collapsed hidden xl:flex"
+            title="Show sidebar"
+          >
+            <Icons.ChevronRight />
+          </button>
+        )}
 
         {/* Center Pane: Editor with dynamic width */}
         <section
@@ -401,16 +420,24 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto p-12 lg:p-16 flex justify-center items-start scroll-smooth" style={{ backgroundColor: 'var(--studio-bg)' }}>
-            {/* The Actual Designer Canvas - with drop shadow instead of dots */}
+          {/* Preview container with centered canvas and fit-to-width logic */}
+          <div
+            className="flex-1 overflow-auto scroll-smooth flex items-start justify-center"
+            style={{
+              backgroundColor: 'var(--studio-bg)',
+              padding: '32px',
+              minHeight: '100%',
+            }}
+          >
+            {/* The Actual Designer Canvas - paper sheet simulation with fit-to-width */}
             <div
               ref={previewRef}
               id="designer-canvas"
-              className={`canvas-shadow transition-all duration-500 ease-in-out overflow-hidden`}
+              className="canvas-shadow transition-all duration-500 ease-in-out overflow-hidden"
               style={{
                 ...themeVars,
-                width: '100%',
-                maxWidth: '650px',
+                width: '90%',
+                maxWidth: '800px',
                 aspectRatio: exportSize === 'A4' ? '1 / 1.414' : '1 / 1',
                 backgroundColor: 'var(--theme-bg)',
                 color: 'var(--theme-text)',
@@ -420,9 +447,11 @@ const App: React.FC = () => {
                 border: 'var(--theme-border)',
                 boxShadow: 'var(--theme-shadow)',
                 position: 'relative',
+                margin: '0 auto',
+                flexShrink: 0,
               }}
             >
-              {/* Internal styling scoped to theme variables */}
+              {/* Internal styling scoped to theme variables - with proper code block contrast */}
               <style dangerouslySetInnerHTML={{
                 __html: `
                   #preview-content h1, #preview-content h2, #preview-content h3 { 
@@ -431,12 +460,33 @@ const App: React.FC = () => {
                     opacity: 1;
                     color: inherit;
                   }
-                  #preview-content pre { background: var(--theme-code-bg); color: inherit; opacity: 0.95; }
-                  #preview-content code { background: var(--theme-code-bg); color: var(--theme-accent); }
+                  #preview-content pre { 
+                    background: #1e1e2e; 
+                    color: #cdd6f4; 
+                    padding: 1.25em;
+                    border-radius: 4px;
+                    border: 1px solid #313244;
+                    overflow-x: auto;
+                  }
+                  #preview-content pre code { 
+                    background: transparent; 
+                    color: inherit; 
+                    padding: 0;
+                    border: none;
+                  }
+                  #preview-content code { 
+                    background: rgba(0,0,0,0.08); 
+                    color: var(--theme-accent); 
+                    padding: 0.15em 0.4em;
+                    border-radius: 3px;
+                    font-size: 0.9em;
+                  }
                   #preview-content a { color: var(--theme-accent); border-bottom: 1px solid var(--theme-accent); text-decoration: none; }
-                  #preview-content strong { color: var(--theme-accent); font-weight: 800; }
+                  #preview-content strong { color: var(--theme-accent); font-weight: 700; }
                   #preview-content hr { border-color: var(--theme-text); opacity: 0.15; }
-                  .markdown-body ul li::marker { color: var(--theme-accent); }
+                  #preview-content ul li::marker, #preview-content ol li::marker { color: var(--theme-accent); }
+                  #preview-content ol { list-style-type: decimal; padding-left: 1.5em; }
+                  #preview-content ul { list-style-type: disc; padding-left: 1.5em; }
                ` }} />
 
               <div
