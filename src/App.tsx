@@ -360,13 +360,10 @@ const App: React.FC = () => {
               {[
                 { value: "PAGES", label: "Pages" },
                 { value: "CONTINUOUS", label: "Long" },
-                { value: "SQUARE", label: "Square" }
               ].map((mode) => (
                 <button
                   key={mode.value}
-                  onClick={() =>
-                    setExportMode(mode.value as ExportMode)
-                  }
+                  onClick={() => setExportMode(mode.value as ExportMode)}
                   className={`segmented-option ${exportMode === mode.value ? "active" : ""}`}
                 >
                   {mode.label}
@@ -413,9 +410,9 @@ const App: React.FC = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <line x1="9" y1="9" x2="15" y2="9"/>
-              <line x1="9" y1="15" x2="15" y2="15"/>
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <line x1="9" y1="9" x2="15" y2="9" />
+              <line x1="9" y1="15" x2="15" y2="15" />
             </svg>
             <span className="hidden xl:inline">
               {showMultiPagePreview ? "Single Page" : "Multi Page"}

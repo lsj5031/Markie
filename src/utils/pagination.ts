@@ -1,6 +1,31 @@
 import { Theme } from "../types";
 
 /**
+ * Corresponds to the A4 aspect ratio for height calculation
+ */
+const A4_ASPECT_RATIO = 1.414;
+
+/**
+ * Corresponds to the square aspect ratio
+ */
+const SQUARE_ASPECT_RATIO = 1.0;
+
+/**
+ * Calculates dimensions based on export size
+ */
+const getDimensions = (
+  exportSize: string,
+): { width: number; height: number } => {
+  const baseWidth = 800; // Base width for pagination calculations
+  const width = baseWidth;
+  const height =
+    exportSize === "A4"
+      ? Math.round(width * A4_ASPECT_RATIO)
+      : Math.round(width * SQUARE_ASPECT_RATIO);
+  return { width, height };
+};
+
+/**
  * Creates a promise that resolves when an iframe has loaded and its content is ready.
  */
 const iframeReady = (iframe: HTMLIFrameElement): Promise<void> =>
@@ -25,7 +50,7 @@ const iframeReady = (iframe: HTMLIFrameElement): Promise<void> =>
  * @returns An object containing the iframe, the content wrapper, and calculated dimensions.
  */
 const createMeasurementIframe = async (
-  pageWidth: number,
+  exportSize: string,
   theme: Theme,
   renderedHtml: string,
 ): Promise<{
@@ -34,12 +59,14 @@ const createMeasurementIframe = async (
   totalHeight: number;
   paddingTop: number;
 }> => {
+  const { width, height } = getDimensions(exportSize);
+
   const iframe = document.createElement("iframe");
   Object.assign(iframe.style, {
     position: "absolute",
     left: "-9999px", // Position off-screen
     top: "-9999px",
-    width: `${pageWidth}px`,
+    width: `${width}px`,
     height: "auto", // Auto height to measure full scrollHeight
     border: "none",
   });
@@ -60,13 +87,29 @@ const createMeasurementIframe = async (
             *, *::before, *::after { box-sizing: border-box; }
             body { margin: 0; font-family: ${theme.styles.fontFamily}; color: ${
               theme.styles.textColor
-            }; }
+            }; background-color: ${theme.styles.backgroundColor}; }
             .content-wrapper { padding: ${
               theme.styles.containerPadding
             }; width: 100%; }
-            h1, h2, h3 { font-family: ${theme.styles.headingFont}; }
+            h1, h2, h3 { font-family: ${theme.styles.headingFont}; color: ${
+              theme.styles.textColor
+            }; }
             img, svg { max-width: 100%; height: auto; display: block; }
             pre, code { white-space: pre-wrap; word-break: break-word; }
+            pre { background: ${theme.styles.codeBackground}; color: ${
+              theme.styles.textColor
+            }; padding: 1.25em; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); overflow-x: auto; }
+            code { background: rgba(0,0,0,0.08); color: ${
+              theme.styles.accentColor
+            }; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+            a { color: ${theme.styles.accentColor}; border-bottom: 1px solid ${
+              theme.styles.accentColor
+            }; text-decoration: none; }
+            strong { color: ${theme.styles.accentColor}; font-weight: 700; }
+            hr { border-color: ${theme.styles.textColor}; opacity: 0.15; }
+            ul li::marker, ol li::marker { color: ${theme.styles.accentColor}; }
+            ol { list-style-type: decimal; padding-left: 1.5em; }
+            ul { list-style-type: disc; padding-left: 1.5em; }
           </style>
         </head>
         <body><div class="content-wrapper"></div></body>
@@ -116,15 +159,13 @@ const createMeasurementIframe = async (
  * This method uses CSS transforms to "scroll" the content within a fixed-size container for each page.
  *
  * @param renderedHtml - The HTML string to paginate.
- * @param pageWidth - The width of the page.
- * @param pageHeight - The height of the page.
+ * @param exportSize - The target size format ('A4' or 'Square').
  * @param theme - The active theme.
  * @returns A promise that resolves to an array of HTML strings, each representing a page.
  */
 export const paginateHtml = async (
   renderedHtml: string,
-  pageWidth: number,
-  pageHeight: number,
+  exportSize: string,
   theme: Theme,
 ): Promise<string[]> => {
   let iframe: HTMLIFrameElement | null = null;
@@ -135,19 +176,30 @@ export const paginateHtml = async (
       contentWrapper,
       totalHeight,
       paddingTop,
-    } = await createMeasurementIframe(pageWidth, theme, renderedHtml);
+    } = await createMeasurementIframe(exportSize, theme, renderedHtml);
     iframe = measurementIframe;
 
-    const usablePageHeight = pageHeight - paddingTop * 2;
-
-    // If content fits on one page, no need to paginate.
-    if (totalHeight <= usablePageHeight) {
-      return [contentWrapper.innerHTML];
-    }
+    const { width, height } = getDimensions(exportSize);
+    const usablePageHeight = height - paddingTop * 2;
 
     const pages: string[] = [];
     const fullContentHtml = contentWrapper.innerHTML;
-    const numPages = Math.ceil(totalHeight / usablePageHeight);
+
+    let numPages = Math.ceil(totalHeight / usablePageHeight);
+
+    // If the last page is exceedingly small, it's likely a measurement artifact.
+    if (numPages > 1) {
+      const lastPageHeight = totalHeight - (numPages - 1) * usablePageHeight;
+      if (lastPageHeight < 5) {
+        // 5px threshold
+        numPages--;
+      }
+    }
+
+    // Ensure at least one page for content that exists.
+    if (totalHeight > 0 && numPages === 0) {
+      numPages = 1;
+    }
 
     for (let i = 0; i < numPages; i++) {
       const yOffset = -(i * usablePageHeight);

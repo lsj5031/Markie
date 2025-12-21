@@ -10,6 +10,7 @@ export const SinglePageViewer: React.FC<SinglePageViewerProps> = ({
   return (
     <div
       id="preview-content"
+      style={{ overflowY: "auto", height: "100%" }}
       dangerouslySetInnerHTML={{ __html: htmlContent }}
     />
   );

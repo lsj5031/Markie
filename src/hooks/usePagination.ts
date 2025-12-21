@@ -36,9 +36,7 @@ export const usePagination = (
   const dimensions = useMemo(() => {
     const width = PAGINATION_BASE_WIDTH;
     const height =
-      exportSize === "A4"
-        ? Math.round(width * A4_ASPECT_RATIO)
-        : width;
+      exportSize === "A4" ? Math.round(width * A4_ASPECT_RATIO) : width;
     return { width, height };
   }, [exportSize]);
 
@@ -54,8 +52,7 @@ export const usePagination = (
       try {
         const paginatedPages = await paginateHtml(
           htmlContent,
-          dimensions.width,
-          dimensions.height,
+          exportSize,
           theme,
         );
         setPages(paginatedPages);

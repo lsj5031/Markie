@@ -37,6 +37,32 @@ const getExportDimensions = (
 };
 
 /**
+ * Applies theme styles to an element
+ */
+const applyThemeStyles = (element: HTMLElement, theme: Theme): void => {
+  Object.assign(element.style, {
+    fontFamily: theme.styles.fontFamily,
+    color: theme.styles.textColor,
+    backgroundColor: theme.styles.backgroundColor,
+  });
+
+  // Add internal styling for markdown elements
+  const style = document.createElement("style");
+  style.textContent = `
+    h1, h2, h3 { font-family: ${theme.styles.headingFont}; color: ${theme.styles.textColor}; }
+    pre { background: ${theme.styles.codeBackground}; color: ${theme.styles.textColor}; padding: 1.25em; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); overflow-x: auto; }
+    code { background: rgba(0,0,0,0.08); color: ${theme.styles.accentColor}; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    a { color: ${theme.styles.accentColor}; border-bottom: 1px solid ${theme.styles.accentColor}; text-decoration: none; }
+    strong { color: ${theme.styles.accentColor}; font-weight: 700; }
+    hr { border-color: ${theme.styles.textColor}; opacity: 0.15; }
+    ul li::marker, ol li::marker { color: ${theme.styles.accentColor}; }
+    ol { list-style-type: decimal; padding-left: 1.5em; }
+    ul { list-style-type: disc; padding-left: 1.5em; }
+  `;
+  element.appendChild(style);
+};
+
+/**
  * Prepares a cloned element for single-page export.
  * This function ensures the clone has the correct dimensions and styles.
  */
@@ -46,6 +72,7 @@ const prepareCloneForSinglePageExport = (
   width: number,
   height: number,
   padding: number = 40,
+  theme: Theme,
 ): void => {
   const originalPadding =
     getComputedStyle(originalElement).getPropertyValue("--theme-padding") ||
@@ -61,6 +88,9 @@ const prepareCloneForSinglePageExport = (
     display: "block",
     boxSizing: "border-box",
   });
+
+  // Apply theme styles to the clone
+  applyThemeStyles(clone, theme);
 };
 
 /**
@@ -73,9 +103,10 @@ const createContinuousExport = async (
   height: number,
   padding: number,
   backgroundColor: string,
+  theme: Theme,
 ): Promise<void> => {
   const sandbox = createSandbox();
-  
+
   try {
     const container = document.createElement("div");
     Object.assign(container.style, {
@@ -100,6 +131,9 @@ const createContinuousExport = async (
     container.appendChild(contentClone);
     sandbox.appendChild(container);
 
+    // Apply theme styles to the continuous export
+    applyThemeStyles(container, theme);
+
     await (document as any).fonts?.ready;
     await new Promise((resolve) => setTimeout(resolve, 200));
 
@@ -110,62 +144,6 @@ const createContinuousExport = async (
     });
 
     downloadFile(dataUrl, `${fileName}-continuous.png`);
-  } finally {
-    document.body.removeChild(sandbox);
-  }
-};
-
-/**
- * Creates a square export by cropping or resizing the content.
- */
-const createSquareExport = async (
-  element: HTMLElement,
-  fileName: string,
-  width: number,
-  height: number,
-  padding: number,
-  backgroundColor: string,
-): Promise<void> => {
-  const sandbox = createSandbox();
-  
-  try {
-    const container = document.createElement("div");
-    const squareSize = Math.min(width, height);
-    
-    Object.assign(container.style, {
-      width: `${squareSize}px`,
-      height: `${squareSize}px`,
-      padding: `${padding}px`,
-      margin: "0",
-      display: "block",
-      boxSizing: "border-box",
-      backgroundColor,
-      overflow: "hidden",
-    });
-
-    const contentClone = element.cloneNode(true) as HTMLElement;
-    Object.assign(contentClone.style, {
-      width: "100%",
-      height: "100%",
-      margin: "0",
-      padding: "0",
-      transform: "none",
-      objectFit: "contain",
-    });
-
-    container.appendChild(contentClone);
-    sandbox.appendChild(container);
-
-    await (document as any).fonts?.ready;
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    const dataUrl = await htmlToImage.toPng(container, {
-      quality: 1.0,
-      pixelRatio: 2,
-      backgroundColor,
-    });
-
-    downloadFile(dataUrl, `${fileName}-square.png`);
   } finally {
     document.body.removeChild(sandbox);
   }
@@ -212,7 +190,14 @@ export const exportPreview = async (
     // SVG is always single-page and uses a simplified export path.
     if (format === "SVG") {
       const clone = element.cloneNode(true) as HTMLElement;
-      prepareCloneForSinglePageExport(element, clone, width, height, padding);
+      prepareCloneForSinglePageExport(
+        element,
+        clone,
+        width,
+        height,
+        padding,
+        theme,
+      );
       sandbox.appendChild(clone);
 
       await (document as any).fonts?.ready;
@@ -239,28 +224,16 @@ export const exportPreview = async (
             height,
             padding,
             backgroundColor,
+            theme,
           );
           break;
-          
-        case "SQUARE":
-          // Export as a square image
-          await createSquareExport(
-            originalContent,
-            fileName,
-            width,
-            height,
-            padding,
-            backgroundColor,
-          );
-          break;
-          
+
         case "PAGES":
         default:
           // Original paginated export (multiple page PNGs)
           const pages = await paginateHtml(
             originalContent.innerHTML,
-            width,
-            height,
+            size,
             theme,
           );
 
@@ -283,6 +256,9 @@ export const exportPreview = async (
 
             pageContainer.innerHTML = pageHtml;
             sandbox.appendChild(pageContainer);
+
+            // Apply theme styles to each page
+            applyThemeStyles(pageContainer, theme);
 
             await (document as any).fonts?.ready;
             await new Promise((resolve) => setTimeout(resolve, 200));
