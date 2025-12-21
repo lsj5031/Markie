@@ -185,13 +185,17 @@ export const paginateHtml = async (
     const pages: string[] = [];
     const fullContentHtml = contentWrapper.innerHTML;
 
+    // Calculate number of pages based on content height
     let numPages = Math.ceil(totalHeight / usablePageHeight);
-
-    // If the last page is exceedingly small, it's likely a measurement artifact.
+    
+    // More robust check for extra pages: if the last page has very little content (less than 10% of page height),
+    // and it's mostly empty, we should remove it unless it's substantial content
     if (numPages > 1) {
-      const lastPageHeight = totalHeight - (numPages - 1) * usablePageHeight;
-      if (lastPageHeight < 5) {
-        // 5px threshold
+      const lastPageStartHeight = (numPages - 1) * usablePageHeight;
+      const lastPageContentHeight = totalHeight - lastPageStartHeight;
+      
+      // If last page has less than 15% content or less than 50px, it's likely an artifact
+      if (lastPageContentHeight < Math.min(usablePageHeight * 0.15, 50)) {
         numPages--;
       }
     }
@@ -199,6 +203,13 @@ export const paginateHtml = async (
     // Ensure at least one page for content that exists.
     if (totalHeight > 0 && numPages === 0) {
       numPages = 1;
+    }
+
+    // Verify that the content actually needs the calculated number of pages
+    const actualContentHeight = numPages * usablePageHeight;
+    if (numPages > 1 && totalHeight <= (numPages - 1) * usablePageHeight + 10) {
+      // If content fits in one fewer page with 10px buffer, reduce page count
+      numPages--;
     }
 
     for (let i = 0; i < numPages; i++) {

@@ -728,7 +728,11 @@ const App: React.FC = () => {
                   exportSize={exportSize}
                 />
               ) : (
-                <SinglePageViewer htmlContent={renderedHtml} />
+                <SinglePageViewer 
+                  htmlContent={renderedHtml}
+                  theme={activeTheme}
+                  exportSize={exportSize}
+                />
               )}
             </div>
           </div>
