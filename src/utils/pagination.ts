@@ -217,9 +217,10 @@ export const paginateHtml = async (
 
       // Each page is a div that contains the *full* content,
       // but the content is shifted using a transform to show the correct "slice".
+      // Fix: Ensure each page has consistent height and proper overflow handling
       const pageHtml = `
-        <div style="width: 100%; height: 100%; overflow: hidden; position: relative;">
-          <div style="position: absolute; width: 100%; transform: translateY(${yOffset}px);">
+        <div style="width: 100%; height: ${usablePageHeight}px; overflow: hidden; position: relative; box-sizing: border-box;">
+          <div style="position: absolute; width: 100%; transform: translateY(${yOffset}px); top: 0; left: 0;">
             ${fullContentHtml}
           </div>
         </div>
