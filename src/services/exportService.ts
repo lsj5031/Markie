@@ -1,5 +1,5 @@
 import * as htmlToImage from "html-to-image";
-import { ExportFormat, ExportSize, Theme } from "../types";
+import { ExportFormat, ExportSize, ExportMode, Theme } from "../types";
 import { paginateHtml } from "../utils/pagination";
 
 /**
@@ -37,29 +37,429 @@ const getExportDimensions = (
 };
 
 /**
- * Prepares a cloned element for single-page export.
- * This function ensures the clone has the correct dimensions and styles.
+ * Applies theme styles to an element with comprehensive markdown styling
  */
-const prepareCloneForSinglePageExport = (
-  originalElement: HTMLElement,
-  clone: HTMLElement,
+const applyThemeStyles = (element: HTMLElement, theme: Theme): void => {
+  // Apply base styles
+  Object.assign(element.style, {
+    fontFamily: theme.styles.fontFamily,
+    color: theme.styles.textColor,
+    backgroundColor: theme.styles.backgroundColor,
+    lineHeight: "1.6",
+    fontSize: "14px",
+    margin: "0",
+    padding: "0",
+  });
+
+  // Remove any existing style tags to avoid conflicts
+  const existingStyles = element.querySelectorAll('style[data-export="true"]');
+  existingStyles.forEach(style => style.remove());
+
+  // Add comprehensive internal styling for markdown elements
+  const style = document.createElement("style");
+  style.setAttribute("data-export", "true");
+  style.textContent = `
+    * { box-sizing: border-box; }
+    
+    body { 
+      font-family: ${theme.styles.fontFamily} !important;
+      color: ${theme.styles.textColor} !important;
+      background-color: ${theme.styles.backgroundColor} !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1.6 !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6 { 
+      font-family: ${theme.styles.headingFont} !important; 
+      color: ${theme.styles.textColor} !important;
+      margin: 1.5rem 0 1rem 0 !important;
+      font-weight: 700 !important;
+      line-height: 1.3 !important;
+    }
+    
+    h1 { font-size: 2rem !important; border-bottom: 2px solid ${theme.styles.accentColor}40; }
+    h2 { font-size: 1.75rem !important; }
+    h3 { font-size: 1.5rem !important; }
+    h4 { font-size: 1.25rem !important; }
+    
+    p { 
+      margin: 1rem 0 !important;
+      color: ${theme.styles.textColor} !important;
+    }
+    
+    pre { 
+      background: ${theme.styles.codeBackground} !important; 
+      color: ${theme.styles.textColor} !important; 
+      padding: 1.25rem !important; 
+      border-radius: 4px !important; 
+      border: 1px solid rgba(0,0,0,0.1) !important; 
+      overflow-x: auto !important;
+      margin: 1.5rem 0 !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.875rem !important;
+      line-height: 1.5 !important;
+    }
+    
+    code { 
+      background: rgba(0,0,0,0.08) !important; 
+      color: ${theme.styles.accentColor} !important; 
+      padding: 0.15rem 0.4rem !important; 
+      border-radius: 3px !important; 
+      font-size: 0.9em !important;
+      font-family: 'JetBrains Mono', monospace !important;
+    }
+    
+    pre code {
+      background: transparent !important;
+      color: inherit !important;
+      padding: 0 !important;
+    }
+    
+    a { 
+      color: ${theme.styles.accentColor} !important; 
+      border-bottom: 1px solid ${theme.styles.accentColor} !important; 
+      text-decoration: none !important;
+    }
+    
+    a:hover {
+      border-bottom-width: 2px !important;
+    }
+    
+    strong { 
+      color: ${theme.styles.accentColor} !important; 
+      font-weight: 700 !important; 
+    }
+    
+    em {
+      color: ${theme.styles.textColor} !important;
+      font-style: italic !important;
+    }
+    
+    hr { 
+      border: none !important;
+      border-top: 1px solid ${theme.styles.textColor}20 !important;
+      margin: 2rem 0 !important;
+    }
+    
+    ul, ol { 
+      margin: 1rem 0 !important;
+      padding-left: 2rem !important;
+    }
+    
+    ul li, ol li {
+      margin: 0.5rem 0 !important;
+      color: ${theme.styles.textColor} !important;
+    }
+    
+    ul li::marker, ol li::marker { 
+      color: ${theme.styles.accentColor} !important;
+    }
+    
+    ol { 
+      list-style-type: decimal !important; 
+    }
+    
+    ul { 
+      list-style-type: disc !important; 
+    }
+    
+    blockquote {
+      border-left: 4px solid ${theme.styles.accentColor} !important;
+      padding-left: 1rem !important;
+      margin: 1.5rem 0 !important;
+      color: ${theme.styles.textColor}80 !important;
+      font-style: italic !important;
+    }
+    
+    table {
+      border-collapse: collapse !important;
+      width: 100% !important;
+      margin: 1.5rem 0 !important;
+    }
+    
+    th, td {
+      border: 1px solid ${theme.styles.textColor}30 !important;
+      padding: 0.75rem !important;
+      text-align: left !important;
+    }
+    
+    th {
+      background-color: ${theme.styles.backgroundColor}80 !important;
+      font-weight: 700 !important;
+      color: ${theme.styles.textColor} !important;
+    }
+    
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+      display: block !important;
+      margin: 1rem 0 !important;
+    }
+  `;
+  element.appendChild(style);
+};
+
+/**
+ * Applies markdown-body specific styles to match the preview appearance.
+ * These styles mirror the CSS rules from index.css for consistent export.
+ */
+const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
+  const style = document.createElement("style");
+  style.textContent = `
+    .markdown-body {
+      line-height: 1.65;
+      color: ${theme.styles.textColor} !important;
+      font-family: ${theme.styles.fontFamily};
+    }
+    .markdown-body h1,
+    .markdown-body h2,
+    .markdown-body h3,
+    .markdown-body h4,
+    .markdown-body h5,
+    .markdown-body h6 {
+      color: ${theme.styles.textColor};
+      font-family: ${theme.styles.headingFont};
+    }
+    .markdown-body p,
+    .markdown-body li,
+    .markdown-body td,
+    .markdown-body blockquote {
+      color: ${theme.styles.textColor};
+    }
+    .markdown-body h1 {
+      font-size: 1.8em;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.5em;
+      letter-spacing: -0.02em;
+    }
+    .markdown-body h2 {
+      font-size: 1.4em;
+      font-weight: 700;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      letter-spacing: -0.01em;
+    }
+    .markdown-body h3 {
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-top: 1.2em;
+      margin-bottom: 0.4em;
+    }
+    .markdown-body p {
+      font-size: 0.95em;
+      margin-bottom: 1.2em;
+    }
+    .markdown-body blockquote {
+      padding-left: 1.5em;
+      border-left: 2px solid ${theme.styles.accentColor};
+      font-style: italic;
+      opacity: 0.8;
+      margin: 2em 0;
+    }
+    .markdown-body pre {
+      padding: 1.5em;
+      border-radius: 0px;
+      overflow-x: auto;
+      margin: 1.5em 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      line-height: 1.6;
+      background: #1e1e2e;
+      border: 2px solid #313244;
+      color: #cdd6f4;
+    }
+    .markdown-body pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+      border: none;
+    }
+    .markdown-body code {
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0.2em 0.5em;
+      border-radius: 2px;
+      font-size: 0.88em;
+      background: #313244;
+      color: #cdd6f4;
+      border: 1px solid #45475a;
+    }
+    .markdown-body a {
+      color: ${theme.styles.accentColor};
+      border-bottom: 1px solid ${theme.styles.accentColor};
+      text-decoration: none;
+    }
+    .markdown-body strong {
+      color: ${theme.styles.accentColor};
+      font-weight: 700;
+    }
+    .markdown-body hr {
+      margin: 3em 0;
+      border: 0;
+      border-top: 1px solid ${theme.styles.textColor};
+      opacity: 0.2;
+    }
+    .markdown-body ul li::marker,
+    .markdown-body ol li::marker {
+      color: ${theme.styles.accentColor};
+    }
+    .markdown-body ol {
+      list-style-type: decimal;
+      padding-left: 1.5em;
+    }
+    .markdown-body ul {
+      list-style-type: disc;
+      padding-left: 1.5em;
+    }
+    .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2em 0;
+    }
+    .markdown-body th,
+    .markdown-body td {
+      border: 2px solid ${theme.styles.accentColor};
+      padding: 1em;
+      text-align: left;
+    }
+    .markdown-body th {
+      font-weight: 700;
+      opacity: 1;
+      background: ${theme.styles.accentColor};
+      color: ${theme.styles.backgroundColor};
+    }
+    .markdown-body img {
+      border-radius: 0px;
+      margin: 2em 0;
+      width: 100%;
+      object-fit: cover;
+      border: 4px solid ${theme.styles.textColor};
+    }
+  `;
+  element.appendChild(style);
+};
+
+/**
+ * Creates a continuous export by rendering the entire content as one tall image.
+ */
+const createContinuousExport = async (
+  element: HTMLElement,
+  fileName: string,
+  width: number,
+  _height: number,
+  padding: number,
+  backgroundColor: string,
+  theme: Theme,
+): Promise<void> => {
+  const sandbox = createSandbox();
+
+  try {
+    const container = document.createElement("div");
+    Object.assign(container.style, {
+      width: `${width}px`,
+      height: "auto",
+      padding: `${padding}px`,
+      margin: "0",
+      display: "block",
+      boxSizing: "border-box",
+      backgroundColor,
+    });
+
+    const contentClone = element.cloneNode(true) as HTMLElement;
+    // Ensure markdown-body class for consistent styling
+    contentClone.classList.add("markdown-body");
+    Object.assign(contentClone.style, {
+      width: "100%",
+      height: "auto",
+      margin: "0",
+      padding: "0",
+      transform: "none",
+      color: theme.styles.textColor,
+      fontFamily: theme.styles.fontFamily,
+    });
+
+    container.appendChild(contentClone);
+    sandbox.appendChild(container);
+
+    // Apply theme styles and markdown-body styles for consistent appearance
+    applyThemeStyles(container, theme);
+    applyMarkdownBodyStyles(container, theme);
+
+    await (document as any).fonts?.ready;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const dataUrl = await htmlToImage.toPng(container, {
+      quality: 1.0,
+      pixelRatio: 2,
+      backgroundColor,
+    });
+
+    downloadFile(dataUrl, `${fileName}-continuous.png`);
+  } finally {
+    document.body.removeChild(sandbox);
+  }
+};
+
+/**
+ * Creates a square export by cropping or resizing the content.
+ */
+const createSquareExport = async (
+  element: HTMLElement,
+  fileName: string,
   width: number,
   height: number,
-): void => {
-  const originalPadding =
-    getComputedStyle(originalElement).getPropertyValue("--theme-padding") ||
-    "4rem";
+  padding: number,
+  backgroundColor: string,
+  theme: Theme,
+): Promise<void> => {
+  const sandbox = createSandbox();
 
-  Object.assign(clone.style, {
-    width: `${width}px`,
-    height: `${height}px`,
-    padding: originalPadding,
-    margin: "0",
-    aspectRatio: "auto",
-    transform: "none",
-    display: "block",
-    boxSizing: "border-box",
-  });
+  try {
+    const squareSize = Math.min(width, height);
+    
+    const container = document.createElement("div");
+    Object.assign(container.style, {
+      width: `${squareSize}px`,
+      height: `${squareSize}px`,
+      padding: `${padding}px`,
+      margin: "0",
+      display: "block",
+      boxSizing: "border-box",
+      backgroundColor,
+      overflow: "hidden",
+    });
+
+    const contentClone = element.cloneNode(true) as HTMLElement;
+    Object.assign(contentClone.style, {
+      width: "100%",
+      height: "100%",
+      margin: "0",
+      padding: "0",
+      transform: "none",
+      objectFit: "contain",
+    });
+
+    container.appendChild(contentClone);
+    sandbox.appendChild(container);
+
+    // Apply theme styles to the square export
+    applyThemeStyles(container, theme);
+
+    await (document as any).fonts?.ready;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const dataUrl = await htmlToImage.toPng(container, {
+      quality: 1.0,
+      pixelRatio: 2,
+      backgroundColor,
+    });
+
+    downloadFile(dataUrl, `${fileName}-square.png`);
+  } finally {
+    document.body.removeChild(sandbox);
+  }
 };
 
 /**
@@ -74,7 +474,7 @@ const downloadFile = (dataUrl: string, name: string): void => {
 
 /**
  * Exports the provided element to the specified format (PNG, SVG).
- * Handles both single-page and multi-page exports.
+ * Handles both single-page and multi-page exports with configurable padding and modes.
  */
 export const exportPreview = async (
   element: HTMLElement,
@@ -82,6 +482,8 @@ export const exportPreview = async (
   size: ExportSize,
   fileName: string,
   theme: Theme, // The active theme is now required for pagination
+  padding: number = 40, // Default padding
+  mode: ExportMode = "PAGES", // Default to pages mode
 ): Promise<void> => {
   if (!element) return;
 
@@ -96,70 +498,132 @@ export const exportPreview = async (
   const sandbox = createSandbox();
   try {
     const { width, height } = getExportDimensions(size);
+    const backgroundColor = getComputedStyle(element).backgroundColor;
 
-    // SVG is always single-page and uses a simplified export path.
+    // SVG export - captures full content without cropping (like continuous mode)
     if (format === "SVG") {
-      const clone = element.cloneNode(true) as HTMLElement;
-      prepareCloneForSinglePageExport(element, clone, width, height);
-      sandbox.appendChild(clone);
+      const container = document.createElement("div");
+      Object.assign(container.style, {
+        width: `${width}px`,
+        height: "auto", // Allow full height to prevent cropping
+        padding: `${padding}px`,
+        margin: "0",
+        display: "block",
+        boxSizing: "border-box",
+        backgroundColor,
+      });
+
+      const contentClone = originalContent.cloneNode(true) as HTMLElement;
+      // Ensure markdown-body class for consistent styling
+      contentClone.classList.add("markdown-body");
+      Object.assign(contentClone.style, {
+        width: "100%",
+        height: "auto",
+        margin: "0",
+        padding: "0",
+        transform: "none",
+        color: theme.styles.textColor,
+        fontFamily: theme.styles.fontFamily,
+      });
+
+      container.appendChild(contentClone);
+      sandbox.appendChild(container);
+
+      // Apply theme and markdown-body styles for consistent appearance
+      applyThemeStyles(container, theme);
+      applyMarkdownBodyStyles(container, theme);
 
       await (document as any).fonts?.ready;
       await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const dataUrl = await htmlToImage.toSvg(clone, {
+      const dataUrl = await htmlToImage.toSvg(container, {
         quality: 1.0,
-        pixelRatio: 1,
-        backgroundColor: getComputedStyle(element).backgroundColor,
+        pixelRatio: 2, // Match PNG quality
+        backgroundColor,
       });
       downloadFile(dataUrl, `${fileName}.svg`);
       return;
     }
 
-    // For PNG, use the new pagination utility.
+    // Handle PNG exports with different modes
     if (format === "PNG") {
-      const pages = await paginateHtml(
-        originalContent.innerHTML,
-        width,
-        height,
-        theme,
-      );
+      switch (mode) {
+        case "CONTINUOUS":
+          // Export as one continuous tall image
+          await createContinuousExport(
+            originalContent,
+            fileName,
+            width,
+            height,
+            padding,
+            backgroundColor,
+            theme,
+          );
+          break;
 
-      for (let i = 0; i < pages.length; i++) {
-        const pageHtml = pages[i];
+        case "SQUARE":
+          // Export as a square image
+          await createSquareExport(
+            originalContent,
+            fileName,
+            width,
+            height,
+            padding,
+            backgroundColor,
+            theme,
+          );
+          break;
 
-        // Create a container for the page that matches the preview canvas styles.
-        const pageContainer = document.createElement("div");
-        pageContainer.className = element.className;
-        pageContainer.style.cssText = element.style.cssText;
+        case "PAGES":
+        default:
+          // Original paginated export (multiple page PNGs)
+          const pages = await paginateHtml(
+            originalContent.innerHTML,
+            size,
+            theme,
+          );
 
-        Object.assign(pageContainer.style, {
-          width: `${width}px`,
-          height: `${height}px`,
-          padding: "0", // Padding is part of the paginated content now
-          margin: "0",
-          display: "block",
-          overflow: "hidden", // Important for the CSS transform trick
-        });
+          for (let i = 0; i < pages.length; i++) {
+            const pageHtml = pages[i];
 
-        pageContainer.innerHTML = pageHtml;
-        sandbox.appendChild(pageContainer);
+            // Create a container for the page that matches the preview canvas styles.
+            const pageContainer = document.createElement("div");
+            pageContainer.className = element.className;
+            pageContainer.style.cssText = element.style.cssText;
 
-        await (document as any).fonts?.ready;
-        await new Promise((resolve) => setTimeout(resolve, 200));
+            Object.assign(pageContainer.style, {
+              width: `${width}px`,
+              height: `${height}px`,
+              padding: `${padding}px`, // Apply configurable padding
+              margin: "0",
+              display: "block",
+              overflow: "hidden",
+            });
 
-        const dataUrl = await htmlToImage.toPng(pageContainer, {
-          quality: 1.0,
-          pixelRatio: 2, // Higher pixel ratio for sharper images
-          backgroundColor: getComputedStyle(element).backgroundColor,
-        });
+            pageContainer.innerHTML = pageHtml;
+            sandbox.appendChild(pageContainer);
 
-        const pageFileName =
-          pages.length > 1
-            ? `${fileName}-page-${i + 1}.png`
-            : `${fileName}.png`;
-        downloadFile(dataUrl, pageFileName);
+            // Apply theme styles to each page
+            applyThemeStyles(pageContainer, theme);
 
-        sandbox.removeChild(pageContainer); // Clean up after each page
+            await (document as any).fonts?.ready;
+            await new Promise((resolve) => setTimeout(resolve, 200));
+
+            const dataUrl = await htmlToImage.toPng(pageContainer, {
+              quality: 1.0,
+              pixelRatio: 2, // Higher pixel ratio for sharper images
+              backgroundColor,
+            });
+
+            const pageFileName =
+              pages.length > 1
+                ? `${fileName}-page-${i + 1}.png`
+                : `${fileName}.png`;
+            downloadFile(dataUrl, pageFileName);
+
+            sandbox.removeChild(pageContainer); // Clean up after each page
+          }
+          break;
       }
     }
   } catch (error: any) {
