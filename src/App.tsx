@@ -142,7 +142,7 @@ const App: React.FC = () => {
   const dividerRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
 
-  const activeTheme = useMemo(
+  const activeTheme: Theme = useMemo(
     () => THEMES.find((t) => t.id === themeId) || THEMES[0],
     [themeId],
   );

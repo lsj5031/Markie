@@ -59,14 +59,14 @@ const createMeasurementIframe = async (
   totalHeight: number;
   paddingTop: number;
 }> => {
-  const { width, height } = getDimensions(exportSize);
+  const { width: _width } = getDimensions(exportSize);
 
   const iframe = document.createElement("iframe");
   Object.assign(iframe.style, {
     position: "absolute",
     left: "-9999px", // Position off-screen
     top: "-9999px",
-    width: `${width}px`,
+    width: `${_width}px`,
     height: "auto", // Auto height to measure full scrollHeight
     border: "none",
   });
@@ -179,7 +179,7 @@ export const paginateHtml = async (
     } = await createMeasurementIframe(exportSize, theme, renderedHtml);
     iframe = measurementIframe;
 
-    const { width, height } = getDimensions(exportSize);
+    const { width: _width, height } = getDimensions(exportSize);
     const usablePageHeight = height - paddingTop * 2;
 
     const pages: string[] = [];
@@ -206,7 +206,7 @@ export const paginateHtml = async (
     }
 
     // Verify that the content actually needs the calculated number of pages
-    const actualContentHeight = numPages * usablePageHeight;
+    const _actualContentHeight = numPages * usablePageHeight;
     if (numPages > 1 && totalHeight <= (numPages - 1) * usablePageHeight + 10) {
       // If content fits in one fewer page with 10px buffer, reduce page count
       numPages--;

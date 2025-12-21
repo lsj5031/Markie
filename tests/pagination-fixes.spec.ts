@@ -93,7 +93,7 @@ function test() {
     await page.click('button:has-text("Single Page")');
     await page.waitForTimeout(500);
     
-    const singlePageScreenshot = await page.screenshot({ 
+    const _singlePageScreenshot = await page.screenshot({ 
       path: 'screenshots/04-single-page-styling.png',
       fullPage: true 
     });
@@ -102,7 +102,7 @@ function test() {
     await page.click('button:has-text("Multi Page")');
     await page.waitForTimeout(500);
     
-    const multiPageScreenshot = await page.screenshot({ 
+    const _multiPageScreenshot = await page.screenshot({ 
       path: 'screenshots/05-multi-page-styling.png',
       fullPage: true 
     });
