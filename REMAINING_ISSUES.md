@@ -1,4 +1,23 @@
-# Lumina Markdown Designer - Resolved Issues
+# Lumina Markdown Designer - Known Issues
+
+## Current Known Issues
+
+### 1. Pagination engine creates an extra page
+- **Status**: 🔴 Unresolved
+- **Description**: In multi-page mode, the pagination logic sometimes creates an extra, mostly empty page at the end of the document. This seems to be caused by inaccuracies in content height calculation (`scrollHeight`).
+-   **Attempts to Fix**:
+    -   An initial attempt was made to subtract a small epsilon from the calculated height before determining the number of pages. This was not sufficient.
+    -   A second attempt involved checking if the content of the last page was below a small pixel threshold (5px) and removing the page if so. This also did not resolve the issue in all cases.
+-   **Next Steps**: A more robust height calculation method may be needed. Investigating alternatives to `scrollHeight`, such as using `getBoundingClientRect` on the last element, or a library that handles this more reliably, could be a next step. The issue is in `src/utils/pagination.ts`.
+
+### 2. Style inconsistency between single-page and multi-page views
+-   **Status**: 🔴 Unresolved
+-   **Description**: The "continuous" (single-page) view and the multi-page view have different styling for the same content. This is because they use different rendering paths. `MultiPageViewer` uses a pagination utility that creates a specific HTML structure, while `SinglePageViewer` renders the HTML more directly.
+-   **Attempts to Fix**:
+    -   An attempt was made to unify the rendering path by removing special cases in the pagination logic.
+    -   An attempt was made to add scrolling to `SinglePageViewer`.
+    -   These changes did not fully resolve the style differences.
+-   **Next Steps**: The HTML structure rendered by `SinglePageViewer` and `MultiPageViewer` needs to be unified. `SinglePageViewer` should probably use the same styling and rendering pipeline as `MultiPageViewer` (without pagination enabled) to ensure consistency. The relevant files are `src/components/SinglePageViewer.tsx`, `src/components/MultiPageViewer.tsx`, and `src/utils/pagination.ts`.
 
 ## Previously Identified Issues - All Resolved ✅
 
@@ -42,7 +61,7 @@
 - All modes respect export size (A4 or Square) and theme styles
 
 ## Priority
-**All Issues Resolved** - Core export functionality now complete and production-ready ✅
+Core export functionality is complete, but known issues need to be addressed.
 
 ## Dependencies
 - ✅ Image processing with html-to-image library

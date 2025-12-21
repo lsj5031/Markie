@@ -16,6 +16,13 @@ Transform your markdown into production-ready editorial layouts with real-time v
 - **Multi-page Preview**: Navigate through paginated content
 - **Responsive Design**: Collapsible sidebar and flexible layout
 
+## Known Issues
+There are currently two known issues that are being worked on:
+1.  The multi-page view sometimes creates an extra, empty page at the end of the document.
+2.  There are minor style inconsistencies between the single-page (continuous) and multi-page views.
+
+For more technical details on these issues, please see the [REMAINING_ISSUES.md](REMAINING_ISSUES.md) file.
+
 ## 🚀 Run Locally
 
 **Prerequisites:** Node.js
