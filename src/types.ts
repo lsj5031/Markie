@@ -1,6 +1,6 @@
 export type ExportFormat = "PNG" | "SVG";
 export type ExportSize = "SQUARE" | "A4" | "CUSTOM";
-export type ExportMode = "PAGES" | "CONTINUOUS";
+export type ExportMode = "PAGES" | "CONTINUOUS" | "SQUARE";
 
 export interface Theme {
   id: string;

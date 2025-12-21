@@ -37,27 +37,165 @@ const getExportDimensions = (
 };
 
 /**
- * Applies theme styles to an element
+ * Applies theme styles to an element with comprehensive markdown styling
  */
 const applyThemeStyles = (element: HTMLElement, theme: Theme): void => {
+  // Apply base styles
   Object.assign(element.style, {
     fontFamily: theme.styles.fontFamily,
     color: theme.styles.textColor,
     backgroundColor: theme.styles.backgroundColor,
+    lineHeight: "1.6",
+    fontSize: "14px",
+    margin: "0",
+    padding: "0",
   });
 
-  // Add internal styling for markdown elements
+  // Remove any existing style tags to avoid conflicts
+  const existingStyles = element.querySelectorAll('style[data-export="true"]');
+  existingStyles.forEach(style => style.remove());
+
+  // Add comprehensive internal styling for markdown elements
   const style = document.createElement("style");
+  style.setAttribute("data-export", "true");
   style.textContent = `
-    h1, h2, h3 { font-family: ${theme.styles.headingFont}; color: ${theme.styles.textColor}; }
-    pre { background: ${theme.styles.codeBackground}; color: ${theme.styles.textColor}; padding: 1.25em; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); overflow-x: auto; }
-    code { background: rgba(0,0,0,0.08); color: ${theme.styles.accentColor}; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
-    a { color: ${theme.styles.accentColor}; border-bottom: 1px solid ${theme.styles.accentColor}; text-decoration: none; }
-    strong { color: ${theme.styles.accentColor}; font-weight: 700; }
-    hr { border-color: ${theme.styles.textColor}; opacity: 0.15; }
-    ul li::marker, ol li::marker { color: ${theme.styles.accentColor}; }
-    ol { list-style-type: decimal; padding-left: 1.5em; }
-    ul { list-style-type: disc; padding-left: 1.5em; }
+    * { box-sizing: border-box; }
+    
+    body { 
+      font-family: ${theme.styles.fontFamily} !important;
+      color: ${theme.styles.textColor} !important;
+      background-color: ${theme.styles.backgroundColor} !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1.6 !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6 { 
+      font-family: ${theme.styles.headingFont} !important; 
+      color: ${theme.styles.textColor} !important;
+      margin: 1.5rem 0 1rem 0 !important;
+      font-weight: 700 !important;
+      line-height: 1.3 !important;
+    }
+    
+    h1 { font-size: 2rem !important; border-bottom: 2px solid ${theme.styles.accentColor}40; }
+    h2 { font-size: 1.75rem !important; }
+    h3 { font-size: 1.5rem !important; }
+    h4 { font-size: 1.25rem !important; }
+    
+    p { 
+      margin: 1rem 0 !important;
+      color: ${theme.styles.textColor} !important;
+    }
+    
+    pre { 
+      background: ${theme.styles.codeBackground} !important; 
+      color: ${theme.styles.textColor} !important; 
+      padding: 1.25rem !important; 
+      border-radius: 4px !important; 
+      border: 1px solid rgba(0,0,0,0.1) !important; 
+      overflow-x: auto !important;
+      margin: 1.5rem 0 !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.875rem !important;
+      line-height: 1.5 !important;
+    }
+    
+    code { 
+      background: rgba(0,0,0,0.08) !important; 
+      color: ${theme.styles.accentColor} !important; 
+      padding: 0.15rem 0.4rem !important; 
+      border-radius: 3px !important; 
+      font-size: 0.9em !important;
+      font-family: 'JetBrains Mono', monospace !important;
+    }
+    
+    pre code {
+      background: transparent !important;
+      color: inherit !important;
+      padding: 0 !important;
+    }
+    
+    a { 
+      color: ${theme.styles.accentColor} !important; 
+      border-bottom: 1px solid ${theme.styles.accentColor} !important; 
+      text-decoration: none !important;
+    }
+    
+    a:hover {
+      border-bottom-width: 2px !important;
+    }
+    
+    strong { 
+      color: ${theme.styles.accentColor} !important; 
+      font-weight: 700 !important; 
+    }
+    
+    em {
+      color: ${theme.styles.textColor} !important;
+      font-style: italic !important;
+    }
+    
+    hr { 
+      border: none !important;
+      border-top: 1px solid ${theme.styles.textColor}20 !important;
+      margin: 2rem 0 !important;
+    }
+    
+    ul, ol { 
+      margin: 1rem 0 !important;
+      padding-left: 2rem !important;
+    }
+    
+    ul li, ol li {
+      margin: 0.5rem 0 !important;
+      color: ${theme.styles.textColor} !important;
+    }
+    
+    ul li::marker, ol li::marker { 
+      color: ${theme.styles.accentColor} !important;
+    }
+    
+    ol { 
+      list-style-type: decimal !important; 
+    }
+    
+    ul { 
+      list-style-type: disc !important; 
+    }
+    
+    blockquote {
+      border-left: 4px solid ${theme.styles.accentColor} !important;
+      padding-left: 1rem !important;
+      margin: 1.5rem 0 !important;
+      color: ${theme.styles.textColor}80 !important;
+      font-style: italic !important;
+    }
+    
+    table {
+      border-collapse: collapse !important;
+      width: 100% !important;
+      margin: 1.5rem 0 !important;
+    }
+    
+    th, td {
+      border: 1px solid ${theme.styles.textColor}30 !important;
+      padding: 0.75rem !important;
+      text-align: left !important;
+    }
+    
+    th {
+      background-color: ${theme.styles.backgroundColor}80 !important;
+      font-weight: 700 !important;
+      color: ${theme.styles.textColor} !important;
+    }
+    
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+      display: block !important;
+      margin: 1rem 0 !important;
+    }
   `;
   element.appendChild(style);
 };
@@ -150,6 +288,66 @@ const createContinuousExport = async (
 };
 
 /**
+ * Creates a square export by cropping or resizing the content.
+ */
+const createSquareExport = async (
+  element: HTMLElement,
+  fileName: string,
+  width: number,
+  height: number,
+  padding: number,
+  backgroundColor: string,
+  theme: Theme,
+): Promise<void> => {
+  const sandbox = createSandbox();
+
+  try {
+    const squareSize = Math.min(width, height);
+    
+    const container = document.createElement("div");
+    Object.assign(container.style, {
+      width: `${squareSize}px`,
+      height: `${squareSize}px`,
+      padding: `${padding}px`,
+      margin: "0",
+      display: "block",
+      boxSizing: "border-box",
+      backgroundColor,
+      overflow: "hidden",
+    });
+
+    const contentClone = element.cloneNode(true) as HTMLElement;
+    Object.assign(contentClone.style, {
+      width: "100%",
+      height: "100%",
+      margin: "0",
+      padding: "0",
+      transform: "none",
+      objectFit: "contain",
+    });
+
+    container.appendChild(contentClone);
+    sandbox.appendChild(container);
+
+    // Apply theme styles to the square export
+    applyThemeStyles(container, theme);
+
+    await (document as any).fonts?.ready;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const dataUrl = await htmlToImage.toPng(container, {
+      quality: 1.0,
+      pixelRatio: 2,
+      backgroundColor,
+    });
+
+    downloadFile(dataUrl, `${fileName}-square.png`);
+  } finally {
+    document.body.removeChild(sandbox);
+  }
+};
+
+/**
  * Downloads a file from a data URL.
  */
 const downloadFile = (dataUrl: string, name: string): void => {
@@ -218,6 +416,19 @@ export const exportPreview = async (
         case "CONTINUOUS":
           // Export as one continuous tall image
           await createContinuousExport(
+            originalContent,
+            fileName,
+            width,
+            height,
+            padding,
+            backgroundColor,
+            theme,
+          );
+          break;
+
+        case "SQUARE":
+          // Export as a square image
+          await createSquareExport(
             originalContent,
             fileName,
             width,
