@@ -113,7 +113,7 @@ This should complete our long document for continuous export testing.`;
     await page.click('button:has-text("Single Page")');
     await page.waitForTimeout(500);
 
-    const singlePageScreenshot = await page.screenshot({ 
+    const _singlePageScreenshot = await page.screenshot({ 
       path: 'screenshots/07-single-page-styling.png',
       fullPage: true 
     });
@@ -122,7 +122,7 @@ This should complete our long document for continuous export testing.`;
     await page.click('button:has-text("Long")');
     await page.waitForTimeout(500);
 
-    const longModeScreenshot = await page.screenshot({ 
+    const _longModeScreenshot = await page.screenshot({ 
       path: 'screenshots/08-long-mode-preview.png',
       fullPage: true 
     });
@@ -174,7 +174,7 @@ This comparison test ensures that both Pages and Long modes produce styled expor
     await page.click('button:has-text("Pages")');
     await page.waitForTimeout(500);
 
-    const pagesModeScreenshot = await page.screenshot({ 
+    const _pagesModeScreenshot = await page.screenshot({ 
       path: 'screenshots/09-pages-mode-test.png',
       fullPage: true 
     });
@@ -183,7 +183,7 @@ This comparison test ensures that both Pages and Long modes produce styled expor
     await page.click('button:has-text("Long")');
     await page.waitForTimeout(500);
 
-    const longModeScreenshot = await page.screenshot({ 
+    const _longModeScreenshot = await page.screenshot({ 
       path: 'screenshots/10-long-mode-test.png',
       fullPage: true 
     });

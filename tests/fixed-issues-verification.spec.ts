@@ -99,7 +99,7 @@ This should ensure consistent styling in long export mode.`;
     await page.click('button:has-text("Single Page")');
     await page.waitForTimeout(500);
 
-    const singlePageScreenshot = await page.screenshot({ 
+    const _singlePageScreenshot = await page.screenshot({ 
       path: 'screenshots/12-single-page-styling.png',
       fullPage: true 
     });
@@ -108,7 +108,7 @@ This should ensure consistent styling in long export mode.`;
     await page.click('button:has-text("Long")');
     await page.waitForTimeout(500);
 
-    const longModeScreenshot = await page.screenshot({ 
+    const _longModeScreenshot = await page.screenshot({ 
       path: 'screenshots/13-long-mode-styling.png',
       fullPage: true 
     });
@@ -147,7 +147,7 @@ console.log("Square test");
     await page.click('button:has-text("Square")');
     await page.waitForTimeout(500);
 
-    const squareScreenshot = await page.screenshot({ 
+    const _squareScreenshot = await page.screenshot({ 
       path: 'screenshots/14-square-mode.png',
       fullPage: false 
     });
