@@ -5,8 +5,8 @@ import { paginateHtml } from "../utils/pagination";
 // Corresponds to the A4 aspect ratio for height calculation
 const A4_ASPECT_RATIO = 1.414;
 
-// Base width for pagination calculations, can be adjusted
-const PAGINATION_BASE_WIDTH = 800;
+// Base width for pagination calculations - must match export dimensions
+const PAGINATION_BASE_WIDTH = 1240;
 
 interface PaginationResult {
   pages: string[];

@@ -16,7 +16,7 @@ const SQUARE_ASPECT_RATIO = 1.0;
 const getDimensions = (
   exportSize: string,
 ): { width: number; height: number } => {
-  const baseWidth = 800; // Base width for pagination calculations
+  const baseWidth = 1240; // Match export dimensions for consistent pagination
   const width = baseWidth;
   const height =
     exportSize === "A4"
@@ -187,15 +187,15 @@ export const paginateHtml = async (
 
     // Calculate number of pages based on content height
     let numPages = Math.ceil(totalHeight / usablePageHeight);
-    
+
     // More robust check for extra pages: if the last page has very little content (less than 10% of page height),
     // and it's mostly empty, we should remove it unless it's substantial content
     if (numPages > 1) {
       const lastPageStartHeight = (numPages - 1) * usablePageHeight;
       const lastPageContentHeight = totalHeight - lastPageStartHeight;
-      
+
       // If last page has less than 15% content or less than 50px, it's likely an artifact
-      if (lastPageContentHeight < Math.min(usablePageHeight * 0.15, 50)) {
+      if (lastPageContentHeight < Math.max(usablePageHeight * 0.15, 50)) {
         numPages--;
       }
     }
