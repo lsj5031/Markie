@@ -228,6 +228,13 @@ export const paginateHtml = async (
       pages.push(pageHtml);
     }
 
+    console.log(`📊 Pagination debug:
+      - Total content height: ${totalHeight}px
+      - Page height: ${height}px  
+      - Padding top: ${paddingTop}px
+      - Usable page height: ${usablePageHeight}px
+      - Calculated pages: ${numPages}
+      - Content HTML length: ${fullContentHtml.length} chars`);
     console.log(`📊 Pagination complete: ${pages.length} pages created.`);
     return pages;
   } catch (error) {

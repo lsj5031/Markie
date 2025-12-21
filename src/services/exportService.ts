@@ -38,9 +38,11 @@ const getExportDimensions = (
 
 /**
  * Applies theme styles to an element with comprehensive markdown styling
+ * NOTE: This function does NOT reset padding - container padding should be set before calling this
  */
 const applyThemeStyles = (element: HTMLElement, theme: Theme): void => {
-  // Apply base styles
+  // Apply base styles - NOTE: padding is intentionally NOT reset here
+  // to preserve container padding set before this function is called
   Object.assign(element.style, {
     fontFamily: theme.styles.fontFamily,
     color: theme.styles.textColor,
@@ -48,7 +50,7 @@ const applyThemeStyles = (element: HTMLElement, theme: Theme): void => {
     lineHeight: "1.6",
     fontSize: "14px",
     margin: "0",
-    padding: "0",
+    // padding is NOT set here to preserve containerPadding
   });
 
   // Remove any existing style tags to avoid conflicts
@@ -345,32 +347,34 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
  * Creates a continuous export by rendering the entire content as one tall image.
  */
 const createContinuousExport = async (
-  element: HTMLElement,
+  htmlContent: string,
   fileName: string,
   width: number,
-  _height: number,
-  padding: number,
   backgroundColor: string,
   theme: Theme,
 ): Promise<void> => {
   const sandbox = createSandbox();
 
   try {
+    // Use the theme's containerPadding for consistent appearance with preview
+    const themePadding = theme.styles.containerPadding;
+    
     const container = document.createElement("div");
     Object.assign(container.style, {
       width: `${width}px`,
       height: "auto",
-      padding: `${padding}px`,
+      padding: themePadding, // Use theme padding for consistency with preview
       margin: "0",
       display: "block",
       boxSizing: "border-box",
       backgroundColor,
     });
 
-    const contentClone = element.cloneNode(true) as HTMLElement;
-    // Ensure markdown-body class for consistent styling
-    contentClone.classList.add("markdown-body");
-    Object.assign(contentClone.style, {
+    // Create content div with the HTML
+    const contentDiv = document.createElement("div");
+    contentDiv.classList.add("markdown-body");
+    contentDiv.innerHTML = htmlContent;
+    Object.assign(contentDiv.style, {
       width: "100%",
       height: "auto",
       margin: "0",
@@ -380,7 +384,7 @@ const createContinuousExport = async (
       fontFamily: theme.styles.fontFamily,
     });
 
-    container.appendChild(contentClone);
+    container.appendChild(contentDiv);
     sandbox.appendChild(container);
 
     // Apply theme styles and markdown-body styles for consistent appearance
@@ -394,6 +398,7 @@ const createContinuousExport = async (
       quality: 1.0,
       pixelRatio: 2,
       backgroundColor,
+      skipFonts: true, // Prevent font embedding errors on Firefox
     });
 
     downloadFile(dataUrl, `${fileName}-continuous.png`);
@@ -406,11 +411,10 @@ const createContinuousExport = async (
  * Creates a square export by cropping or resizing the content.
  */
 const createSquareExport = async (
-  element: HTMLElement,
+  htmlContent: string,
   fileName: string,
   width: number,
   height: number,
-  padding: number,
   backgroundColor: string,
   theme: Theme,
 ): Promise<void> => {
@@ -419,11 +423,14 @@ const createSquareExport = async (
   try {
     const squareSize = Math.min(width, height);
     
+    // Use the theme's containerPadding for consistent appearance with preview
+    const themePadding = theme.styles.containerPadding;
+    
     const container = document.createElement("div");
     Object.assign(container.style, {
       width: `${squareSize}px`,
       height: `${squareSize}px`,
-      padding: `${padding}px`,
+      padding: themePadding,
       margin: "0",
       display: "block",
       boxSizing: "border-box",
@@ -431,21 +438,27 @@ const createSquareExport = async (
       overflow: "hidden",
     });
 
-    const contentClone = element.cloneNode(true) as HTMLElement;
-    Object.assign(contentClone.style, {
+    // Create content div with the HTML
+    const contentDiv = document.createElement("div");
+    contentDiv.classList.add("markdown-body");
+    contentDiv.innerHTML = htmlContent;
+    Object.assign(contentDiv.style, {
       width: "100%",
       height: "100%",
       margin: "0",
       padding: "0",
       transform: "none",
       objectFit: "contain",
+      color: theme.styles.textColor,
+      fontFamily: theme.styles.fontFamily,
     });
 
-    container.appendChild(contentClone);
+    container.appendChild(contentDiv);
     sandbox.appendChild(container);
 
     // Apply theme styles to the square export
     applyThemeStyles(container, theme);
+    applyMarkdownBodyStyles(container, theme);
 
     await (document as any).fonts?.ready;
     await new Promise((resolve) => setTimeout(resolve, 200));
@@ -454,6 +467,7 @@ const createSquareExport = async (
       quality: 1.0,
       pixelRatio: 2,
       backgroundColor,
+      skipFonts: true,
     });
 
     downloadFile(dataUrl, `${fileName}-square.png`);
@@ -474,24 +488,28 @@ const downloadFile = (dataUrl: string, name: string): void => {
 
 /**
  * Exports the provided element to the specified format (PNG, SVG).
- * Handles both single-page and multi-page exports with configurable padding and modes.
+ * Handles both single-page and multi-page exports using theme padding for consistency.
+ * 
+ * @param element - The preview container element (used for styles like background color)
+ * @param format - Export format (PNG or SVG)
+ * @param size - Export size (A4 or SQUARE)
+ * @param fileName - Base filename for the export
+ * @param theme - The active theme for styling
+ * @param htmlContent - The raw rendered HTML content to export
+ * @param mode - Export mode (PAGES, CONTINUOUS, or SQUARE)
  */
 export const exportPreview = async (
   element: HTMLElement,
   format: ExportFormat,
   size: ExportSize,
   fileName: string,
-  theme: Theme, // The active theme is now required for pagination
-  padding: number = 40, // Default padding
-  mode: ExportMode = "PAGES", // Default to pages mode
+  theme: Theme,
+  htmlContent: string, // Raw rendered HTML content
+  mode: ExportMode = "PAGES",
 ): Promise<void> => {
   if (!element) return;
-
-  const originalContent = element.querySelector(
-    "#preview-content",
-  ) as HTMLElement;
-  if (!originalContent) {
-    console.error("Could not find #preview-content to export.");
+  if (!htmlContent) {
+    console.error("No HTML content provided for export.");
     return;
   }
 
@@ -502,21 +520,24 @@ export const exportPreview = async (
 
     // SVG export - captures full content without cropping (like continuous mode)
     if (format === "SVG") {
+      // Use the theme's containerPadding for consistent appearance with preview
+      const themePadding = theme.styles.containerPadding;
+      
       const container = document.createElement("div");
       Object.assign(container.style, {
         width: `${width}px`,
         height: "auto", // Allow full height to prevent cropping
-        padding: `${padding}px`,
+        padding: themePadding, // Use theme padding for consistency with preview
         margin: "0",
         display: "block",
         boxSizing: "border-box",
         backgroundColor,
       });
 
-      const contentClone = originalContent.cloneNode(true) as HTMLElement;
-      // Ensure markdown-body class for consistent styling
-      contentClone.classList.add("markdown-body");
-      Object.assign(contentClone.style, {
+      const contentDiv = document.createElement("div");
+      contentDiv.classList.add("markdown-body");
+      contentDiv.innerHTML = htmlContent;
+      Object.assign(contentDiv.style, {
         width: "100%",
         height: "auto",
         margin: "0",
@@ -526,7 +547,7 @@ export const exportPreview = async (
         fontFamily: theme.styles.fontFamily,
       });
 
-      container.appendChild(contentClone);
+      container.appendChild(contentDiv);
       sandbox.appendChild(container);
 
       // Apply theme and markdown-body styles for consistent appearance
@@ -540,6 +561,7 @@ export const exportPreview = async (
         quality: 1.0,
         pixelRatio: 2, // Match PNG quality
         backgroundColor,
+        skipFonts: true, // Prevent font embedding errors on Firefox
       });
       downloadFile(dataUrl, `${fileName}.svg`);
       return;
@@ -551,11 +573,9 @@ export const exportPreview = async (
         case "CONTINUOUS":
           // Export as one continuous tall image
           await createContinuousExport(
-            originalContent,
+            htmlContent,
             fileName,
             width,
-            height,
-            padding,
             backgroundColor,
             theme,
           );
@@ -564,11 +584,10 @@ export const exportPreview = async (
         case "SQUARE":
           // Export as a square image
           await createSquareExport(
-            originalContent,
+            htmlContent,
             fileName,
             width,
             height,
-            padding,
             backgroundColor,
             theme,
           );
@@ -578,10 +597,13 @@ export const exportPreview = async (
         default:
           // Original paginated export (multiple page PNGs)
           const pages = await paginateHtml(
-            originalContent.innerHTML,
+            htmlContent,
             size,
             theme,
           );
+
+          // Use the theme's containerPadding for consistent appearance with preview
+          const themePadding = theme.styles.containerPadding;
 
           for (let i = 0; i < pages.length; i++) {
             const pageHtml = pages[i];
@@ -594,10 +616,11 @@ export const exportPreview = async (
             Object.assign(pageContainer.style, {
               width: `${width}px`,
               height: `${height}px`,
-              padding: `${padding}px`, // Apply configurable padding
+              padding: themePadding, // Use theme padding for consistency with preview
               margin: "0",
               display: "block",
               overflow: "hidden",
+              boxSizing: "border-box",
             });
 
             pageContainer.innerHTML = pageHtml;
@@ -605,6 +628,7 @@ export const exportPreview = async (
 
             // Apply theme styles to each page
             applyThemeStyles(pageContainer, theme);
+            applyMarkdownBodyStyles(pageContainer, theme);
 
             await (document as any).fonts?.ready;
             await new Promise((resolve) => setTimeout(resolve, 200));
@@ -613,6 +637,7 @@ export const exportPreview = async (
               quality: 1.0,
               pixelRatio: 2, // Higher pixel ratio for sharper images
               backgroundColor,
+              skipFonts: true, // Prevent font embedding errors on Firefox
             });
 
             const pageFileName =
@@ -620,6 +645,11 @@ export const exportPreview = async (
                 ? `${fileName}-page-${i + 1}.png`
                 : `${fileName}.png`;
             downloadFile(dataUrl, pageFileName);
+
+            // Add a delay between downloads to prevent browsers from blocking multiple downloads
+            if (i < pages.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 500));
+            }
 
             sandbox.removeChild(pageContainer); // Clean up after each page
           }

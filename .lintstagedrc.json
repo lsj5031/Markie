@@ -1,3 +1,3 @@
 {
-  "*.{ts,tsx,js,jsx}": ["oxlint --fix"]
+  "*.{ts,tsx,js,jsx}": ["npx oxlint --fix"]
 }

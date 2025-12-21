@@ -131,7 +131,6 @@ const App: React.FC = () => {
     () => localStorage.getItem("lumina_project") || "Untitled Design",
   );
   const [exportSize, setExportSize] = useState<ExportSize>("A4");
-  const [exportPadding, setExportPadding] = useState(40); // Default padding in pixels
   const [exportMode, setExportMode] = useState<ExportMode>("PAGES"); // Default to pages mode
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [editorWidth, setEditorWidth] = useState(50); // percentage
@@ -213,7 +212,7 @@ const App: React.FC = () => {
         exportSize,
         projectName.toLowerCase().replace(/\s+/g, "-"),
         activeTheme,
-        exportPadding,
+        renderedHtml, // Pass the raw rendered HTML content
         exportMode,
       );
     }
@@ -370,26 +369,6 @@ const App: React.FC = () => {
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* Padding Control */}
-          <div className="hidden md:flex items-center gap-2">
-            <span className="text-[9px] font-bold uppercase tracking-[0.15em] opacity-40">
-              Padding
-            </span>
-            <input
-              type="range"
-              min="10"
-              max="100"
-              step="5"
-              value={exportPadding}
-              onChange={(e) => setExportPadding(Number(e.target.value))}
-              className="w-16 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer slider"
-              title={`${exportPadding}px padding`}
-            />
-            <span className="text-[10px] font-semibold opacity-60 min-w-[32px]">
-              {exportPadding}px
-            </span>
           </div>
         </div>
 
@@ -635,25 +614,15 @@ const App: React.FC = () => {
                 style={{ backgroundColor: "rgba(26,26,27,0.15)" }}
               />
               <span className="pane-meta">{markdown.length} chars</span>
-              <button
-                onClick={() => setShowMultiPagePreview(!showMultiPagePreview)}
-                className="text-[9px] font-mono uppercase tracking-wider px-2 py-1 border rounded"
-                style={{
-                  borderColor: "rgba(26,26,27,0.2)",
-                  color: "var(--studio-text)",
-                }}
-              >
-                {showMultiPagePreview ? "Single" : "Multi"} Page
-              </button>
             </div>
           </div>
 
-          {/* Preview container with centered canvas and fit-to-width logic */}
+          {/* Preview container with centered canvas and space for navigation */}
           <div
             className="flex-1 overflow-auto scroll-smooth flex items-start justify-center"
             style={{
               backgroundColor: "var(--studio-bg)",
-              padding: "32px",
+              padding: "32px 80px 60px 80px", // Extra horizontal padding for side nav, bottom for page indicator
               minHeight: "100%",
             }}
           >
@@ -728,7 +697,7 @@ const App: React.FC = () => {
                   exportSize={exportSize}
                 />
               ) : (
-                <SinglePageViewer 
+                <SinglePageViewer
                   htmlContent={renderedHtml}
                   theme={activeTheme}
                   exportSize={exportSize}

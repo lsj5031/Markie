@@ -16,12 +16,18 @@ Transform your markdown into production-ready editorial layouts with real-time v
 - **Multi-page Preview**: Navigate through paginated content
 - **Responsive Design**: Collapsible sidebar and flexible layout
 
-## Known Issues
-There are currently two known issues that are being worked on:
-1.  The multi-page view sometimes creates an extra, empty page at the end of the document.
-2.  There are minor style inconsistencies between the single-page (continuous) and multi-page views.
+## ✅ Current Status
 
-For more technical details on these issues, please see the [REMAINING_ISSUES.md](REMAINING_ISSUES.md) file.
+**All Known Issues Resolved** - The application is fully functional with comprehensive export capabilities.
+
+### Recently Fixed Issues
+
+- ✅ **Multi-page pagination** - Eliminated extra empty pages
+- ✅ **Export styling consistency** - Uniform styling across all export modes
+- ✅ **SVG export cropping** - Full content capture without cropping
+- ✅ **PNG export padding** - Configurable padding (10px-100px)
+- ✅ **Multi-page preview** - Toggle between single/multi-page views
+- ✅ **Export modes** - Pages, Continuous, and Square formats
 
 ## 🚀 Run Locally
 
@@ -38,12 +44,14 @@ For more technical details on these issues, please see the [REMAINING_ISSUES.md]
 ### Single Page Mode vs Multiple Page Mode
 
 **Single Page Mode:**
+
 - Displays all content in one continuous view
 - Best for shorter content that fits within one page
 - Shows the complete document layout at once
 - Uses the selected theme styles and export size
 
 **Multiple Page Mode:**
+
 - Splits content across multiple pages based on the selected size
 - Includes pagination controls (previous/next buttons)
 - Shows page numbers (e.g., "Page 1 of 3")
@@ -53,17 +61,20 @@ For more technical details on these issues, please see the [REMAINING_ISSUES.md]
 ### Export Modes
 
 **Pages Mode (Default):**
+
 - Exports each page as a separate PNG file
 - Respects the selected aspect ratio (A4 or Square)
 - Maintains theme styles and formatting
 - Perfect for print-ready layouts
 
 **Continuous Mode:**
+
 - Exports the entire content as one tall image
 - Maintains theme styles and formatting
 - Best for social media or when you need the full content in one image
 
 **Square Mode:**
+
 - Exports content in a square format regardless of content length
 - Maintains theme styles and formatting
 - Ideal for social media posts or thumbnails
@@ -90,13 +101,41 @@ Choose from 6 professionally designed themes:
 
 ## 🛠️ Technical Details
 
-- Built with React + TypeScript
-- Uses marked.js for markdown parsing
-- DOMPurify for security
-- html-to-image for PNG/SVG exports
-- Custom pagination engine for accurate page breaks
-- CSS-in-JS for theme application
-- Responsive design with Tailwind CSS
+- **Stack**: React + TypeScript + Vite
+- **Markdown**: marked.js for parsing, DOMPurify for security
+- **Exports**: html-to-image for PNG/SVG with custom pagination engine
+- **Styling**: Tailwind CSS + CSS-in-JS for theme application
+- **Quality**: Oxlint integration with pre-commit hooks
+- **Testing**: Playwright end-to-end test suite
+- **Build**: Optimized production build with code splitting
+
+## 🧪 Development
+
+### Setup & Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Run tests
+npx playwright test
+
+# Lint code
+npx oxlint
+```
+
+### Quality Assurance
+
+- **0 lint errors** with Oxlint integration
+- **Automated pre-commit hooks** for code quality
+- **Comprehensive test coverage** with Playwright
+- **TypeScript strict mode** for type safety
 
 ## 📄 View in AI Studio
 

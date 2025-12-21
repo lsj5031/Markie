@@ -11,7 +11,7 @@ interface MultiPageViewerProps {
 const Icons = {
   ChevronLeft: () => (
     <svg
-      className="w-5 h-5"
+      className="w-6 h-6"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -24,7 +24,7 @@ const Icons = {
   ),
   ChevronRight: () => (
     <svg
-      className="w-5 h-5"
+      className="w-6 h-6"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -75,35 +75,75 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
         dangerouslySetInnerHTML={{ __html: pages[currentPage] || "" }}
       />
 
-      {/* Pagination controls */}
+      {/* Side navigation buttons - only show if multiple pages */}
       {pageCount > 1 && (
-        <div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 p-2 rounded-lg"
-          style={{ backgroundColor: "rgba(26, 26, 27, 0.1)" }}
-        >
+        <>
+          {/* Left navigation button */}
           <button
             onClick={goToPreviousPage}
             disabled={currentPage === 0}
-            className="pagination-button disabled:opacity-30 disabled:cursor-not-allowed"
+            className="absolute left-[-60px] top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed hover:scale-110"
+            style={{
+              backgroundColor: currentPage === 0 ? "rgba(26, 26, 27, 0.1)" : "var(--studio-accent)",
+              color: currentPage === 0 ? "var(--studio-text)" : "#ffffff",
+              boxShadow: currentPage === 0 ? "none" : "0 4px 12px rgba(235, 59, 90, 0.4)",
+            }}
             title="Previous Page"
           >
             <Icons.ChevronLeft />
           </button>
-          <span
-            className="text-sm font-semibold"
-            style={{ color: "var(--studio-text)" }}
-          >
-            Page {currentPage + 1} of {pageCount}
-          </span>
+
+          {/* Right navigation button */}
           <button
             onClick={goToNextPage}
             disabled={currentPage === pageCount - 1}
-            className="pagination-button disabled:opacity-30 disabled:cursor-not-allowed"
+            className="absolute right-[-60px] top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed hover:scale-110"
+            style={{
+              backgroundColor: currentPage === pageCount - 1 ? "rgba(26, 26, 27, 0.1)" : "var(--studio-accent)",
+              color: currentPage === pageCount - 1 ? "var(--studio-text)" : "#ffffff",
+              boxShadow: currentPage === pageCount - 1 ? "none" : "0 4px 12px rgba(235, 59, 90, 0.4)",
+            }}
             title="Next Page"
           >
             <Icons.ChevronRight />
           </button>
-        </div>
+
+          {/* Page indicator at bottom */}
+          <div
+            className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-2 rounded-full"
+            style={{
+              backgroundColor: "var(--studio-surface)",
+              border: "2px solid rgba(26, 26, 27, 0.15)",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            }}
+          >
+            {/* Page dots */}
+            <div className="flex items-center gap-2">
+              {Array.from({ length: pageCount }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i)}
+                  className="transition-all duration-200"
+                  style={{
+                    width: currentPage === i ? "24px" : "8px",
+                    height: "8px",
+                    borderRadius: "4px",
+                    backgroundColor: currentPage === i ? "var(--studio-accent)" : "rgba(26, 26, 27, 0.2)",
+                  }}
+                  title={`Go to page ${i + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Page number text */}
+            <span
+              className="text-xs font-bold uppercase tracking-wider"
+              style={{ color: "var(--studio-text)" }}
+            >
+              {currentPage + 1} / {pageCount}
+            </span>
+          </div>
+        </>
       )}
     </div>
   );
