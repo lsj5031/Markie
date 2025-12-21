@@ -12,8 +12,9 @@ const SQUARE_ASPECT_RATIO = 1.0;
 
 /**
  * Calculates dimensions based on export size
+ * Exported for use in preview canvas to ensure WYSIWYG consistency
  */
-const getDimensions = (
+export const getDimensions = (
   exportSize: string,
 ): { width: number; height: number } => {
   const baseWidth = 1240; // Match export dimensions for consistent pagination

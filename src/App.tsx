@@ -10,6 +10,7 @@ import DOMPurify from "dompurify";
 import { THEMES } from "./constants/themes";
 import { ExportFormat, ExportSize, ExportMode, Theme } from "./types";
 import { exportPreview } from "./services/exportService";
+import { getDimensions } from "./utils/pagination";
 import { MultiPageViewer } from "./components/MultiPageViewer";
 import { SinglePageViewer } from "./components/SinglePageViewer";
 
@@ -140,6 +141,8 @@ const App: React.FC = () => {
   const previewRef = useRef<HTMLDivElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [canvasScale, setCanvasScale] = useState(1);
 
   const activeTheme: Theme = useMemo(
     () => THEMES.find((t) => t.id === themeId) || THEMES[0],
@@ -203,6 +206,27 @@ const App: React.FC = () => {
       document.body.style.userSelect = "";
     };
   }, [isDragging, isSidebarCollapsed]);
+
+  // Calculate canvas scale to fit container while maintaining WYSIWYG with pagination
+  useEffect(() => {
+    const updateScale = () => {
+      if (!previewContainerRef.current) return;
+
+      const containerRect = previewContainerRef.current.getBoundingClientRect();
+      const padding = 160; // Account for side padding (80px each side)
+      const availableWidth = containerRect.width - padding;
+
+      const { width: canvasWidth } = getDimensions(exportSize);
+
+      // Calculate scale to fit canvas in available width, max 0.65 to look good
+      const scale = Math.min(availableWidth / canvasWidth, 0.65);
+      setCanvasScale(Math.max(scale, 0.3)); // Min 0.3 to prevent too small
+    };
+
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, [exportSize]);
 
   const handleExport = async (format: ExportFormat) => {
     if (previewRef.current) {
@@ -619,6 +643,7 @@ const App: React.FC = () => {
 
           {/* Preview container with centered canvas and space for navigation */}
           <div
+            ref={previewContainerRef}
             className="flex-1 overflow-auto scroll-smooth flex items-start justify-center"
             style={{
               backgroundColor: "var(--studio-bg)",
@@ -626,32 +651,39 @@ const App: React.FC = () => {
               minHeight: "100%",
             }}
           >
-            {/* The Actual Designer Canvas - paper sheet simulation with fit-to-width */}
+            {/* Scaling wrapper - maintains space for the scaled canvas */}
             <div
-              ref={previewRef}
-              id="designer-canvas"
-              className="canvas-shadow transition-all duration-500 ease-in-out overflow-hidden markdown-body"
               style={{
-                ...themeVars,
-                width: "90%",
-                maxWidth: "800px",
-                aspectRatio: exportSize === "A4" ? "1 / 1.414" : "1 / 1",
-                backgroundColor: "var(--theme-bg)",
-                color: "var(--theme-text)",
-                fontFamily: "var(--theme-font)",
-                padding: "var(--theme-padding)",
-                borderRadius: "var(--theme-radius)",
-                border: "var(--theme-border)",
-                boxShadow: "var(--theme-shadow)",
-                position: "relative",
-                margin: "0 auto",
+                width: `${getDimensions(exportSize).width * canvasScale}px`,
+                height: `${getDimensions(exportSize).height * canvasScale}px`,
                 flexShrink: 0,
               }}
             >
-              {/* Internal styling scoped to theme variables - with proper code block contrast */}
-              <style
-                dangerouslySetInnerHTML={{
-                  __html: `
+              {/* The Actual Designer Canvas - rendered at full pagination size, then scaled */}
+              <div
+                ref={previewRef}
+                id="designer-canvas"
+                className="canvas-shadow transition-all duration-300 ease-in-out overflow-hidden markdown-body"
+                style={{
+                  ...themeVars,
+                  width: `${getDimensions(exportSize).width}px`,
+                  height: `${getDimensions(exportSize).height}px`,
+                  backgroundColor: "var(--theme-bg)",
+                  color: "var(--theme-text)",
+                  fontFamily: "var(--theme-font)",
+                  padding: "var(--theme-padding)",
+                  borderRadius: "var(--theme-radius)",
+                  border: "var(--theme-border)",
+                  boxShadow: "var(--theme-shadow)",
+                  position: "relative",
+                  transformOrigin: "top left",
+                  transform: `scale(${canvasScale})`,
+                }}
+              >
+                {/* Internal styling scoped to theme variables - with proper code block contrast */}
+                <style
+                  dangerouslySetInnerHTML={{
+                    __html: `
                   #preview-content h1, #preview-content h2, #preview-content h3 {
                     font-family: var(--theme-heading-font);
                     border-color: var(--theme-accent);
@@ -686,23 +718,24 @@ const App: React.FC = () => {
                   #preview-content ol { list-style-type: decimal; padding-left: 1.5em; }
                   #preview-content ul { list-style-type: disc; padding-left: 1.5em; }
                `,
-                }}
-              />
+                  }}
+                />
 
-              {/* Render either single or multi-page viewer */}
-              {showMultiPagePreview ? (
-                <MultiPageViewer
-                  htmlContent={renderedHtml}
-                  theme={activeTheme}
-                  exportSize={exportSize}
-                />
-              ) : (
-                <SinglePageViewer
-                  htmlContent={renderedHtml}
-                  theme={activeTheme}
-                  exportSize={exportSize}
-                />
-              )}
+                {/* Render either single or multi-page viewer */}
+                {showMultiPagePreview ? (
+                  <MultiPageViewer
+                    htmlContent={renderedHtml}
+                    theme={activeTheme}
+                    exportSize={exportSize}
+                  />
+                ) : (
+                  <SinglePageViewer
+                    htmlContent={renderedHtml}
+                    theme={activeTheme}
+                    exportSize={exportSize}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </section>

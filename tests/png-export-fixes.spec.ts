@@ -34,10 +34,9 @@ test.describe('PNG Export Issues - After Fixes', () => {
     const modeControl = page.locator('text=Mode');
     await expect(modeControl).toBeVisible();
     
-    // Check for mode options
+    // Check for mode options (Pages and Long only - Square is a format, not a mode)
     await expect(page.locator('button').filter({ hasText: 'Pages' })).toBeVisible();
     await expect(page.locator('button').filter({ hasText: 'Long' })).toBeVisible();
-    await expect(page.locator('button').filter({ hasText: 'Square' })).toBeVisible();
     
     console.log('✓ Export mode controls are now visible');
   });
@@ -84,13 +83,13 @@ test.describe('PNG Export Issues - After Fixes', () => {
     // Check if it becomes active
     await expect(longButton).toHaveClass(/active/);
     
-    // Test switching to "Square" mode
-    const squareButton = page.locator('button').filter({ hasText: 'Square' });
-    await squareButton.click();
+    // Switch back to "Pages" mode
+    const pagesButton = page.locator('button').filter({ hasText: 'Pages' });
+    await pagesButton.click();
     await page.waitForTimeout(200);
     
     // Check if it becomes active
-    await expect(squareButton).toHaveClass(/active/);
+    await expect(pagesButton).toHaveClass(/active/);
     
     console.log('✓ Export mode controls work');
   });

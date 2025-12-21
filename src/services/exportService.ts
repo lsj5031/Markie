@@ -408,75 +408,6 @@ const createContinuousExport = async (
 };
 
 /**
- * Creates a square export by cropping or resizing the content.
- */
-const createSquareExport = async (
-  htmlContent: string,
-  fileName: string,
-  width: number,
-  height: number,
-  backgroundColor: string,
-  theme: Theme,
-): Promise<void> => {
-  const sandbox = createSandbox();
-
-  try {
-    const squareSize = Math.min(width, height);
-    
-    // Use the theme's containerPadding for consistent appearance with preview
-    const themePadding = theme.styles.containerPadding;
-    
-    const container = document.createElement("div");
-    Object.assign(container.style, {
-      width: `${squareSize}px`,
-      height: `${squareSize}px`,
-      padding: themePadding,
-      margin: "0",
-      display: "block",
-      boxSizing: "border-box",
-      backgroundColor,
-      overflow: "hidden",
-    });
-
-    // Create content div with the HTML
-    const contentDiv = document.createElement("div");
-    contentDiv.classList.add("markdown-body");
-    contentDiv.innerHTML = htmlContent;
-    Object.assign(contentDiv.style, {
-      width: "100%",
-      height: "100%",
-      margin: "0",
-      padding: "0",
-      transform: "none",
-      objectFit: "contain",
-      color: theme.styles.textColor,
-      fontFamily: theme.styles.fontFamily,
-    });
-
-    container.appendChild(contentDiv);
-    sandbox.appendChild(container);
-
-    // Apply theme styles to the square export
-    applyThemeStyles(container, theme);
-    applyMarkdownBodyStyles(container, theme);
-
-    await (document as any).fonts?.ready;
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    const dataUrl = await htmlToImage.toPng(container, {
-      quality: 1.0,
-      pixelRatio: 2,
-      backgroundColor,
-      skipFonts: true,
-    });
-
-    downloadFile(dataUrl, `${fileName}-square.png`);
-  } finally {
-    document.body.removeChild(sandbox);
-  }
-};
-
-/**
  * Downloads a file from a data URL.
  */
 const downloadFile = (dataUrl: string, name: string): void => {
@@ -496,7 +427,7 @@ const downloadFile = (dataUrl: string, name: string): void => {
  * @param fileName - Base filename for the export
  * @param theme - The active theme for styling
  * @param htmlContent - The raw rendered HTML content to export
- * @param mode - Export mode (PAGES, CONTINUOUS, or SQUARE)
+ * @param mode - Export mode (PAGES or CONTINUOUS)
  */
 export const exportPreview = async (
   element: HTMLElement,
@@ -576,18 +507,6 @@ export const exportPreview = async (
             htmlContent,
             fileName,
             width,
-            backgroundColor,
-            theme,
-          );
-          break;
-
-        case "SQUARE":
-          // Export as a square image
-          await createSquareExport(
-            htmlContent,
-            fileName,
-            width,
-            height,
             backgroundColor,
             theme,
           );

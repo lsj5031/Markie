@@ -50,7 +50,7 @@ This completes our export test content.`;
     console.log('✅ PNG export controls working with padding');
   });
 
-  test('should support all three export modes', async ({ page }) => {
+  test('should support both export modes', async ({ page }) => {
     // Test Pages mode
     const pagesButton = page.locator('button').filter({ hasText: 'Pages' });
     await expect(pagesButton).toBeVisible();
@@ -63,13 +63,7 @@ This completes our export test content.`;
     await longButton.click();
     await page.waitForTimeout(200);
     
-    // Test Square mode
-    const squareButton = page.locator('button').filter({ hasText: 'Square' });
-    await expect(squareButton).toBeVisible();
-    await squareButton.click();
-    await page.waitForTimeout(200);
-    
-    console.log('✅ All export modes (Pages/Long/Square) available');
+    console.log('✅ Both export modes (Pages/Long) available');
   });
 
   test('should work in both single and multi-page preview modes', async ({ page }) => {
@@ -90,14 +84,14 @@ This completes our export test content.`;
     console.log('✅ Export functionality works in both preview modes');
   });
 
-  test('should show proper export size controls', async ({ page }) => {
+  test('should show proper export size/format controls', async ({ page }) => {
     // Test A4 size
     const a4Button = page.locator('button').filter({ hasText: 'A4' });
     await expect(a4Button).toBeVisible();
     await a4Button.click();
     await page.waitForTimeout(200);
     
-    // Test Square size
+    // Test Square size/format (this is a format option, not an export mode)
     const squareButton = page.locator('button').filter({ hasText: 'Square' });
     await expect(squareButton).toBeVisible();
     await squareButton.click();

@@ -10,7 +10,7 @@ Transform your markdown into production-ready editorial layouts with real-time v
 
 - **6 Curated Themes**: From classic editorial to modern studio styles
 - **Real-time Preview**: See your markdown rendered with theme styles instantly
-- **Multiple Export Modes**: Pages, Continuous, and Square exports
+- **Multiple Export Modes**: Pages (paginated) and Continuous (long image) exports
 - **Export Sizes**: A4 and Square formats
 - **High-Quality Exports**: PNG and SVG with configurable padding
 - **Multi-page Preview**: Navigate through paginated content
@@ -27,7 +27,7 @@ Transform your markdown into production-ready editorial layouts with real-time v
 - ✅ **SVG export cropping** - Full content capture without cropping
 - ✅ **PNG export padding** - Configurable padding (10px-100px)
 - ✅ **Multi-page preview** - Toggle between single/multi-page views
-- ✅ **Export modes** - Pages, Continuous, and Square formats
+- ✅ **Export modes** - Pages and Continuous formats
 
 ## 🚀 Run Locally
 
@@ -73,11 +73,19 @@ Transform your markdown into production-ready editorial layouts with real-time v
 - Maintains theme styles and formatting
 - Best for social media or when you need the full content in one image
 
-**Square Mode:**
+### Export Sizes
 
-- Exports content in a square format regardless of content length
-- Maintains theme styles and formatting
+**A4 Format:**
+
+- Uses the standard A4 aspect ratio (1:1.414)
+- Ideal for print-ready documents
+- Works with both Pages and Continuous export modes
+
+**Square Format:**
+
+- Uses a 1:1 aspect ratio for square images
 - Ideal for social media posts or thumbnails
+- Works with both Pages and Continuous export modes
 
 ## 🎨 Themes
 

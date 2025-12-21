@@ -63,7 +63,7 @@ All identified issues have been fixed in the latest update.
 ### 8. No multiple page PNG export working
 
 - **Status**: Fixed
-- **Description**: Implemented comprehensive multi-page PNG export with three distinct modes (Pages, Continuous, Square).
+- **Description**: Implemented comprehensive multi-page PNG export with two distinct modes (Pages, Continuous) and two format sizes (A4, Square).
 
 ## Technical Implementation Summary
 

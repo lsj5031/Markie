@@ -121,42 +121,42 @@ This should ensure consistent styling in long export mode.`;
     console.log('✅ Long mode export styling test completed');
   });
 
-  test('should verify square export is working', async ({ page }) => {
+  test('should verify square format is working', async ({ page }) => {
     await page.goto('/');
     await page.waitForTimeout(2000);
 
-    const testContent = `# Square Export Test
+    const testContent = `# Square Format Test
 
-Content for testing square export functionality.
+Content for testing square format functionality.
 
 ## Section 1
-Test content for square export.
+Test content for square format.
 
 - Item 1.A
 - Item 1.B
 - Item 1.C
 
 \`\`\`javascript
-console.log("Square test");
+console.log("Square format test");
 \`\`\``;
 
     await page.fill('textarea', testContent);
     await page.waitForTimeout(500);
 
-    // Switch to Square mode
+    // Switch to Square format (in the Format section, not Mode)
     await page.click('button:has-text("Square")');
     await page.waitForTimeout(500);
 
     const _squareScreenshot = await page.screenshot({ 
-      path: 'screenshots/14-square-mode.png',
+      path: 'screenshots/14-square-format.png',
       fullPage: false 
     });
 
-    // Test square export
+    // Test export with square format
     const exportButton = page.locator('button').filter({ hasText: 'Export' });
     await exportButton.click();
     await page.waitForTimeout(2000);
 
-    console.log('✅ Square mode export test completed');
+    console.log('✅ Square format export test completed');
   });
 });

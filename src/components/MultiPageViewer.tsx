@@ -108,40 +108,53 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
             <Icons.ChevronRight />
           </button>
 
-          {/* Page indicator at bottom */}
+
+          {/* Compact page indicator at bottom */}
           <div
-            className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-2 rounded-full"
+            className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-2 rounded-full"
             style={{
               backgroundColor: "var(--studio-surface)",
               border: "2px solid rgba(26, 26, 27, 0.15)",
               boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
             }}
           >
-            {/* Page dots */}
-            <div className="flex items-center gap-2">
-              {Array.from({ length: pageCount }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i)}
-                  className="transition-all duration-200"
-                  style={{
-                    width: currentPage === i ? "24px" : "8px",
-                    height: "8px",
-                    borderRadius: "4px",
-                    backgroundColor: currentPage === i ? "var(--studio-accent)" : "rgba(26, 26, 27, 0.2)",
-                  }}
-                  title={`Go to page ${i + 1}`}
-                />
-              ))}
-            </div>
+            {/* Previous button (compact) */}
+            <button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 0}
+              className="w-6 h-6 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-30"
+              style={{
+                backgroundColor: currentPage === 0 ? "transparent" : "rgba(26, 26, 27, 0.08)",
+              }}
+              title="Previous Page"
+            >
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
 
-            {/* Page number text */}
+            {/* Page number display - cleaner, no dots for many pages */}
             <span
-              className="text-xs font-bold uppercase tracking-wider"
+              className="text-xs font-bold tracking-wider min-w-[48px] text-center"
               style={{ color: "var(--studio-text)" }}
             >
-              {currentPage + 1} / {pageCount}
+              {currentPage + 1} of {pageCount}
             </span>
+
+            {/* Next button (compact) */}
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === pageCount - 1}
+              className="w-6 h-6 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-30"
+              style={{
+                backgroundColor: currentPage === pageCount - 1 ? "transparent" : "rgba(26, 26, 27, 0.08)",
+              }}
+              title="Next Page"
+            >
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
           </div>
         </>
       )}
