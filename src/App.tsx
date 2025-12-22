@@ -488,7 +488,8 @@ const App: React.FC = () => {
                 : `0 0 ${editorWidth}%`,
             width: isMobile ? "100%" : undefined,
             backgroundColor: "var(--studio-bg)",
-            transition: "flex 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+            // Only apply flex transition on desktop; mobile uses CSS .mobile-pane transitions
+            transition: isMobile ? undefined : "flex 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
           <div className="pane-header">
