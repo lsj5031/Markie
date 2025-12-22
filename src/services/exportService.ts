@@ -403,6 +403,8 @@ const createContinuousExport = async (
       width: width, // Explicitly set width to match container
       height: container.scrollHeight, // Explicitly set height to content height
       skipFonts: true, // Prevent font embedding errors on Firefox
+      // Prevent crash on image error - use a transparent 1x1 pixel
+      imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
     });
 
     downloadFile(dataUrl, `${fileName}-continuous.png`);
@@ -498,6 +500,8 @@ export const exportPreview = async (
         pixelRatio: 2, // Match PNG quality
         backgroundColor,
         skipFonts: true, // Prevent font embedding errors on Firefox
+        // Prevent crash on image error - use a transparent 1x1 pixel
+        imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
       });
       downloadFile(dataUrl, `${fileName}.svg`);
       return;
@@ -578,6 +582,8 @@ export const exportPreview = async (
               width: width, // Explicitly set width to match page size
               height: height, // Explicitly set height to match page size
               skipFonts: true, // Prevent font embedding errors on Firefox
+              // Prevent crash on image error - use a transparent 1x1 pixel
+              imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
             });
 
             const pageFileName =
@@ -598,7 +604,13 @@ export const exportPreview = async (
     }
   } catch (error: any) {
     console.error("Export failed:", error);
-    alert(`Export failed: ${error.message || "Unknown error"}`);
+    
+    // Check if it's an image loading error (Event object from img tag)
+    if (error instanceof Event && (error.target as HTMLElement)?.tagName === 'IMG') {
+       alert("Export warning: One or more images failed to load. The export has completed with placeholders.");
+    } else {
+       alert(`Export failed: ${error.message || "Unknown error"}`);
+    }
   } finally {
     document.body.removeChild(sandbox);
   }
