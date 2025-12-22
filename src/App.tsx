@@ -289,9 +289,9 @@ const App: React.FC = () => {
         {/* Collapsible Sidebar: Enhanced Theme Browser */}
         <aside
           className={`sidebar ${isMobile
-              ? `!absolute left-0 top-0 bottom-0 z-50 w-80 shadow-2xl transform transition-transform duration-300 ease-out ${showMobileThemes ? "translate-x-0" : "-translate-x-full"
-              }`
-              : "relative flex"
+            ? `!absolute left-0 top-0 bottom-0 z-50 w-80 shadow-2xl transform transition-transform duration-300 ease-out ${showMobileThemes ? "translate-x-0" : "-translate-x-full"
+            }`
+            : "relative flex"
             } flex-col gap-0 ${!isMobile && isSidebarCollapsed ? "collapsed" : ""
             }`}
           style={{
@@ -889,6 +889,11 @@ const App: React.FC = () => {
         <MobileNavBar
           activeTab={mobileTab}
           setActiveTab={setMobileTab}
+          showPagination={showMultiPagePreview}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPreviousPage={goToPreviousPage}
+          onNextPage={goToNextPage}
         />
       </main>
     </div>
