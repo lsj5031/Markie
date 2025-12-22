@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { usePagination } from "../hooks/usePagination";
 import { ExportSize, Theme } from "../types";
 
@@ -18,6 +18,9 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
   onPageChange,
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [direction, setDirection] = useState<'next' | 'prev'>('next');
+  // Use a counter to force unique keys for animation replay
+  const animationKeyRef = useRef(0);
   const { pages, isLoading, pageCount } = usePagination(
     htmlContent,
     theme,
@@ -36,9 +39,16 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
   // Expose navigation functions globally for parent to use
   useEffect(() => {
     (window as unknown as Record<string, unknown>).__multiPageNav = {
-      goToPreviousPage: () => setCurrentPage((prev) => Math.max(0, prev - 1)),
-      goToNextPage: () =>
-        setCurrentPage((prev) => Math.min(pageCount - 1, prev + 1)),
+      goToPreviousPage: () => {
+        setDirection('prev');
+        animationKeyRef.current += 1;
+        setCurrentPage((prev) => Math.max(0, prev - 1));
+      },
+      goToNextPage: () => {
+        setDirection('next');
+        animationKeyRef.current += 1;
+        setCurrentPage((prev) => Math.min(pageCount - 1, prev + 1));
+      },
       currentPage,
       pageCount,
     };
@@ -55,12 +65,15 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
     );
   }
 
+  // Use both page number and animation counter as key to force animation replay
+  const animationKey = `page-${currentPage}-${animationKeyRef.current}`;
+
   return (
-    <div className="w-full h-full relative">
-      {/* The container for the paginated content */}
+    <div className="w-full h-full relative overflow-hidden">
       <div
+        key={animationKey}
         id="preview-content"
-        className="absolute inset-0"
+        className={`absolute inset-0 ${direction === "next" ? "animate-slide-in-right" : "animate-slide-in"}`}
         dangerouslySetInnerHTML={{ __html: pages[currentPage] || "" }}
       />
     </div>

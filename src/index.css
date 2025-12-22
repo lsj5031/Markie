@@ -298,6 +298,20 @@ body {
     border-right: none !important;
 }
 
+/* Prevent content from squishing during collapse */
+.sidebar>* {
+    width: var(--sidebar-width);
+    transition: opacity 0.2s ease 0.1s;
+    /* Delay opacity slightly on open */
+}
+
+.sidebar.collapsed>* {
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    /* Quick fade out on collapse */
+    pointer-events: none;
+}
+
 /* Sidebar toggle - integrated with border, not floating over content */
 .sidebar-toggle {
     position: absolute;
@@ -578,7 +592,7 @@ button:not(:disabled):active {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(20px);
     }
 
     to {
@@ -590,7 +604,7 @@ button:not(:disabled):active {
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateX(-10px);
+        transform: translateX(-30px);
     }
 
     to {
@@ -602,7 +616,7 @@ button:not(:disabled):active {
 @keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateX(10px);
+        transform: translateX(30px);
     }
 
     to {
@@ -624,15 +638,69 @@ button:not(:disabled):active {
 }
 
 .animate-fade-in {
-    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-in {
-    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-in-right {
-    animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Mobile Tab Transition Animations */
+@keyframes mobileTabIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes mobileTabOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+.mobile-tab-enter {
+    animation: mobileTabIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.mobile-tab-exit {
+    animation: mobileTabOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    pointer-events: none;
+}
+
+/* Mobile pane container for smooth transitions */
+@media (max-width: 1023px) {
+    .mobile-pane {
+        transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+
+    .mobile-pane.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .mobile-pane.inactive {
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+    }
 }
 
 /* ============================================

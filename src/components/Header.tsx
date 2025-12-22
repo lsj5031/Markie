@@ -9,8 +9,6 @@ interface HeaderProps {
   setExportSize: (size: ExportSize) => void;
   exportMode: ExportMode;
   setExportMode: (mode: ExportMode) => void;
-  showMultiPagePreview: boolean;
-  setShowMultiPagePreview: (show: boolean) => void;
   padding: number;
   setPadding: (padding: number) => void;
   onExport: (format: ExportFormat) => void;
@@ -26,8 +24,6 @@ export const Header: React.FC<HeaderProps> = ({
   setExportSize,
   exportMode,
   setExportMode,
-  showMultiPagePreview,
-  setShowMultiPagePreview,
   onExport,
   onToggleThemes,
   isThemesOpen,
@@ -104,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
             onChange={(e) => setProjectName(e.target.value)}
             className="w-full bg-transparent border-none outline-none font-medium text-sm hover:opacity-80 transition-opacity"
             style={{ color: "var(--studio-text)" }}
-            placeholder="Untitled Project"
+            placeholder="Project Name"
           />
         </div>
       </div>
@@ -215,7 +211,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
 
                 {/* Layout Mode */}
-                <div style={{ marginBottom: "16px" }}>
+                <div>
                   <label
                     style={{
                       display: "block",
@@ -267,63 +263,6 @@ export const Header: React.FC<HeaderProps> = ({
                         {mode.label}
                       </button>
                     ))}
-                  </div>
-                </div>
-
-                {/* Show Page Breaks Toggle */}
-                <div
-                  style={{
-                    paddingTop: "12px",
-                    borderTop: "1px solid rgba(26,26,27,0.08)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: 500,
-                        color: "var(--studio-text)",
-                      }}
-                    >
-                      Show Page Breaks
-                    </span>
-                    <button
-                      onClick={() =>
-                        setShowMultiPagePreview(!showMultiPagePreview)
-                      }
-                      style={{
-                        width: "40px",
-                        height: "22px",
-                        borderRadius: "11px",
-                        padding: "2px",
-                        border: "none",
-                        cursor: "pointer",
-                        backgroundColor: showMultiPagePreview
-                          ? "var(--studio-accent)"
-                          : "#d1d5db",
-                        transition: "all 0.2s",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          backgroundColor: "#fff",
-                          borderRadius: "9px",
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                          transform: showMultiPagePreview
-                            ? "translateX(18px)"
-                            : "translateX(0)",
-                          transition: "transform 0.2s",
-                        }}
-                      />
-                    </button>
                   </div>
                 </div>
               </div>

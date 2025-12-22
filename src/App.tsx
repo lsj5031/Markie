@@ -17,6 +17,8 @@ import { SinglePageViewer } from "./components/SinglePageViewer";
 import { Header } from "./components/Header";
 import * as Icons from "./components/Icons";
 
+import { generateCuteName } from "./utils/nameGenerator";
+
 const LONG_INITIAL_MARKDOWN = `# This is a long document to test pagination
 
 ## Chapter 1: The Beginning
@@ -75,14 +77,13 @@ const App: React.FC = () => {
     () => localStorage.getItem("lumina_theme") || THEMES[0].id,
   );
   const [projectName, setProjectName] = useState<string>(
-    () => localStorage.getItem("lumina_project") || "Untitled Design",
+    () => generateCuteName(),
   );
   const [exportSize, setExportSize] = useState<ExportSize>("A4");
   const [exportMode, setExportMode] = useState<ExportMode>("PAGES"); // Default to pages mode
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [editorWidth, setEditorWidth] = useState(50); // percentage
   const [isDragging, setIsDragging] = useState(false);
-  const [showMultiPagePreview, setShowMultiPagePreview] = useState(false);
   const [isManualZoom, setIsManualZoom] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [exportPadding, setExportPadding] = useState<number>(64);
@@ -130,6 +131,29 @@ const App: React.FC = () => {
       | undefined;
     nav?.goToNextPage?.();
   }, []);
+
+  // Keyboard navigation for pagination
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in editor/inputs
+      if (
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "INPUT" ||
+        (document.activeElement as HTMLElement)?.isContentEditable
+      ) {
+        return;
+      }
+
+      if (e.key === "ArrowLeft") {
+        goToPreviousPage();
+      } else if (e.key === "ArrowRight") {
+        goToNextPage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [goToNextPage, goToPreviousPage]);
 
   const activeTheme: Theme = useMemo(
     () => THEMES.find((t) => t.id === themeId) || THEMES[0],
@@ -214,7 +238,33 @@ const App: React.FC = () => {
     updateScale();
     window.addEventListener("resize", updateScale);
     return () => window.removeEventListener("resize", updateScale);
-  }, [exportSize, isManualZoom]);
+  }, [exportSize, isManualZoom, isMobile]); // Added isMobile dependency
+
+  // Handle Ctrl+Wheel to zoom
+  useEffect(() => {
+    const container = previewContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        // Normalize delta: trackpads send small pixels, mouse wheels send steps (approx 100)
+        // We use a small factor to make it smooth for both if possible, or just clamp
+        // Using a fixed step is safer for "steps" feel like the buttons
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+
+        setCanvasScale((s) => {
+          const newScale = Math.min(2, Math.max(0.1, s + delta));
+          return Number(newScale.toFixed(2)); // Avoid precision float issues
+        });
+        setIsManualZoom(true);
+      }
+    };
+
+    // Use { passive: false } to allow preventDefault (preventing browser zoom)
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, []);
 
   const handleExport = async (format: ExportFormat) => {
     if (previewRef.current) {
@@ -265,8 +315,6 @@ const App: React.FC = () => {
         setExportSize={setExportSize}
         exportMode={exportMode}
         setExportMode={setExportMode}
-        showMultiPagePreview={showMultiPagePreview}
-        setShowMultiPagePreview={setShowMultiPagePreview}
         padding={exportPadding}
         setPadding={setExportPadding}
         onExport={handleExport}
@@ -299,6 +347,7 @@ const App: React.FC = () => {
             backgroundColor: "var(--studio-surface)",
             borderRight: isSidebarCollapsed ? "none" : "3px solid #1a1a1b",
             boxShadow: "inset -8px 0 20px rgba(26, 26, 27, 0.02)",
+            transition: "border-right 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
           {/* Sidebar header - with proper flex layout to prevent clipping */}
@@ -410,18 +459,27 @@ const App: React.FC = () => {
           >
             {isMobile ? (
               <Icons.Palette />
-            ) : isSidebarCollapsed ? (
-              <Icons.ChevronRight />
             ) : (
-              <Icons.ChevronLeft />
+              <div
+                style={{
+                  transition: "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  transform: isSidebarCollapsed
+                    ? "rotate(180deg)"
+                    : "rotate(0deg)",
+                }}
+              >
+                <Icons.ChevronLeft />
+              </div>
             )}
           </button>
         )}
 
         {/* Center Pane: Editor with dynamic width */}
         <section
-          className={`flex-col relative ${!isMobile || mobileTab === "editor" ? "flex" : "hidden"
-            } lg:flex`}
+          className={`flex-col relative lg:flex ${isMobile
+            ? `mobile-pane ${mobileTab === "editor" ? "active flex" : "inactive"}`
+            : "flex"
+            }`}
           style={{
             flex: isFocusMode
               ? "1"
@@ -430,6 +488,7 @@ const App: React.FC = () => {
                 : `0 0 ${editorWidth}%`,
             width: isMobile ? "100%" : undefined,
             backgroundColor: "var(--studio-bg)",
+            transition: "flex 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
           <div className="pane-header">
@@ -496,8 +555,10 @@ const App: React.FC = () => {
         {/* Right Pane: Live Canvas with clean background */}
         <section
           className={`flex-col overflow-hidden relative canvas-background ${isFocusMode && !isMobile ? "hidden" : ""
-            } ${!isMobile || mobileTab === "preview" ? "flex" : "hidden"
-            } lg:flex`}
+            } lg:flex ${isMobile
+              ? `mobile-pane ${mobileTab === "preview" ? "active flex" : "inactive"}`
+              : "flex"
+            }`}
           style={{ flex: 1 }}
         >
           <div className="pane-header">
@@ -669,13 +730,14 @@ const App: React.FC = () => {
                   width: `${getDimensions(exportSize).width * canvasScale}px`,
                   height: `${getDimensions(exportSize).height * canvasScale}px`,
                   flexShrink: 0,
+                  transition: "width 0.5s cubic-bezier(0.19, 1, 0.22, 1), height 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
                 }}
               >
                 {/* The Actual Designer Canvas - rendered at full pagination size, then scaled */}
                 <div
                   ref={previewRef}
                   id="designer-canvas"
-                  className="canvas-shadow transition-all duration-300 ease-in-out markdown-body"
+                  className="canvas-shadow transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] markdown-body"
                   style={{
                     ...themeVars,
                     width: `${getDimensions(exportSize).width}px`,
@@ -690,6 +752,7 @@ const App: React.FC = () => {
                     position: "relative",
                     transformOrigin: "top left",
                     transform: `scale(${canvasScale})`,
+                    transition: "transform 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
                     overflow: "hidden",
                   }}
                 >
@@ -697,11 +760,11 @@ const App: React.FC = () => {
                   <style
                     dangerouslySetInnerHTML={{
                       __html: `
-                    #preview-content h1, #preview-content h2, #preview-content h3 {
+                    #preview-content h1, #preview-content h2, #preview-content h3, #preview-content h4, #preview-content h5, #preview-content h6 {
                       font-family: var(--theme-heading-font);
                       border-color: var(--theme-accent);
                       opacity: 1;
-                      color: inherit;
+                      color: var(--theme-accent);
                     }
                     #preview-content pre {
                       background: #1e1e2e;
@@ -735,7 +798,7 @@ const App: React.FC = () => {
                   />
 
                   {/* Render either single or multi-page viewer (content only, no controls) */}
-                  {showMultiPagePreview ? (
+                  {exportMode === "PAGES" ? (
                     <MultiPageViewer
                       htmlContent={renderedHtml}
                       theme={activeTheme}
@@ -754,7 +817,7 @@ const App: React.FC = () => {
               </div>
 
               {/* Pagination Controls - Outside scaled area */}
-              {showMultiPagePreview && totalPages > 1 && (
+              {exportMode === "PAGES" && totalPages > 1 && (
                 <div
                   style={{
                     position: "absolute",
@@ -889,7 +952,7 @@ const App: React.FC = () => {
         <MobileNavBar
           activeTab={mobileTab}
           setActiveTab={setMobileTab}
-          showPagination={showMultiPagePreview}
+          showPagination={exportMode === "PAGES"}
           currentPage={currentPage}
           totalPages={totalPages}
           onPreviousPage={goToPreviousPage}

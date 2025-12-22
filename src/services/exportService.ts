@@ -1,4 +1,4 @@
-import * as htmlToImage from "html-to-image";
+// import * as htmlToImage from "html-to-image"; // Removed for lazy loading
 import { ExportFormat, ExportSize, ExportMode, Theme } from "../types";
 import { paginateHtml } from "../utils/pagination";
 
@@ -74,7 +74,7 @@ const applyThemeStyles = (element: HTMLElement, theme: Theme): void => {
     
     h1, h2, h3, h4, h5, h6 { 
       font-family: ${theme.styles.headingFont} !important; 
-      color: ${theme.styles.textColor} !important;
+      color: ${theme.styles.accentColor} !important;
       margin: 1.5rem 0 1rem 0 !important;
       font-weight: 700 !important;
       line-height: 1.3 !important;
@@ -220,7 +220,7 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
     .markdown-body h4,
     .markdown-body h5,
     .markdown-body h6 {
-      color: ${theme.styles.textColor};
+      color: ${theme.styles.accentColor};
       font-family: ${theme.styles.headingFont};
     }
     .markdown-body p,
@@ -354,6 +354,7 @@ const createContinuousExport = async (
   theme: Theme,
   padding: number,
 ): Promise<void> => {
+  const htmlToImage = await import("html-to-image");
   const sandbox = createSandbox();
 
   try {
@@ -451,6 +452,7 @@ export const exportPreview = async (
     return;
   }
 
+  const htmlToImage = await import("html-to-image");
   const sandbox = createSandbox();
   try {
     const { width, height } = getExportDimensions(size);

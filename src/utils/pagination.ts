@@ -95,8 +95,8 @@ const createMeasurementIframe = async (
               theme.styles.textColor
             }; background-color: ${theme.styles.backgroundColor}; }
             .content-wrapper { padding: ${padding}px; width: 100%; }
-            h1, h2, h3 { font-family: ${theme.styles.headingFont}; color: ${
-              theme.styles.textColor
+            h1, h2, h3, h4, h5, h6 { font-family: ${theme.styles.headingFont}; color: ${
+              theme.styles.accentColor
             }; }
             img, svg { max-width: 100%; height: auto; display: block; }
             pre, code { white-space: pre-wrap; word-break: break-word; }
