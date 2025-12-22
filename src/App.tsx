@@ -272,15 +272,6 @@ const App: React.FC = () => {
             boxShadow: "inset -8px 0 20px rgba(26, 26, 27, 0.02)",
           }}
         >
-          {/* Sidebar Toggle Button - now inside sidebar, anchored to right edge */}
-          <button
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="sidebar-toggle hidden xl:flex"
-            title={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
-          >
-            <Icons.ChevronLeft />
-          </button>
-
           {/* Sidebar header - with proper flex layout to prevent clipping */}
           <div className="sidebar-header">
             <div className="sidebar-header-content">
@@ -304,8 +295,8 @@ const App: React.FC = () => {
 
           {/* Theme list with redesigned cards - auto-scrolls to active theme */}
           {/* Theme list with Grid Layout */}
-          <div className="flex-1 overflow-y-auto p-3">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="flex-1 overflow-y-auto p-5">
+            <div className="grid grid-cols-2 gap-4">
               {THEMES.map((t) => {
                 const isActive = themeId === t.id;
                 return (
@@ -314,11 +305,7 @@ const App: React.FC = () => {
                     onClick={() => setThemeId(t.id)}
                     data-active={isActive}
                     title={`${t.name}: ${t.description}`}
-                    className={`group relative flex flex-col p-2 rounded-xl border-2 transition-all duration-200 text-left w-full
-                      ${isActive
-                        ? "border-[var(--studio-accent)] bg-[var(--studio-surface)] shadow-md scale-[1.02]"
-                        : "border-transparent hover:bg-[var(--studio-surface)] hover:shadow-sm"
-                      }`}
+                    className={`theme-card group relative flex flex-col text-left w-full rounded-xl ${isActive ? "active" : ""}`}
                   >
                     {/* Miniature Preview */}
                     <div
@@ -373,14 +360,14 @@ const App: React.FC = () => {
           </div>
         </aside>
 
-        {/* Collapsed sidebar toggle - positioned at left edge when collapsed */}
-        {!isFocusMode && isSidebarCollapsed && (
+        {/* Unified Sidebar Toggle Button */}
+        {!isFocusMode && (
           <button
-            onClick={() => setIsSidebarCollapsed(false)}
-            className="sidebar-toggle collapsed hidden xl:flex"
-            title="Show sidebar"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className={`sidebar-toggle hidden xl:flex ${isSidebarCollapsed ? "collapsed" : ""}`}
+            title={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
           >
-            <Icons.ChevronRight />
+            {isSidebarCollapsed ? <Icons.ChevronRight /> : <Icons.ChevronLeft />}
           </button>
         )}
 

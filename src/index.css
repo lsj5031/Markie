@@ -205,7 +205,7 @@ body {
 
 .theme-card:hover {
     background: rgba(26, 26, 27, 0.04);
-    transform: translateX(-4px);
+    transform: translateY(-2px);
 }
 
 .theme-card.active {
@@ -215,15 +215,7 @@ body {
     transform: none;
 }
 
-.theme-card.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--studio-accent);
-}
+
 
 /* Color Swatch Strip */
 .theme-swatch-strip {
@@ -296,6 +288,7 @@ body {
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     flex-shrink: 0;
     position: relative;
+    overflow-x: hidden;
 }
 
 .sidebar.collapsed {
@@ -308,12 +301,13 @@ body {
 /* Sidebar toggle - integrated with border, not floating over content */
 .sidebar-toggle {
     position: absolute;
-    right: -14px;
+    left: var(--sidebar-width);
+    margin-left: -2px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 70;
-    width: 28px;
-    height: 56px;
+    width: 32px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -321,8 +315,13 @@ body {
     border: 2px solid var(--studio-border);
     border-radius: 0 6px 6px 0;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1), margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 2px 0 8px rgba(26, 26, 27, 0.08);
+}
+
+/* OVERRIDE GLOBAL BUTTON SCALE: Prevents button from shrinking away from cursor during click */
+.sidebar-toggle:active {
+    transform: translateY(-50%) !important;
 }
 
 .sidebar-toggle:hover {
@@ -333,17 +332,23 @@ body {
 
 .sidebar-toggle svg {
     transition: transform 0.3s ease;
+    pointer-events: none;
+    /* Ensure click hits the button, not invalidates on icon */
 }
 
 .sidebar-toggle.collapsed {
     left: 0;
+    margin-left: 0;
     right: auto;
     border-radius: 0 6px 6px 0;
     border-left: none;
 }
 
 .sidebar-toggle.collapsed svg {
-    transform: rotate(180deg);
+    transform: rotate(0deg);
+    /* Icon rotation controlled by React now? No, kept chevron flip logic but maybe needs adjustment */
+    /* Wait, in React I used {isSidebarCollapsed ? <Icons.ChevronRight /> : <Icons.ChevronLeft />} */
+    /* So I don't need CSS rotation anymore */
 }
 
 /* Sidebar header - prevent clipping */
