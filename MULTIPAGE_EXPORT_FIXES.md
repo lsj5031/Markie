@@ -37,20 +37,18 @@ const pageHtml = `
   - Lists with proper markers and spacing
   - Blockquotes, tables, horizontal rules
   - Images with responsive sizing
-- **Consistent Application**: Applied theme styles across all export modes (PAGES, CONTINUOUS, SQUARE)
+- **Consistent Application**: Applied theme styles across all export modes (PAGES, CONTINUOUS) and sizes (A4, SQUARE)
 
 **Code Changes** in `src/services/exportService.ts`:
-- Enhanced `applyThemeStyles` function with comprehensive CSS
-- Added missing `createSquareExport` function
-- Added SQUARE mode to export switch statement
-- Fixed ExportMode type to include "SQUARE"
+- Added support for SQUARE format in `getDimensions`
+- Cleaned up `exportPreview` switch statement
+- Fixed ExportSize type to include "SQUARE"
 
 ### Additional Fixes Made
 
-1. **Type Definition Update**: Added "SQUARE" to `ExportMode` type
-2. **Missing Function Implementation**: Created complete `createSquareExport` function with proper theme application
-3. **Export Mode Switch**: Added SQUARE case to handle square format exports
-4. **Style Conflict Prevention**: Added mechanism to remove existing style tags before applying new ones
+1. **Type Definition Update**: Added "SQUARE" to `ExportSize` type
+2. **Dimension Logic**: Updated `getDimensions` to support square and custom sizes
+3. **Export Mode Refactor**: Simplified export logic to use mode for layout (Pages/Continuous) and size for dimensions (A4/Square)
 
 ### Verification
 
@@ -76,11 +74,10 @@ const pageHtml = `
 **Before Fixes**:
 - Pages mode: Overlapping content between pages
 - Long mode: Inconsistent styling compared to preview
-- Square mode: Missing functionality
 
 **After Fixes**:
 - Pages mode: Clean page separation with no overlapping content
 - Long mode: Consistent styling with preview, proper theme application
-- Square mode: Full functionality with theme-consistent exports
+- All modes support A4 and SQUARE formats seamlessly
 
-The fixes ensure that all three export modes (PAGES, CONTINUOUS, SQUARE) now work correctly with proper styling, accurate pagination, and theme consistency throughout the export process.
+The fixes ensure that all export modes (PAGES, CONTINUOUS) and formats (A4, SQUARE) now work correctly with proper styling, accurate pagination, and theme consistency throughout the export process.

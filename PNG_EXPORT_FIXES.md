@@ -24,17 +24,20 @@ All three critical PNG export issues have been successfully resolved with compre
 
 ### ✅ Issue #3: Multiple Page PNG Export
 - **Problem**: No multi-page export functionality
-- **Solution**: Implemented three export modes
+- **Solution**: Implemented two export modes with multiple format sizes
 - **Modes**:
   - **PAGES**: Traditional multi-page export (separate PNG files)
   - **CONTINUOUS**: Single tall image maintaining full document length
-  - **SQUARE**: Square format with proper cropping/scaling
+- **Formats**:
+  - **A4**: Standard paper format (1:1.414)
+  - **SQUARE**: Square format for social media (1:1)
 
 ## Technical Implementation
 
 ### New Types
 ```typescript
-export type ExportMode = 'PAGES' | 'CONTINUOUS' | 'SQUARE';
+export type ExportMode = 'PAGES' | 'CONTINUOUS';
+export type ExportSize = 'A4' | 'SQUARE' | 'CUSTOM';
 export interface ExportOptions {
   format: ExportFormat;
   size: ExportSize;
@@ -51,8 +54,9 @@ export interface ExportOptions {
 
 ### UI Controls Added
 1. **Padding Control**: Slider with value display
-2. **Export Mode Control**: Segmented buttons (Pages/Long/Square)
-3. **Multi-page Preview Toggle**: Switch viewer modes
+2. **Export Size Control**: Segmented buttons (A4/Square)
+3. **Export Mode Control**: Segmented buttons (Pages/Long)
+4. **Multi-page Preview Toggle**: Switch viewer modes
 4. **Enhanced Header**: Better control organization
 
 ### CSS Enhancements
@@ -81,8 +85,7 @@ export interface ExportOptions {
 
 ### Export Modes
 1. **Pages Mode**: Traditional page-by-page export
-2. **Long Mode**: Continuous tall image export
-3. **Square Mode**: Square format export
+2. **Long Mode**: Continuous tall image export (ignores page breaks)
 
 ### Multi-page Preview
 1. Click "Multi Page" button to toggle preview mode
@@ -129,6 +132,6 @@ All three PNG export issues from REMAINING_ISSUES.md have been successfully reso
 
 1. ✅ **PNG Export Padding**: Configurable padding control implemented
 2. ✅ **Multiple Page Preview**: Toggle between single/multi-page viewer
-3. ✅ **Multiple Page PNG Export**: Three export modes (Pages/Long/Square)
+3. ✅ **Multiple Page PNG Export**: Two export modes (Pages/Long) with multiple formats (A4/Square)
 
 The implementation provides users with complete control over PNG export formatting while maintaining the existing functionality and user experience.

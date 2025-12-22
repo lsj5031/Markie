@@ -597,7 +597,7 @@ const App: React.FC = () => {
             value={markdown}
             onChange={(e) => setMarkdown(e.target.value)}
             spellCheck={false}
-            className="editor-textarea flex-1 px-8 py-8 text-base leading-relaxed"
+            className="editor-textarea flex-1 p-12 text-base leading-relaxed"
             placeholder="Your story begins here..."
           />
         </section>
