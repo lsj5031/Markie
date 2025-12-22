@@ -18,16 +18,7 @@ Transform your markdown into production-ready editorial layouts with real-time v
 
 ## ✅ Current Status
 
-**All Known Issues Resolved** - The application is fully functional with comprehensive export capabilities.
-
-### Recently Fixed Issues
-
-- ✅ **Multi-page pagination** - Eliminated extra empty pages
-- ✅ **Export styling consistency** - Uniform styling across all export modes
-- ✅ **SVG export cropping** - Full content capture without cropping
-- ✅ **PNG export padding** - Configurable padding (10px-100px)
-- ✅ **Multi-page preview** - Toggle between single/multi-page views
-- ✅ **Export modes** - Pages and Continuous formats
+Fully functional with comprehensive export capabilities. All known issues resolved.
 
 ## 🚀 Run Locally
 
@@ -91,31 +82,30 @@ Transform your markdown into production-ready editorial layouts with real-time v
 
 Choose from 6 professionally designed themes:
 
-- **Classic Editorial**: Baskervville serif for timeless news-journal aesthetic
-- **Studio Minimal**: Clean sans-serif with generous white space
-- **Vogue Night**: High-fashion editorial style with dark theme
-- **Swiss Typographic**: Heavy Archivo Black headings on functional grey grid
-- **Tech Blueprint**: High-contrast monospaced layout for technical documentation
-- **Bauhaus Redux**: Strict primary color palette with geometric sans
-- **Brutalist Print**: Raw, unpolished aesthetics with extreme shadows
+- **Classic Editorial**: Timeless serif design
+- **Studio Minimal**: Clean sans-serif with white space
+- **Vogue Night**: High-fashion dark theme
+- **Swiss Typographic**: Bold headers on functional grid
+- **Tech Blueprint**: High-contrast monospace layout
+- **Bauhaus Redux**: Primary colors with geometric sans
+- **Brutalist Print**: Raw aesthetics with extreme shadows
 
 ## 📸 Export Options
 
 - **Formats**: PNG (high-resolution) and SVG (vector)
-- **Sizes**: A4 (1:1.414 ratio) and Square (1:1 ratio)
-- **Padding**: Configurable padding (10px to 100px)
-- **Quality**: High pixel ratio (2x) for sharp images
-- **Naming**: Automatic file naming with page numbers when applicable
+- **Sizes**: A4 and Square formats
+- **Padding**: Configurable (10px-100px)
+- **Modes**: Pages and Continuous export
+- **Quality**: High pixel ratio (2x) with automatic file naming
 
-## 🛠️ Technical Details
+## 🛠️ Tech Stack
 
-- **Stack**: React + TypeScript + Vite
-- **Markdown**: marked.js for parsing, DOMPurify for security
-- **Exports**: html-to-image for PNG/SVG with custom pagination engine
-- **Styling**: Tailwind CSS + CSS-in-JS for theme application
-- **Quality**: Oxlint integration with pre-commit hooks
-- **Testing**: Playwright end-to-end test suite
-- **Build**: Optimized production build with code splitting
+- **Framework**: React + TypeScript + Vite
+- **Markdown**: marked.js + DOMPurify
+- **Exports**: html-to-image with custom pagination
+- **Styling**: Tailwind CSS + CSS-in-JS
+- **Quality**: Oxlint + pre-commit hooks
+- **Testing**: Playwright e2e tests
 
 ## 🧪 Development
 

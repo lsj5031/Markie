@@ -13,63 +13,8 @@ import { exportPreview } from "./services/exportService";
 import { getDimensions } from "./utils/pagination";
 import { MultiPageViewer } from "./components/MultiPageViewer";
 import { SinglePageViewer } from "./components/SinglePageViewer";
-
-const Icons = {
-  Export: () => (
-    <svg
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line x1="12" y1="15" x2="12" y2="3" />
-    </svg>
-  ),
-  Check: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  ),
-  ChevronLeft: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="15 18 9 12 15 6"></polyline>
-    </svg>
-  ),
-  ChevronRight: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  ),
-};
+import { Header } from "./components/Header";
+import * as Icons from "./components/Icons";
 
 const LONG_INITIAL_MARKDOWN = `# This is a long document to test pagination
 
@@ -137,12 +82,43 @@ const App: React.FC = () => {
   const [editorWidth, setEditorWidth] = useState(50); // percentage
   const [isDragging, setIsDragging] = useState(false);
   const [showMultiPagePreview, setShowMultiPagePreview] = useState(false);
+  const [isManualZoom, setIsManualZoom] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const [exportPadding, setExportPadding] = useState<number>(64);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [canvasScale, setCanvasScale] = useState(1);
+
+  // Handle page navigation
+  const handlePageChange = useCallback((page: number, total: number) => {
+    setCurrentPage(page);
+    setTotalPages(total);
+  }, []);
+
+  const goToPreviousPage = useCallback(() => {
+    const nav = (window as unknown as Record<string, unknown>)
+      .__multiPageNav as
+      | {
+          goToPreviousPage?: () => void;
+        }
+      | undefined;
+    nav?.goToPreviousPage?.();
+  }, []);
+
+  const goToNextPage = useCallback(() => {
+    const nav = (window as unknown as Record<string, unknown>)
+      .__multiPageNav as
+      | {
+          goToNextPage?: () => void;
+        }
+      | undefined;
+    nav?.goToNextPage?.();
+  }, []);
 
   const activeTheme: Theme = useMemo(
     () => THEMES.find((t) => t.id === themeId) || THEMES[0],
@@ -210,6 +186,7 @@ const App: React.FC = () => {
   // Calculate canvas scale to fit container while maintaining WYSIWYG with pagination
   useEffect(() => {
     const updateScale = () => {
+      if (isManualZoom) return;
       if (!previewContainerRef.current) return;
 
       const containerRect = previewContainerRef.current.getBoundingClientRect();
@@ -226,7 +203,7 @@ const App: React.FC = () => {
     updateScale();
     window.addEventListener("resize", updateScale);
     return () => window.removeEventListener("resize", updateScale);
-  }, [exportSize]);
+  }, [exportSize, isManualZoom]);
 
   const handleExport = async (format: ExportFormat) => {
     if (previewRef.current) {
@@ -237,6 +214,7 @@ const App: React.FC = () => {
         projectName.toLowerCase().replace(/\s+/g, "-"),
         activeTheme,
         renderedHtml, // Pass the raw rendered HTML content
+        exportPadding,
         exportMode,
       );
     }
@@ -255,7 +233,7 @@ const App: React.FC = () => {
     "--theme-font": activeTheme.styles.fontFamily,
     "--theme-heading-font": activeTheme.styles.headingFont,
     "--theme-code-bg": activeTheme.styles.codeBackground,
-    "--theme-padding": activeTheme.styles.containerPadding,
+    "--theme-padding": `${exportPadding}px`,
     "--theme-radius": activeTheme.styles.borderRadius,
     "--theme-border": activeTheme.styles.border || "none",
     "--theme-shadow": activeTheme.styles.shadow || "none",
@@ -269,196 +247,26 @@ const App: React.FC = () => {
         color: "var(--studio-text)",
       }}
     >
-      {/* Top Header - Enhanced with better grouping and visual hierarchy */}
-      <header
-        className="h-16 flex items-center justify-between px-5 z-50 shrink-0 relative"
-        style={{
-          background:
-            "linear-gradient(180deg, var(--studio-surface) 0%, rgba(254, 248, 236, 0.95) 100%)",
-          borderBottom: "3px solid #1a1a1b",
-          boxShadow: "0 4px 20px rgba(26, 26, 27, 0.04)",
-        }}
-      >
-        {/* Decorative accent line */}
-        <div
-          className="absolute top-0 left-0 right-0 h-[3px]"
-          style={{
-            background:
-              "linear-gradient(90deg, var(--studio-accent) 0%, var(--studio-secondary) 50%, var(--studio-tertiary) 100%)",
-          }}
-        />
-
-        {/* Left: Logo + Branding + Divider + Project Info + Format (Grouped) */}
-        <div className="flex items-center gap-5 flex-1 min-w-0">
-          {/* Brand section with enhanced logo */}
-          <div className="flex items-center gap-3 shrink-0 group cursor-pointer">
-            <div
-              className="w-11 h-11 flex items-center justify-center text-white font-black text-lg tracking-tight transition-transform group-hover:scale-105"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--studio-accent) 0%, #c62a47 50%, #a01d3a 100%)",
-                boxShadow:
-                  "3px 3px 0px rgba(26, 26, 27, 0.25), inset 0 1px 0 rgba(255,255,255,0.2)",
-              }}
-            >
-              L
-            </div>
-            <div className="hidden sm:flex flex-col leading-none">
-              <span
-                className="font-extrabold tracking-tight text-lg"
-                style={{ color: "var(--studio-text)" }}
-              >
-                Lumina
-              </span>
-              <span
-                className="text-[10px] font-bold tracking-[0.2em] uppercase"
-                style={{ color: "var(--studio-accent)" }}
-              >
-                Studio
-              </span>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div
-            className="w-[2px] h-8 hidden md:block"
-            style={{
-              background:
-                "linear-gradient(180deg, transparent, #1a1a1b30, transparent)",
-            }}
-          />
-
-          {/* Project name input - subtle and refined */}
-          <div
-            className="flex items-center gap-2 flex-1 min-w-0 max-w-[200px] px-3 py-2 transition-all duration-200 group border-b-2 border-transparent hover:border-[#1a1a1b20]"
-            style={{ backgroundColor: "transparent" }}
-          >
-            <svg
-              width="14"
-              height="14"
-              className="w-3.5 h-3.5 shrink-0 opacity-30 group-hover:opacity-50 transition-opacity"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-            <input
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent border-none outline-none font-semibold text-sm tracking-tight"
-              style={{ color: "var(--studio-text)" }}
-              placeholder="Untitled Project"
-            />
-          </div>
-
-          {/* Format Segmented Control - now with proper pill styling */}
-          <div className="hidden lg:flex items-center gap-3">
-            <span className="text-[9px] font-bold uppercase tracking-[0.15em] opacity-40">
-              Format
-            </span>
-            <div className="segmented-control">
-              {["A4", "Square"].map((size) => (
-                <button
-                  key={size}
-                  onClick={() =>
-                    setExportSize(size.toUpperCase() as ExportSize)
-                  }
-                  className={`segmented-option ${exportSize === size.toUpperCase() ? "active" : ""}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Export Mode Control */}
-          <div className="hidden lg:flex items-center gap-3">
-            <span className="text-[9px] font-bold uppercase tracking-[0.15em] opacity-40">
-              Mode
-            </span>
-            <div className="segmented-control">
-              {[
-                { value: "PAGES", label: "Pages" },
-                { value: "CONTINUOUS", label: "Long" },
-              ].map((mode) => (
-                <button
-                  key={mode.value}
-                  onClick={() => setExportMode(mode.value as ExportMode)}
-                  className={`segmented-option ${exportMode === mode.value ? "active" : ""}`}
-                >
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Actions (Multi-page toggle + SVG Export + Export dropdown) */}
-        <div className="flex items-center gap-3 shrink-0">
-          {/* Multi-page Preview Toggle */}
-          <button
-            onClick={() => setShowMultiPagePreview(!showMultiPagePreview)}
-            title="Toggle multi-page preview"
-            className={`action-btn ${showMultiPagePreview ? "primary" : "secondary"}`}
-          >
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-              <line x1="9" y1="9" x2="15" y2="9" />
-              <line x1="9" y1="15" x2="15" y2="15" />
-            </svg>
-            <span className="hidden xl:inline">
-              {showMultiPagePreview ? "Single Page" : "Multi Page"}
-            </span>
-          </button>
-
-          {/* SVG Export button (replaces Enhance button) */}
-          <button
-            onClick={() => handleExport("SVG")}
-            title="Export vector SVG"
-            className="action-btn secondary"
-          >
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-            <span className="hidden xl:inline">Export SVG</span>
-          </button>
-
-          {/* Export button - now exports PNG directly */}
-          <button
-            onClick={() => handleExport("PNG")}
-            title="Export PNG"
-            className="action-btn primary"
-          >
-            <Icons.Export />
-            <span className="hidden xl:inline">Export</span>
-          </button>
-        </div>
-      </header>
+      <Header
+        projectName={projectName}
+        setProjectName={setProjectName}
+        exportSize={exportSize}
+        setExportSize={setExportSize}
+        exportMode={exportMode}
+        setExportMode={setExportMode}
+        showMultiPagePreview={showMultiPagePreview}
+        setShowMultiPagePreview={setShowMultiPagePreview}
+        padding={exportPadding}
+        setPadding={setExportPadding}
+        onExport={handleExport}
+      />
 
       <main ref={mainRef} className="flex-1 flex overflow-hidden relative">
         {/* Collapsible Sidebar: Enhanced Theme Browser */}
         <aside
           className={`sidebar hidden xl:flex flex-col gap-0 ${isSidebarCollapsed ? "collapsed" : ""}`}
           style={{
+            display: isFocusMode ? "none" : undefined,
             backgroundColor: "var(--studio-surface)",
             borderRight: isSidebarCollapsed ? "none" : "3px solid #1a1a1b",
             boxShadow: "inset -8px 0 20px rgba(26, 26, 27, 0.02)",
@@ -495,47 +303,61 @@ const App: React.FC = () => {
           </div>
 
           {/* Theme list with redesigned cards - auto-scrolls to active theme */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {THEMES.map((t) => {
-              const isActive = themeId === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setThemeId(t.id)}
-                  data-active={isActive}
-                  className={`theme-card w-full text-left ${isActive ? "active" : ""}`}
-                >
-                  {/* Horizontal color swatch strip */}
-                  <div className="theme-swatch-strip">
+          {/* Theme list with Grid Layout */}
+          <div className="flex-1 overflow-y-auto p-3">
+            <div className="grid grid-cols-2 gap-3">
+              {THEMES.map((t) => {
+                const isActive = themeId === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setThemeId(t.id)}
+                    data-active={isActive}
+                    title={`${t.name}: ${t.description}`}
+                    className={`group relative flex flex-col p-2 rounded-xl border-2 transition-all duration-200 text-left w-full
+                      ${
+                        isActive
+                          ? "border-[var(--studio-accent)] bg-[var(--studio-surface)] shadow-md scale-[1.02]"
+                          : "border-transparent hover:bg-[var(--studio-surface)] hover:shadow-sm"
+                      }`}
+                  >
+                    {/* Miniature Preview */}
                     <div
-                      className="swatch"
+                      className="w-full aspect-square rounded-lg mb-2 shadow-inner relative overflow-hidden ring-1 ring-black/5"
                       style={{ backgroundColor: t.styles.backgroundColor }}
-                    />
-                    <div
-                      className="swatch"
-                      style={{ backgroundColor: t.styles.textColor }}
-                    />
-                    <div
-                      className="swatch"
-                      style={{ backgroundColor: t.styles.accentColor }}
-                    />
-                  </div>
-
-                  {/* Theme info with improved typography */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <span className="theme-name block">{t.name}</span>
-                      <p className="theme-description">{t.description}</p>
+                    >
+                      {/* Abstract Content representation */}
+                      <div
+                        className="absolute top-2 left-2 right-2 h-1 rounded-full opacity-20"
+                        style={{ backgroundColor: t.styles.textColor }}
+                      />
+                      <div
+                        className="absolute top-4 left-2 w-1/2 h-1 rounded-full opacity-20"
+                        style={{ backgroundColor: t.styles.textColor }}
+                      />
+                      <div
+                        className="absolute bottom-2 right-2 w-4 h-4 rounded-full opacity-80 shadow-sm"
+                        style={{ backgroundColor: t.styles.accentColor }}
+                      />
                     </div>
-                    {isActive && (
-                      <div className="theme-active-badge">
-                        <Icons.Check />
-                      </div>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+
+                    <div className="flex justify-between items-start gap-1">
+                      <span
+                        className="text-[10px] font-bold leading-tight line-clamp-2"
+                        style={{ color: "var(--studio-text)" }}
+                      >
+                        {t.name}
+                      </span>
+                      {isActive && (
+                        <div className="w-3 h-3 text-[var(--studio-accent)] shrink-0">
+                          <Icons.Check />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Sidebar footer */}
@@ -553,7 +375,7 @@ const App: React.FC = () => {
         </aside>
 
         {/* Collapsed sidebar toggle - positioned at left edge when collapsed */}
-        {isSidebarCollapsed && (
+        {!isFocusMode && isSidebarCollapsed && (
           <button
             onClick={() => setIsSidebarCollapsed(false)}
             className="sidebar-toggle collapsed hidden xl:flex"
@@ -567,7 +389,7 @@ const App: React.FC = () => {
         <section
           className="flex flex-col relative"
           style={{
-            flex: `0 0 ${editorWidth}%`,
+            flex: isFocusMode ? "1" : `0 0 ${editorWidth}%`,
             backgroundColor: "var(--studio-bg)",
           }}
         >
@@ -589,9 +411,30 @@ const App: React.FC = () => {
               </div>
               <span>Source</span>
             </div>
-            <span className="pane-meta">
-              {markdown.split("\n").length} lines
-            </span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsFocusMode(!isFocusMode)}
+                title={isFocusMode ? "Exit focus mode" : "Enter focus mode"}
+                className={`p-1.5 rounded-md transition-colors ${isFocusMode ? "bg-[var(--studio-accent)] text-white" : "text-gray-400 hover:text-[var(--studio-text)] hover:bg-black/5"}`}
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  {isFocusMode ? (
+                    <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                  ) : (
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                  )}
+                </svg>
+              </button>
+              <span className="pane-meta">
+                {markdown.split("\n").length} lines
+              </span>
+            </div>
           </div>
           <textarea
             value={markdown}
@@ -605,14 +448,14 @@ const App: React.FC = () => {
         {/* Draggable Divider */}
         <div
           ref={dividerRef}
-          className={`resizable-divider ${isDragging ? "dragging" : ""}`}
+          className={`resizable-divider ${isDragging ? "dragging" : ""} ${isFocusMode ? "hidden" : ""}`}
           onMouseDown={handleMouseDown}
           title="Drag to resize panes"
         />
 
         {/* Right Pane: Live Canvas with clean background */}
         <section
-          className="flex flex-col overflow-hidden relative canvas-background"
+          className={`flex flex-col overflow-hidden relative canvas-background ${isFocusMode ? "hidden" : ""}`}
           style={{ flex: 1 }}
         >
           <div className="pane-header">
@@ -623,21 +466,144 @@ const App: React.FC = () => {
               />
               <span>Preview</span>
             </div>
-            <div className="flex gap-3 items-center">
-              <span
-                className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-1"
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              {/* Zoom Controls */}
+              <div
                 style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "2px",
+                  padding: "4px",
+                  backgroundColor: "rgba(26,26,27,0.05)",
+                  border: "1px solid var(--studio-border)",
+                  borderRadius: "8px",
+                }}
+              >
+                <button
+                  onClick={() => {
+                    setCanvasScale((s) => Math.max(0.1, s - 0.1));
+                    setIsManualZoom(true);
+                  }}
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "none",
+                    backgroundColor: "transparent",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: "var(--studio-text)",
+                  }}
+                  title="Zoom out"
+                >
+                  -
+                </button>
+                <span
+                  style={{
+                    width: "42px",
+                    textAlign: "center",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    fontFamily: "monospace",
+                    color: "var(--studio-text)",
+                  }}
+                >
+                  {Math.round(canvasScale * 100)}%
+                </span>
+                <button
+                  onClick={() => {
+                    setCanvasScale((s) => Math.min(2, s + 0.1));
+                    setIsManualZoom(true);
+                  }}
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "none",
+                    backgroundColor: "transparent",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: "var(--studio-text)",
+                  }}
+                  title="Zoom in"
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                onClick={() => setIsManualZoom(false)}
+                title="Fit to screen"
+                style={{
+                  padding: "6px 12px",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  borderRadius: "6px",
+                  border: !isManualZoom
+                    ? "none"
+                    : "1px solid var(--studio-border)",
+                  backgroundColor: !isManualZoom
+                    ? "var(--studio-accent)"
+                    : "transparent",
+                  color: !isManualZoom ? "white" : "var(--studio-text)",
+                  cursor: "pointer",
+                  boxShadow: !isManualZoom
+                    ? "0 2px 8px rgba(235,59,90,0.25)"
+                    : "none",
+                }}
+              >
+                Fit
+              </button>
+
+              <div
+                style={{
+                  width: "1px",
+                  height: "18px",
+                  backgroundColor: "rgba(26,26,27,0.15)",
+                }}
+              />
+
+              <span
+                style={{
+                  padding: "6px 12px",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  textTransform: "uppercase",
                   backgroundColor: "rgba(26,26,27,0.05)",
                   color: "var(--studio-text)",
+                  border: "1px solid var(--studio-border)",
+                  borderRadius: "6px",
                 }}
               >
                 {exportSize}
               </span>
               <div
-                className="w-[1px] h-4"
-                style={{ backgroundColor: "rgba(26,26,27,0.15)" }}
+                style={{
+                  width: "1px",
+                  height: "18px",
+                  backgroundColor: "rgba(26,26,27,0.15)",
+                }}
               />
-              <span className="pane-meta">{markdown.length} chars</span>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontFamily: "monospace",
+                  color: "var(--studio-muted)",
+                }}
+              >
+                {markdown.length} chars
+              </span>
             </div>
           </div>
 
@@ -647,95 +613,231 @@ const App: React.FC = () => {
             className="flex-1 overflow-auto scroll-smooth flex items-start justify-center"
             style={{
               backgroundColor: "var(--studio-bg)",
-              padding: "32px 80px 60px 80px", // Extra horizontal padding for side nav, bottom for page indicator
+              padding: "32px 80px 120px 80px", // Extra bottom padding for pagination controls
               minHeight: "100%",
             }}
           >
-            {/* Scaling wrapper - maintains space for the scaled canvas */}
-            <div
-              style={{
-                width: `${getDimensions(exportSize).width * canvasScale}px`,
-                height: `${getDimensions(exportSize).height * canvasScale}px`,
-                flexShrink: 0,
-              }}
-            >
-              {/* The Actual Designer Canvas - rendered at full pagination size, then scaled */}
+            {/* Outer wrapper for positioning pagination controls outside scaled area */}
+            <div style={{ position: "relative" }}>
+              {/* Scaling wrapper - maintains space for the scaled canvas */}
               <div
-                ref={previewRef}
-                id="designer-canvas"
-                className="canvas-shadow transition-all duration-300 ease-in-out overflow-hidden markdown-body"
                 style={{
-                  ...themeVars,
-                  width: `${getDimensions(exportSize).width}px`,
-                  height: `${getDimensions(exportSize).height}px`,
-                  backgroundColor: "var(--theme-bg)",
-                  color: "var(--theme-text)",
-                  fontFamily: "var(--theme-font)",
-                  padding: "var(--theme-padding)",
-                  borderRadius: "var(--theme-radius)",
-                  border: "var(--theme-border)",
-                  boxShadow: "var(--theme-shadow)",
-                  position: "relative",
-                  transformOrigin: "top left",
-                  transform: `scale(${canvasScale})`,
+                  width: `${getDimensions(exportSize).width * canvasScale}px`,
+                  height: `${getDimensions(exportSize).height * canvasScale}px`,
+                  flexShrink: 0,
                 }}
               >
-                {/* Internal styling scoped to theme variables - with proper code block contrast */}
-                <style
-                  dangerouslySetInnerHTML={{
-                    __html: `
-                  #preview-content h1, #preview-content h2, #preview-content h3 {
-                    font-family: var(--theme-heading-font);
-                    border-color: var(--theme-accent);
-                    opacity: 1;
-                    color: inherit;
-                  }
-                  #preview-content pre {
-                    background: #1e1e2e;
-                    color: #cdd6f4;
-                    padding: 1.25em;
-                    border-radius: 4px;
-                    border: 1px solid #313244;
-                    overflow-x: auto;
-                  }
-                  #preview-content pre code {
-                    background: transparent;
-                    color: inherit;
-                    padding: 0;
-                    border: none;
-                  }
-                  #preview-content code {
-                    background: rgba(0,0,0,0.08);
-                    color: var(--theme-accent);
-                    padding: 0.15em 0.4em;
-                    border-radius: 3px;
-                    font-size: 0.9em;
-                  }
-                  #preview-content a { color: var(--theme-accent); border-bottom: 1px solid var(--theme-accent); text-decoration: none; }
-                  #preview-content strong { color: var(--theme-accent); font-weight: 700; }
-                  #preview-content hr { border-color: var(--theme-text); opacity: 0.15; }
-                  #preview-content ul li::marker, #preview-content ol li::marker { color: var(--theme-accent); }
-                  #preview-content ol { list-style-type: decimal; padding-left: 1.5em; }
-                  #preview-content ul { list-style-type: disc; padding-left: 1.5em; }
-               `,
+                {/* The Actual Designer Canvas - rendered at full pagination size, then scaled */}
+                <div
+                  ref={previewRef}
+                  id="designer-canvas"
+                  className="canvas-shadow transition-all duration-300 ease-in-out markdown-body"
+                  style={{
+                    ...themeVars,
+                    width: `${getDimensions(exportSize).width}px`,
+                    height: `${getDimensions(exportSize).height}px`,
+                    backgroundColor: "var(--theme-bg)",
+                    color: "var(--theme-text)",
+                    fontFamily: "var(--theme-font)",
+                    padding: "var(--theme-padding)",
+                    borderRadius: "var(--theme-radius)",
+                    border: "var(--theme-border)",
+                    boxShadow: "var(--theme-shadow)",
+                    position: "relative",
+                    transformOrigin: "top left",
+                    transform: `scale(${canvasScale})`,
+                    overflow: "hidden",
                   }}
-                />
+                >
+                  {/* Internal styling scoped to theme variables - with proper code block contrast */}
+                  <style
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                    #preview-content h1, #preview-content h2, #preview-content h3 {
+                      font-family: var(--theme-heading-font);
+                      border-color: var(--theme-accent);
+                      opacity: 1;
+                      color: inherit;
+                    }
+                    #preview-content pre {
+                      background: #1e1e2e;
+                      color: #cdd6f4;
+                      padding: 1.25em;
+                      border-radius: 4px;
+                      border: 1px solid #313244;
+                      overflow-x: auto;
+                    }
+                    #preview-content pre code {
+                      background: transparent;
+                      color: inherit;
+                      padding: 0;
+                      border: none;
+                    }
+                    #preview-content code {
+                      background: rgba(0,0,0,0.08);
+                      color: var(--theme-accent);
+                      padding: 0.15em 0.4em;
+                      border-radius: 3px;
+                      font-size: 0.9em;
+                    }
+                    #preview-content a { color: var(--theme-accent); border-bottom: 1px solid var(--theme-accent); text-decoration: none; }
+                    #preview-content strong { color: var(--theme-accent); font-weight: 700; }
+                    #preview-content hr { border-color: var(--theme-text); opacity: 0.15; }
+                    #preview-content ul li::marker, #preview-content ol li::marker { color: var(--theme-accent); }
+                    #preview-content ol { list-style-type: decimal; padding-left: 1.5em; }
+                    #preview-content ul { list-style-type: disc; padding-left: 1.5em; }
+                 `,
+                    }}
+                  />
 
-                {/* Render either single or multi-page viewer */}
-                {showMultiPagePreview ? (
-                  <MultiPageViewer
-                    htmlContent={renderedHtml}
-                    theme={activeTheme}
-                    exportSize={exportSize}
-                  />
-                ) : (
-                  <SinglePageViewer
-                    htmlContent={renderedHtml}
-                    theme={activeTheme}
-                    exportSize={exportSize}
-                  />
-                )}
+                  {/* Render either single or multi-page viewer (content only, no controls) */}
+                  {showMultiPagePreview ? (
+                    <MultiPageViewer
+                      htmlContent={renderedHtml}
+                      theme={activeTheme}
+                      exportSize={exportSize}
+                      onPageChange={handlePageChange}
+                    />
+                  ) : (
+                    <SinglePageViewer
+                      htmlContent={renderedHtml}
+                      theme={activeTheme}
+                      exportSize={exportSize}
+                    />
+                  )}
+                </div>
               </div>
+
+              {/* Pagination Controls - Outside scaled area */}
+              {showMultiPagePreview && totalPages > 1 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "-50px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "6px 12px",
+                    backgroundColor: "var(--studio-surface)",
+                    border: "1px solid var(--studio-border)",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                    zIndex: 10,
+                  }}
+                >
+                  {/* Previous button */}
+                  <button
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 0}
+                    style={{
+                      width: "28px",
+                      height: "28px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "transparent",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: currentPage === 0 ? "not-allowed" : "pointer",
+                      opacity: currentPage === 0 ? 0.3 : 1,
+                      color: "var(--studio-text)",
+                      transition: "all 0.2s",
+                    }}
+                    title="Previous Page"
+                  >
+                    <svg
+                      style={{ width: "14px", height: "14px" }}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+
+                  {/* Page number display */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      padding: "4px 10px",
+                      backgroundColor: "rgba(26,26,27,0.04)",
+                      borderRadius: "6px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        color: "var(--studio-accent)",
+                      }}
+                    >
+                      {currentPage + 1}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 500,
+                        color: "var(--studio-text)",
+                        opacity: 0.4,
+                      }}
+                    >
+                      /
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        color: "var(--studio-text)",
+                      }}
+                    >
+                      {totalPages}
+                    </span>
+                  </div>
+
+                  {/* Next button */}
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages - 1}
+                    style={{
+                      width: "28px",
+                      height: "28px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "transparent",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor:
+                        currentPage === totalPages - 1
+                          ? "not-allowed"
+                          : "pointer",
+                      opacity: currentPage === totalPages - 1 ? 0.3 : 1,
+                      color: "var(--studio-text)",
+                      transition: "all 0.2s",
+                    }}
+                    title="Next Page"
+                  >
+                    <svg
+                      style={{ width: "14px", height: "14px" }}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </section>

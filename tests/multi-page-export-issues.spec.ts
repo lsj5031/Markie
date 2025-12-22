@@ -45,7 +45,9 @@ This concludes our multi-page test document. The content should now be long enou
     await page.waitForTimeout(1000);
 
     // Switch to multi-page view to test pagination
-    await page.click('button:has-text("Multi Page")');
+    await page.click('button:has-text("Page Setup")');
+    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(1000);
 
     // Take screenshot of multi-page view
@@ -55,20 +57,23 @@ This concludes our multi-page test document. The content should now be long enou
     });
 
     // Check that pagination controls are visible
-    const paginationControls = page.locator('.absolute.bottom-4');
+    const paginationControls = page.locator('text=/\\d+ \\/ \\d+/').locator('xpath=..');
     await expect(paginationControls).toBeVisible();
 
     // Get page count
-    const pageText = await page.textContent('text=/Page \\d+ of \\d+/');
+    const pageText = await page.textContent('text=/\\d+ \\/ \\d+/');
     console.log('Pagination display:', pageText);
 
     // Test Pages mode export
-    await page.click('button:has-text("Pages")');
+    await page.click('button:has-text("Page Setup")');
+    await page.click('button:has-text("Paged")');
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(300);
 
     // Export PNG to test the multiple page issue
-    const exportButton = page.locator('button').filter({ hasText: 'Export' });
-    await exportButton.click();
+    await page.click('button:has-text("Export")'); // Open dropdown
+    await page.click('button:has-text("PNG Image")'); // Click PNG export
+    await page.waitForTimeout(3000); // Wait for export to complete
     await page.waitForTimeout(3000); // Wait for export to complete
 
     console.log('✅ Multi-page pagination test completed');
@@ -110,7 +115,7 @@ This should complete our long document for continuous export testing.`;
     await page.waitForTimeout(1000);
 
     // Test in single page view first
-    await page.click('button:has-text("Single Page")');
+    // Default is single page.
     await page.waitForTimeout(500);
 
     const _singlePageScreenshot = await page.screenshot({ 
@@ -119,7 +124,9 @@ This should complete our long document for continuous export testing.`;
     });
 
     // Switch to Long mode
-    await page.click('button:has-text("Long")');
+    await page.click('button:has-text("Page Setup")');
+    await page.click('button:has-text("Continuous")');
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(500);
 
     const _longModeScreenshot = await page.screenshot({ 
@@ -128,8 +135,8 @@ This should complete our long document for continuous export testing.`;
     });
 
     // Export PNG in Long mode
-    const exportButton = page.locator('button').filter({ hasText: 'Export' });
-    await exportButton.click();
+    await page.click('button:has-text("Export")'); // Open dropdown
+    await page.click('button:has-text("PNG Image")'); // Click PNG export
     await page.waitForTimeout(3000);
 
     console.log('✅ Long PNG export styling test completed');
@@ -171,7 +178,9 @@ This comparison test ensures that both Pages and Long modes produce styled expor
     await page.waitForTimeout(1000);
 
     // Test Pages mode
-    await page.click('button:has-text("Pages")');
+    await page.click('button:has-text("Page Setup")');
+    await page.click('button:has-text("Paged")');
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(500);
 
     const _pagesModeScreenshot = await page.screenshot({ 
@@ -180,7 +189,9 @@ This comparison test ensures that both Pages and Long modes produce styled expor
     });
 
     // Test Long mode  
-    await page.click('button:has-text("Long")');
+    await page.click('button:has-text("Page Setup")');
+    await page.click('button:has-text("Continuous")');
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(500);
 
     const _longModeScreenshot = await page.screenshot({ 

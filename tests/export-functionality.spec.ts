@@ -32,16 +32,20 @@ This completes our export test content.`;
   });
 
   test('should export PNG with proper padding applied', async ({ page }) => {
+    // Open Page Setup
+    await page.click('button:has-text("Page Setup")');
+
     // Verify padding controls are present
     const paddingSlider = page.locator('input[type="range"]');
     await expect(paddingSlider).toBeVisible();
     
     // Set a specific padding value
-    await paddingSlider.fill('50');
+    // step is 8, so use a valid multiple like 48 or 56
+    await paddingSlider.fill('48');
     await page.waitForTimeout(200);
     
     // Verify padding display
-    await expect(page.locator('text=/50px/')).toBeVisible();
+    await expect(page.locator('label').filter({ hasText: 'Padding: 48px' })).toBeVisible();
     
     // Test export button is present
     const exportButton = page.locator('button').filter({ hasText: 'Export' });
@@ -51,14 +55,17 @@ This completes our export test content.`;
   });
 
   test('should support both export modes', async ({ page }) => {
+    // Open Page Setup
+    await page.click('button:has-text("Page Setup")');
+
     // Test Pages mode
-    const pagesButton = page.locator('button').filter({ hasText: 'Pages' });
+    const pagesButton = page.locator('button').filter({ hasText: 'Paged' });
     await expect(pagesButton).toBeVisible();
     await pagesButton.click();
     await page.waitForTimeout(200);
     
     // Test Continuous mode  
-    const longButton = page.locator('button').filter({ hasText: 'Long' });
+    const longButton = page.locator('button').filter({ hasText: 'Continuous' });
     await expect(longButton).toBeVisible();
     await longButton.click();
     await page.waitForTimeout(200);
@@ -67,15 +74,16 @@ This completes our export test content.`;
   });
 
   test('should work in both single and multi-page preview modes', async ({ page }) => {
-    // Test in single page mode
-    await page.click('button:has-text("Single Page")');
-    await page.waitForTimeout(300);
+    // Test in single page mode (Default)
+    // No explicit button for Single Page anymore, it's the default state when "Show Page Breaks" is off
     
     const singlePageExportButton = page.locator('button').filter({ hasText: 'Export' });
     await expect(singlePageExportButton).toBeVisible();
     
     // Test in multi-page mode
-    await page.click('button:has-text("Multi Page")');
+    await page.click('button:has-text("Page Setup")');
+    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(300);
     
     const multiPageExportButton = page.locator('button').filter({ hasText: 'Export' });
@@ -85,13 +93,16 @@ This completes our export test content.`;
   });
 
   test('should show proper export size/format controls', async ({ page }) => {
+    // Open Page Setup
+    await page.click('button:has-text("Page Setup")');
+
     // Test A4 size
     const a4Button = page.locator('button').filter({ hasText: 'A4' });
     await expect(a4Button).toBeVisible();
     await a4Button.click();
     await page.waitForTimeout(200);
     
-    // Test Square size/format (this is a format option, not an export mode)
+    // Test Square size/format
     const squareButton = page.locator('button').filter({ hasText: 'Square' });
     await expect(squareButton).toBeVisible();
     await squareButton.click();

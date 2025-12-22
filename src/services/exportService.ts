@@ -352,18 +352,19 @@ const createContinuousExport = async (
   width: number,
   backgroundColor: string,
   theme: Theme,
+  padding: number,
 ): Promise<void> => {
   const sandbox = createSandbox();
 
   try {
     // Use the theme's containerPadding for consistent appearance with preview
-    const themePadding = theme.styles.containerPadding;
+    // const themePadding = theme.styles.containerPadding;
     
     const container = document.createElement("div");
     Object.assign(container.style, {
       width: `${width}px`,
       height: "auto",
-      padding: themePadding, // Use theme padding for consistency with preview
+      padding: `${padding}px`, // Use explicit padding
       margin: "0",
       display: "block",
       boxSizing: "border-box",
@@ -398,6 +399,9 @@ const createContinuousExport = async (
       quality: 1.0,
       pixelRatio: 2,
       backgroundColor,
+
+      width: width, // Explicitly set width to match container
+      height: container.scrollHeight, // Explicitly set height to content height
       skipFonts: true, // Prevent font embedding errors on Firefox
     });
 
@@ -436,6 +440,7 @@ export const exportPreview = async (
   fileName: string,
   theme: Theme,
   htmlContent: string, // Raw rendered HTML content
+  padding: number, // Use explicit padding passed from state
   mode: ExportMode = "PAGES",
 ): Promise<void> => {
   if (!element) return;
@@ -452,13 +457,13 @@ export const exportPreview = async (
     // SVG export - captures full content without cropping (like continuous mode)
     if (format === "SVG") {
       // Use the theme's containerPadding for consistent appearance with preview
-      const themePadding = theme.styles.containerPadding;
+      // const themePadding = theme.styles.containerPadding;
       
       const container = document.createElement("div");
       Object.assign(container.style, {
         width: `${width}px`,
         height: "auto", // Allow full height to prevent cropping
-        padding: themePadding, // Use theme padding for consistency with preview
+        padding: `${padding}px`, // Use explicit padding passed from state
         margin: "0",
         display: "block",
         boxSizing: "border-box",
@@ -509,6 +514,7 @@ export const exportPreview = async (
             width,
             backgroundColor,
             theme,
+            padding,
           );
           break;
 
@@ -522,7 +528,7 @@ export const exportPreview = async (
           );
 
           // Use the theme's containerPadding for consistent appearance with preview
-          const themePadding = theme.styles.containerPadding;
+          //const themePadding = theme.styles.containerPadding;
 
           for (let i = 0; i < pages.length; i++) {
             const pageHtml = pages[i];
@@ -535,7 +541,7 @@ export const exportPreview = async (
             Object.assign(pageContainer.style, {
               width: `${width}px`,
               height: `${height}px`,
-              padding: themePadding, // Use theme padding for consistency with preview
+              padding: `${padding}px`, // Use explicit padding passed from state
               margin: "0",
               display: "block",
               overflow: "hidden",
@@ -556,6 +562,9 @@ export const exportPreview = async (
               quality: 1.0,
               pixelRatio: 2, // Higher pixel ratio for sharper images
               backgroundColor,
+
+              width: width, // Explicitly set width to match page size
+              height: height, // Explicitly set height to match page size
               skipFonts: true, // Prevent font embedding errors on Firefox
             });
 

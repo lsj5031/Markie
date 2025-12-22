@@ -32,7 +32,9 @@ This should create multiple pages.`;
     await page.waitForTimeout(1000);
 
     // Switch to multi-page view
-    await page.click('button:has-text("Multi Page")');
+    await page.click('button:has-text("Page Setup")');
+    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(1000);
 
     // Take screenshot to verify pagination layout
@@ -42,14 +44,16 @@ This should create multiple pages.`;
     });
 
     // Verify pagination controls
-    const paginationInfo = page.locator('text=/Page \\d+ of \\d+/');
+    const paginationInfo = page.locator('text=/\\d+ \\/ \\d+/');
     await expect(paginationInfo).toBeVisible();
 
     const pageText = await paginationInfo.textContent();
     console.log('✅ Pagination working:', pageText);
 
     // Test Pages mode export
-    await page.click('button:has-text("Pages")');
+    await page.click('button:has-text("Page Setup")');
+    await page.click('button:has-text("Paged")');
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(300);
 
     const exportButton = page.locator('button').filter({ hasText: 'Export' });
@@ -96,7 +100,8 @@ This should ensure consistent styling in long export mode.`;
     await page.waitForTimeout(1000);
 
     // Test in single page view for comparison
-    await page.click('button:has-text("Single Page")');
+    // Default is Single Page view, so no action needed.
+    // However, ensure Page Setup is closed or checked if needed.
     await page.waitForTimeout(500);
 
     const _singlePageScreenshot = await page.screenshot({ 
@@ -105,7 +110,9 @@ This should ensure consistent styling in long export mode.`;
     });
 
     // Switch to Long mode
-    await page.click('button:has-text("Long")');
+    await page.click('button:has-text("Page Setup")');
+    await page.click('button:has-text("Continuous")');
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(500);
 
     const _longModeScreenshot = await page.screenshot({ 
@@ -144,7 +151,9 @@ console.log("Square format test");
     await page.waitForTimeout(500);
 
     // Switch to Square format (in the Format section, not Mode)
+    await page.click('button:has-text("Page Setup")');
     await page.click('button:has-text("Square")');
+    await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(500);
 
     const _squareScreenshot = await page.screenshot({ 
