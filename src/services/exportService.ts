@@ -525,30 +525,42 @@ export const exportPreview = async (
             htmlContent,
             size,
             theme,
+            padding, // Pass explicit padding for consistency with export
           );
-
-          // Use the theme's containerPadding for consistent appearance with preview
-          //const themePadding = theme.styles.containerPadding;
 
           for (let i = 0; i < pages.length; i++) {
             const pageHtml = pages[i];
 
-            // Create a container for the page that matches the preview canvas styles.
+            // Create a container for the page that matches the export dimensions.
+            // IMPORTANT: The pageHtml from paginateHtml already contains content
+            // sized to usablePageHeight (height - padding*2) with padding applied
+            // within. We set the container to full page dimensions WITHOUT extra
+            // padding to avoid double-padding that creates blank spaces.
             const pageContainer = document.createElement("div");
             pageContainer.className = element.className;
-            pageContainer.style.cssText = element.style.cssText;
-
+            
             Object.assign(pageContainer.style, {
               width: `${width}px`,
               height: `${height}px`,
-              padding: `${padding}px`, // Use explicit padding passed from state
+              padding: `${padding}px`, // Padding creates the margins around the content
               margin: "0",
               display: "block",
               overflow: "hidden",
               boxSizing: "border-box",
+              backgroundColor,
             });
 
-            pageContainer.innerHTML = pageHtml;
+            // Wrap pageHtml in a container that fills the usable space
+            const contentWrapper = document.createElement("div");
+            contentWrapper.className = "markdown-body";
+            Object.assign(contentWrapper.style, {
+              width: "100%",
+              height: "100%",
+              overflow: "hidden",
+              position: "relative",
+            });
+            contentWrapper.innerHTML = pageHtml;
+            pageContainer.appendChild(contentWrapper);
             sandbox.appendChild(pageContainer);
 
             // Apply theme styles to each page

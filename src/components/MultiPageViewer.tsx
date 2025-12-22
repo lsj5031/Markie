@@ -6,6 +6,7 @@ interface MultiPageViewerProps {
   htmlContent: string;
   theme: Theme;
   exportSize: ExportSize;
+  padding?: number;
   onPageChange?: (currentPage: number, totalPages: number) => void;
 }
 
@@ -13,6 +14,7 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
   htmlContent,
   theme,
   exportSize,
+  padding = 40,
   onPageChange,
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -21,6 +23,7 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
     theme,
     exportSize,
     true,
+    padding, // Pass explicit padding for consistency with export
   );
 
   // Notify parent of page changes

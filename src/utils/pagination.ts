@@ -48,12 +48,17 @@ const iframeReady = (iframe: HTMLIFrameElement): Promise<void> =>
 /**
  * Creates and prepares an iframe for content measurement.
  * It renders the full HTML content inside and waits for it to be ready.
+ * @param exportSize - The target size format ('A4' or 'Square').
+ * @param theme - The active theme.
+ * @param renderedHtml - The HTML content to measure.
+ * @param padding - Explicit padding in pixels for the content container.
  * @returns An object containing the iframe, the content wrapper, and calculated dimensions.
  */
 const createMeasurementIframe = async (
   exportSize: string,
   theme: Theme,
   renderedHtml: string,
+  padding: number,
 ): Promise<{
   iframe: HTMLIFrameElement;
   contentWrapper: HTMLElement;
@@ -89,9 +94,7 @@ const createMeasurementIframe = async (
             body { margin: 0; font-family: ${theme.styles.fontFamily}; color: ${
               theme.styles.textColor
             }; background-color: ${theme.styles.backgroundColor}; }
-            .content-wrapper { padding: ${
-              theme.styles.containerPadding
-            }; width: 100%; }
+            .content-wrapper { padding: ${padding}px; width: 100%; }
             h1, h2, h3 { font-family: ${theme.styles.headingFont}; color: ${
               theme.styles.textColor
             }; }
@@ -162,12 +165,14 @@ const createMeasurementIframe = async (
  * @param renderedHtml - The HTML string to paginate.
  * @param exportSize - The target size format ('A4' or 'Square').
  * @param theme - The active theme.
+ * @param padding - Explicit padding in pixels (optional, defaults to 40).
  * @returns A promise that resolves to an array of HTML strings, each representing a page.
  */
 export const paginateHtml = async (
   renderedHtml: string,
   exportSize: string,
   theme: Theme,
+  padding: number = 40,
 ): Promise<string[]> => {
   let iframe: HTMLIFrameElement | null = null;
 
@@ -177,7 +182,7 @@ export const paginateHtml = async (
       contentWrapper,
       totalHeight,
       paddingTop,
-    } = await createMeasurementIframe(exportSize, theme, renderedHtml);
+    } = await createMeasurementIframe(exportSize, theme, renderedHtml, padding);
     iframe = measurementIframe;
 
     const { width: _width, height } = getDimensions(exportSize);

@@ -104,8 +104,8 @@ const App: React.FC = () => {
     const nav = (window as unknown as Record<string, unknown>)
       .__multiPageNav as
       | {
-          goToPreviousPage?: () => void;
-        }
+        goToPreviousPage?: () => void;
+      }
       | undefined;
     nav?.goToPreviousPage?.();
   }, []);
@@ -114,8 +114,8 @@ const App: React.FC = () => {
     const nav = (window as unknown as Record<string, unknown>)
       .__multiPageNav as
       | {
-          goToNextPage?: () => void;
-        }
+        goToNextPage?: () => void;
+      }
       | undefined;
     nav?.goToNextPage?.();
   }, []);
@@ -315,10 +315,9 @@ const App: React.FC = () => {
                     data-active={isActive}
                     title={`${t.name}: ${t.description}`}
                     className={`group relative flex flex-col p-2 rounded-xl border-2 transition-all duration-200 text-left w-full
-                      ${
-                        isActive
-                          ? "border-[var(--studio-accent)] bg-[var(--studio-surface)] shadow-md scale-[1.02]"
-                          : "border-transparent hover:bg-[var(--studio-surface)] hover:shadow-sm"
+                      ${isActive
+                        ? "border-[var(--studio-accent)] bg-[var(--studio-surface)] shadow-md scale-[1.02]"
+                        : "border-transparent hover:bg-[var(--studio-surface)] hover:shadow-sm"
                       }`}
                   >
                     {/* Miniature Preview */}
@@ -696,6 +695,7 @@ const App: React.FC = () => {
                       htmlContent={renderedHtml}
                       theme={activeTheme}
                       exportSize={exportSize}
+                      padding={exportPadding}
                       onPageChange={handlePageChange}
                     />
                   ) : (

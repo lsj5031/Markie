@@ -21,6 +21,7 @@ interface PaginationResult {
  * @param theme - The active theme object.
  * @param exportSize - The target size format ('A4' or 'Square').
  * @param isEnabled - A boolean to enable or disable the pagination process.
+ * @param padding - Explicit padding in pixels (optional, defaults to 40).
  * @returns An object containing the paginated content, loading state, and page count.
  */
 export const usePagination = (
@@ -28,6 +29,7 @@ export const usePagination = (
   theme: Theme,
   exportSize: ExportSize,
   isEnabled: boolean,
+  padding: number = 40,
 ): PaginationResult => {
   const [pages, setPages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -54,6 +56,7 @@ export const usePagination = (
           htmlContent,
           exportSize,
           theme,
+          padding, // Pass explicit padding for consistency
         );
         setPages(paginatedPages);
       } catch (error) {
@@ -66,7 +69,7 @@ export const usePagination = (
     };
 
     processPagination();
-  }, [htmlContent, theme, dimensions, isEnabled]);
+  }, [htmlContent, theme, dimensions, isEnabled, padding]);
 
   return {
     pages,
