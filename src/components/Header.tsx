@@ -14,6 +14,8 @@ interface HeaderProps {
   padding: number;
   setPadding: (padding: number) => void;
   onExport: (format: ExportFormat) => void;
+  onToggleThemes?: () => void;
+  isThemesOpen?: boolean;
   className?: string;
 }
 
@@ -27,6 +29,8 @@ export const Header: React.FC<HeaderProps> = ({
   showMultiPagePreview,
   setShowMultiPagePreview,
   onExport,
+  onToggleThemes,
+  isThemesOpen,
   className = "",
 }) => {
   const [isExportOpen, setIsExportOpen] = useState(false);
@@ -64,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header
-      className={`flex items-center justify-between px-6 py-4 border-b z-20 shrink-0 ${className}`}
+      className={`flex items-center justify-between px-4 lg:px-6 py-4 border-b z-20 shrink-0 ${className}`}
       style={{
         backgroundColor: "var(--studio-surface)",
         borderColor: "var(--studio-border)",

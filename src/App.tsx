@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { MobileNavBar } from "./components/MobileNavBar";
 import { THEMES } from "./constants/themes";
 import { ExportFormat, ExportSize, ExportMode, Theme } from "./types";
 import { exportPreview } from "./services/exportService";
@@ -87,6 +88,16 @@ const App: React.FC = () => {
   const [exportPadding, setExportPadding] = useState<number>(64);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [mobileTab, setMobileTab] = useState<"editor" | "preview">("editor");
+  const [showMobileThemes, setShowMobileThemes] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
@@ -190,7 +201,7 @@ const App: React.FC = () => {
       if (!previewContainerRef.current) return;
 
       const containerRect = previewContainerRef.current.getBoundingClientRect();
-      const padding = 160; // Account for side padding (80px each side)
+      const padding = isMobile ? 32 : 160; // 16px each side for mobile, 80px for desktop
       const availableWidth = containerRect.width - padding;
 
       const { width: canvasWidth } = getDimensions(exportSize);
@@ -241,7 +252,7 @@ const App: React.FC = () => {
 
   return (
     <div
-      className="relative flex flex-col h-screen overflow-hidden text-sm selection:bg-[#eb3b5a]/20"
+      className="relative flex flex-col h-[100dvh] overflow-hidden text-sm selection:bg-[#eb3b5a]/20"
       style={{
         backgroundColor: "var(--studio-bg)",
         color: "var(--studio-text)",
@@ -259,14 +270,32 @@ const App: React.FC = () => {
         padding={exportPadding}
         setPadding={setExportPadding}
         onExport={handleExport}
+        onToggleThemes={() => setShowMobileThemes(!showMobileThemes)}
+        isThemesOpen={showMobileThemes}
       />
 
-      <main ref={mainRef} className="flex-1 flex overflow-hidden relative">
+      <main
+        ref={mainRef}
+        className="flex-1 flex overflow-hidden relative pb-16 lg:pb-0"
+      >
+        {/* Mobile Theme Backdrop */}
+        {isMobile && showMobileThemes && (
+          <div
+            className="absolute inset-0 z-40 bg-black/50 backdrop-blur-sm animate-fade-in"
+            onClick={() => setShowMobileThemes(false)}
+          />
+        )}
+
         {/* Collapsible Sidebar: Enhanced Theme Browser */}
         <aside
-          className={`sidebar hidden xl:flex flex-col gap-0 ${isSidebarCollapsed ? "collapsed" : ""}`}
+          className={`sidebar ${isMobile
+              ? `!absolute left-0 top-0 bottom-0 z-50 w-80 shadow-2xl transform transition-transform duration-300 ease-out ${showMobileThemes ? "translate-x-0" : "-translate-x-full"
+              }`
+              : "relative flex"
+            } flex-col gap-0 ${!isMobile && isSidebarCollapsed ? "collapsed" : ""
+            }`}
           style={{
-            display: isFocusMode ? "none" : undefined,
+            display: isFocusMode && !isMobile ? "none" : undefined,
             backgroundColor: "var(--studio-surface)",
             borderRight: isSidebarCollapsed ? "none" : "3px solid #1a1a1b",
             boxShadow: "inset -8px 0 20px rgba(26, 26, 27, 0.02)",
@@ -361,21 +390,45 @@ const App: React.FC = () => {
         </aside>
 
         {/* Unified Sidebar Toggle Button */}
+        {/* Unified Sidebar Toggle Button */}
         {!isFocusMode && (
           <button
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className={`sidebar-toggle hidden xl:flex ${isSidebarCollapsed ? "collapsed" : ""}`}
-            title={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+            onClick={() =>
+              isMobile
+                ? setShowMobileThemes(!showMobileThemes)
+                : setIsSidebarCollapsed(!isSidebarCollapsed)
+            }
+            className={`sidebar-toggle ${isSidebarCollapsed || isMobile ? "collapsed" : ""
+              }`}
+            title={
+              isMobile
+                ? "Toggle themes"
+                : isSidebarCollapsed
+                  ? "Show sidebar"
+                  : "Hide sidebar"
+            }
           >
-            {isSidebarCollapsed ? <Icons.ChevronRight /> : <Icons.ChevronLeft />}
+            {isMobile ? (
+              <Icons.Palette />
+            ) : isSidebarCollapsed ? (
+              <Icons.ChevronRight />
+            ) : (
+              <Icons.ChevronLeft />
+            )}
           </button>
         )}
 
         {/* Center Pane: Editor with dynamic width */}
         <section
-          className="flex flex-col relative"
+          className={`flex-col relative ${!isMobile || mobileTab === "editor" ? "flex" : "hidden"
+            } lg:flex`}
           style={{
-            flex: isFocusMode ? "1" : `0 0 ${editorWidth}%`,
+            flex: isFocusMode
+              ? "1"
+              : isMobile
+                ? "1 1 auto"
+                : `0 0 ${editorWidth}%`,
+            width: isMobile ? "100%" : undefined,
             backgroundColor: "var(--studio-bg)",
           }}
         >
@@ -426,7 +479,7 @@ const App: React.FC = () => {
             value={markdown}
             onChange={(e) => setMarkdown(e.target.value)}
             spellCheck={false}
-            className="editor-textarea flex-1 p-12 text-base leading-relaxed"
+            className="editor-textarea flex-1 px-3 py-6 md:p-8 lg:p-12 text-base leading-relaxed"
             placeholder="Your story begins here..."
           />
         </section>
@@ -434,14 +487,17 @@ const App: React.FC = () => {
         {/* Draggable Divider */}
         <div
           ref={dividerRef}
-          className={`resizable-divider ${isDragging ? "dragging" : ""} ${isFocusMode ? "hidden" : ""}`}
+          className={`resizable-divider hidden lg:block ${isDragging ? "dragging" : ""
+            } ${isFocusMode ? "hidden" : ""}`}
           onMouseDown={handleMouseDown}
           title="Drag to resize panes"
         />
 
         {/* Right Pane: Live Canvas with clean background */}
         <section
-          className={`flex flex-col overflow-hidden relative canvas-background ${isFocusMode ? "hidden" : ""}`}
+          className={`flex-col overflow-hidden relative canvas-background ${isFocusMode && !isMobile ? "hidden" : ""
+            } ${!isMobile || mobileTab === "preview" ? "flex" : "hidden"
+            } lg:flex`}
           style={{ flex: 1 }}
         >
           <div className="pane-header">
@@ -599,7 +655,9 @@ const App: React.FC = () => {
             className="flex-1 overflow-auto scroll-smooth flex items-start justify-center"
             style={{
               backgroundColor: "var(--studio-bg)",
-              padding: "32px 80px 120px 80px", // Extra bottom padding for pagination controls
+              padding: isMobile
+                ? "32px 16px 120px 16px"
+                : "32px 80px 120px 80px", // Extra bottom padding for pagination controls
               minHeight: "100%",
             }}
           >
@@ -828,6 +886,10 @@ const App: React.FC = () => {
             </div>
           </div>
         </section>
+        <MobileNavBar
+          activeTab={mobileTab}
+          setActiveTab={setMobileTab}
+        />
       </main>
     </div>
   );

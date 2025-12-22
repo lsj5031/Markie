@@ -319,6 +319,13 @@ body {
     box-shadow: 2px 0 8px rgba(26, 26, 27, 0.08);
 }
 
+@media (max-width: 1024px) {
+    .sidebar-toggle {
+        width: 24px;
+        height: 48px;
+    }
+}
+
 /* OVERRIDE GLOBAL BUTTON SCALE: Prevents button from shrinking away from cursor during click */
 .sidebar-toggle:active {
     transform: translateY(-50%) !important;
@@ -646,10 +653,16 @@ button:not(:disabled):active {
 }
 
 @media (max-width: 1024px) {
-    .sidebar {
-        display: none;
+    .action-btn {
+        padding: 8px 12px;
+    }
+
+    .pane-header {
+        padding: 0 16px;
     }
 }
+
+
 
 /* ============================================
    Smooth Scroll & Reduced Motion
