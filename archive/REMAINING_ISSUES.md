@@ -1,4 +1,4 @@
-# Markie Markdown Designer - Development History
+# Markie - Development History
 
 ## Status: All Issues Resolved ✅
 

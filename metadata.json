@@ -1,5 +1,5 @@
 {
-  "name": "Markie Markdown Designer",
-  "description": "A high-end Markdown editor and document designer with curated themes, live preview, and multi-format exports (PNG, SVG, PDF).",
+  "name": "Markie",
+  "description": "A high-end Markdown editor with curated themes, live preview, and multi-format exports (PNG, SVG, PDF).",
   "requestFramePermissions": []
 }

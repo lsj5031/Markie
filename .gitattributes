@@ -1,0 +1,10 @@
+# Enforce LF line endings on all text files (standard for web projects)
+* text=auto eol=lf
+
+# Denote binary files explicitly to prevent git from modifying them
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
