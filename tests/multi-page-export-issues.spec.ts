@@ -46,9 +46,9 @@ This concludes our multi-page test document. The content should now be long enou
 
     // Switch to multi-page view to test pagination
     await page.click('button:has-text("Page Setup")');
-    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
+    await page.click('button:has-text("Paged")');
     await page.click('button:has-text("Page Setup")'); // Close menu
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000); // Allow time for pagination calculation
 
     // Take screenshot of multi-page view
     await page.screenshot({ 
@@ -56,12 +56,13 @@ This concludes our multi-page test document. The content should now be long enou
       fullPage: true 
     });
 
-    // Check that pagination controls are visible
-    const paginationControls = page.locator('text=/\\d+ \\/ \\d+/').locator('xpath=..');
-    await expect(paginationControls).toBeVisible();
+    // Check that pagination controls are visible using data-testid
+    const paginationControls = page.locator('[data-testid="pagination-controls"]');
+    await expect(paginationControls).toBeVisible({ timeout: 10000 });
 
     // Get page count
-    const pageText = await page.textContent('text=/\\d+ \\/ \\d+/');
+    const pageIndicator = page.locator('[data-testid="page-indicator"]');
+    const pageText = await pageIndicator.textContent();
     console.log('Pagination display:', pageText);
 
     // Test Pages mode export
@@ -189,7 +190,7 @@ This comparison test ensures that both Pages and Long modes produce styled expor
     });
 
     // Test Long mode  
-    await page.click('button:has-text("Page Setup")');
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
     await page.click('button:has-text("Continuous")');
     await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(500);

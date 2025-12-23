@@ -772,6 +772,7 @@ const App: React.FC = () => {
               {/* Pagination Controls - Outside scaled area */}
               {exportMode === "PAGES" && totalPages > 1 && (
                 <div
+                  data-testid="pagination-controls"
                   style={{
                     position: "absolute",
                     bottom: "-50px",
@@ -823,6 +824,7 @@ const App: React.FC = () => {
 
                   {/* Page number display */}
                   <div
+                    data-testid="page-indicator"
                     style={{
                       display: "flex",
                       alignItems: "center",

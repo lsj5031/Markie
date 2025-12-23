@@ -27,6 +27,8 @@ export const Header: React.FC<HeaderProps> = ({
   onExport,
   onToggleThemes,
   isThemesOpen,
+  padding,
+  setPadding,
   className = "",
 }) => {
   const [isExportOpen, setIsExportOpen] = useState(false);
@@ -111,6 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative" ref={settingsRef}>
           <button
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+            aria-label="Page Setup"
             className={`action-btn secondary ${isSettingsOpen ? "bg-[rgba(235,59,90,0.08)]" : ""}`}
           >
             <Icons.Layout />
@@ -265,6 +268,40 @@ export const Header: React.FC<HeaderProps> = ({
                     ))}
                   </div>
                 </div>
+
+                {/* Padding */}
+                <div style={{ marginTop: "16px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      color: "var(--studio-text)",
+                      opacity: 0.5,
+                      marginBottom: "8px",
+                    }}
+                  >
+                    Padding: {padding}px
+                  </label>
+                  <input
+                    type="range"
+                    min="32"
+                    max="128"
+                    step="8"
+                    value={padding}
+                    onChange={(e) => setPadding(Number(e.target.value))}
+                    style={{
+                      width: "100%",
+                      accentColor: "var(--studio-accent)",
+                      height: "4px",
+                      borderRadius: "2px",
+                      outline: "none",
+                      cursor: "pointer",
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -274,6 +311,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative" ref={exportRef}>
           <button
             onClick={() => setIsExportOpen(!isExportOpen)}
+            aria-label="Export"
             className="action-btn primary"
           >
             <Icons.Export />

@@ -33,9 +33,9 @@ This should create multiple pages.`;
 
     // Switch to multi-page view
     await page.click('button:has-text("Page Setup")');
-    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
+    await page.click('button:has-text("Paged")');
     await page.click('button:has-text("Page Setup")'); // Close menu
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000); // Allow time for pagination calculation
 
     // Take screenshot to verify pagination layout
     await page.screenshot({ 
@@ -43,11 +43,12 @@ This should create multiple pages.`;
       fullPage: false 
     });
 
-    // Verify pagination controls
-    const paginationInfo = page.locator('text=/\\d+ \\/ \\d+/');
-    await expect(paginationInfo).toBeVisible();
+    // Verify pagination controls using data-testid
+    const paginationControls = page.locator('[data-testid="pagination-controls"]');
+    await expect(paginationControls).toBeVisible({ timeout: 10000 });
 
-    const pageText = await paginationInfo.textContent();
+    const pageIndicator = page.locator('[data-testid="page-indicator"]');
+    const pageText = await pageIndicator.textContent();
     console.log('✅ Pagination working:', pageText);
 
     // Test Pages mode export

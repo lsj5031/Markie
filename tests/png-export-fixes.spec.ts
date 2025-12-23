@@ -10,10 +10,10 @@ test.describe('PNG Export Issues - After Fixes', () => {
     // Open Page Setup
     await page.click('button:has-text("Page Setup")');
     
-    const multiPageToggle = page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button');
+    const multiPageButton = page.locator('button').filter({ hasText: 'Paged' });
     
     // Toggle it
-    await multiPageToggle.click();
+    await multiPageButton.click();
     await page.waitForTimeout(500);
     
     // Verify changes (optional, or just verify it doesn't crash)

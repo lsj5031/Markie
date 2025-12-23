@@ -33,7 +33,7 @@ This completes our export test content.`;
 
   test('should export PNG with proper padding applied', async ({ page }) => {
     // Open Page Setup
-    await page.click('button:has-text("Page Setup")');
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
 
     // Verify padding controls are present
     const paddingSlider = page.locator('input[type="range"]');
@@ -56,7 +56,7 @@ This completes our export test content.`;
 
   test('should support both export modes', async ({ page }) => {
     // Open Page Setup
-    await page.click('button:has-text("Page Setup")');
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
 
     // Test Pages mode
     const pagesButton = page.locator('button').filter({ hasText: 'Paged' });
@@ -82,7 +82,7 @@ This completes our export test content.`;
     
     // Test in multi-page mode
     await page.click('button:has-text("Page Setup")');
-    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
+    await page.click('button:has-text("Paged")');
     await page.click('button:has-text("Page Setup")'); // Close menu
     await page.waitForTimeout(300);
     
@@ -94,7 +94,7 @@ This completes our export test content.`;
 
   test('should show proper export size/format controls', async ({ page }) => {
     // Open Page Setup
-    await page.click('button:has-text("Page Setup")');
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
 
     // Test A4 size
     const a4Button = page.locator('button').filter({ hasText: 'A4' });

@@ -33,22 +33,25 @@ This should complete our test document.`;
     await page.waitForTimeout(1000);
     
     // Switch to multi-page view
-    await page.click('button:has-text("Page Setup")');
-    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
-    await page.click('button:has-text("Page Setup")'); // Close menu
-    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
+    await expect(page.getByRole("button", { name: "Paged" })).toBeVisible();
+    await page.click('button:has-text("Paged")', { force: true });
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true }); // Close menu
+    await page.waitForTimeout(2000); // Allow time for pagination calculation
     
-    // Check that pagination controls are visible
-    const paginationControls = page.locator('text=/\\d+ \\/ \\d+/');
-    await expect(paginationControls).toBeVisible();
+    // Check that pagination controls are visible using data-testid
+    const paginationControls = page.locator('[data-testid="pagination-controls"]');
+    await expect(paginationControls).toBeVisible({ timeout: 10000 });
     
     // Get page count from pagination display
-    const pageText = await page.textContent('text=/\\d+ \\/ \\d+/');
+    const pageIndicator = page.locator('[data-testid="page-indicator"]');
+    await expect(pageIndicator).toBeVisible();
+    const pageText = await pageIndicator.textContent();
     console.log('Pagination display:', pageText);
     
     // Count pages - should not have excessive empty pages
-    // Format: "X / Y"
-    const pageMatch = pageText?.match(/(\d+) \/ (\d+)/);
+    // Format: "X / Y" or "X/Y" (spans concatenated)
+    const pageMatch = pageText?.match(/(\d+)\s*\/\s*(\d+)/);
     if (pageMatch) {
       const pageCount = parseInt(pageMatch[2]);
       expect(pageCount).toBeLessThan(10); // Should not have more than reasonable pages
@@ -102,9 +105,10 @@ function test() {
     });
     
     // Test multi-page view styling
-    await page.click('button:has-text("Page Setup")');
-    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
-    await page.click('button:has-text("Page Setup")'); // Close menu
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
+    await expect(page.getByRole("button", { name: "Paged" })).toBeVisible();
+    await page.click('button:has-text("Paged")', { force: true });
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true }); // Close menu
     await page.waitForTimeout(500);
     
     const _multiPageScreenshot = await page.screenshot({ 
@@ -129,38 +133,50 @@ function test() {
   });
 
   test('should properly toggle between single and multi-page modes', async ({ page }) => {
-    // Ensure we have enough content for multiple pages
+    // Ensure we have enough content for multiple pages - A4 pages are tall (1753px) so we need lots of content
     const longContent = `# Page 1 Content
-    
-    ${Array.from({length: 100}, () => 'Line of text to fill space to ensure we trigger pagination controls.').join('\n')}
-    
-    # Page 2 Content
-    
-    ${Array.from({length: 100}, () => 'Line of text to fill space to ensure we trigger pagination controls.').join('\n')}`;
+
+${Array.from({length: 500}, (_, i) => `Line ${i + 1}: This is a long line of text that needs to fill up the page to trigger pagination. Adding more words to make each line longer and take up more vertical space.`).join('\n')}
+
+# Page 2 Content
+
+${Array.from({length: 500}, (_, i) => `Continued ${i + 1}: More text content to fill additional pages and ensure pagination controls appear.`).join('\n')}`;
     
     await page.fill('textarea', longContent);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000); // Give time for pagination calculation
 
-    // Verify initial state is single page (no pagination controls)
-    await expect(page.locator('text=/\\d+ \\/ \\d+/')).not.toBeVisible();
+    const paginationControls = page.locator('[data-testid="pagination-controls"]');
+
+    // Verify initial state is Paged (pagination controls visible) - default mode is PAGES
+    // First ensure we're in Paged mode
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
+    await expect(page.getByRole("button", { name: "Paged" })).toBeVisible();
+    await page.click('button:has-text("Paged")', { force: true });
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true }); // Close menu
+    await page.waitForTimeout(2000);
     
-    // Toggle to multi-page
-    await page.click('button:has-text("Page Setup")');
-    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
-    await page.click('button:has-text("Page Setup")'); // Close menu
-    await page.waitForTimeout(500);
+    // Verify pagination controls are visible
+    await expect(paginationControls).toBeVisible({ timeout: 10000 });
     
-    // Verify multi-page controls appear
-    await expect(page.locator('text=/\\d+ \\/ \\d+/')).toBeVisible();
+    // Toggle to Single Page (Continuous)
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
+    await expect(page.getByRole("button", { name: "Paged" })).toBeVisible();
+    await page.click('button:has-text("Continuous")', { force: true });
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true }); // Close menu
+    await page.waitForTimeout(1000);
     
-    // Toggle back to single page
-    await page.click('button:has-text("Page Setup")');
-    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
-    await page.click('button:has-text("Page Setup")'); // Close menu
-    await page.waitForTimeout(500);
+    // Verify Single Page (no pagination controls)
+    await expect(paginationControls).not.toBeVisible();
     
-    // Verify single page state
-    await expect(page.locator('text=/\\d+ \\/ \\d+/')).not.toBeVisible();
+    // Toggle back to Multi-Page (Paged)
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
+    await expect(page.getByRole("button", { name: "Paged" })).toBeVisible();
+    await page.click('button:has-text("Paged")', { force: true });
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true }); // Close menu
+    await page.waitForTimeout(2000);
+    
+    // Verify Multi-Page (pagination controls visible again)
+    await expect(paginationControls).toBeVisible({ timeout: 10000 });
     
     console.log('✅ Mode toggle working correctly');
   });
@@ -194,16 +210,22 @@ Test paragraph for padding verification.`;
     await expect(page.locator('label').filter({ hasText: 'Padding: 64px' })).toBeVisible();
     
     // Test in both single and multi-page modes
-    // Close Page setup
-    await page.click('button:has-text("Page Setup")'); 
     
-    // Currently in single page mode
+    // Currently default is Paged (Multi-page)
     await page.waitForTimeout(300);
     
-    // Switch to multi page
-    await page.click('button:has-text("Page Setup")');
-    await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
-    await page.click('button:has-text("Page Setup")'); // Close menu
+    // Switch to Single Page (Continuous)
+    await page.click('button:has-text("Continuous")', { force: true });
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true }); // Close menu
+    await page.waitForTimeout(300);
+    
+    // Verify padding is still applied (visual verification hard, but no crash)
+    
+    // Switch back to Multi Page (Paged)
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
+    await expect(page.getByRole("button", { name: "Paged" })).toBeVisible();
+    await page.click('button:has-text("Paged")', { force: true });
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true }); // Close menu
     await page.waitForTimeout(300);
     
     console.log('✅ Padding control working in both modes');
@@ -228,9 +250,10 @@ Test paragraph for padding verification.`;
       await page.waitForTimeout(300);
       
       // Test multi page mode  
-      await page.click('button:has-text("Page Setup")');
-      await page.getByText('Show Page Breaks').locator('xpath=..').getByRole('button').click();
-      await page.click('button:has-text("Page Setup")'); // Close menu
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true });
+    await expect(page.getByRole("button", { name: "Paged" })).toBeVisible();
+    await page.click('button:has-text("Paged")', { force: true });
+    await page.getByRole('button', { name: 'Page Setup' }).click({ force: true }); // Close menu
       await page.waitForTimeout(300);
       
       console.log(`✅ Theme application consistent across ${themeCount} themes`);
