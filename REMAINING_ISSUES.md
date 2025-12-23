@@ -1,4 +1,4 @@
-# Lumina Markdown Designer - Development History
+# Markie Markdown Designer - Development History
 
 ## Status: All Issues Resolved ✅
 

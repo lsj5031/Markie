@@ -79,13 +79,13 @@ export const Header: React.FC<HeaderProps> = ({
             style={{ backgroundColor: "var(--studio-accent)" }}
           >
             <div className="absolute inset-0 bg-white opacity-20 group-hover:opacity-30 transition-opacity" />
-            <span className="font-bold text-lg text-white">L</span>
+            <span className="font-bold text-lg text-white">M</span>
           </div>
           <span
             className="text-sm font-bold tracking-tight"
             style={{ color: "var(--studio-header-text)" }}
           >
-            Lumina Studio
+            Markie
           </span>
         </div>
 

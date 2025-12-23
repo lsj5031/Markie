@@ -117,9 +117,10 @@ export const THEMES: Theme[] = [
   }
 ];
 
+
 export const INITIAL_MARKDOWN = `# The Art of Editorial Design
 
-Markdown isn't just for documentation; it's a medium for **visual storytelling**. Lumina Studio transforms your raw text into production-ready editorial layouts.
+Markdown isn't just for documentation; it's a medium for **visual storytelling**. Markie transforms your raw text into production-ready editorial layouts.
 
 ---
 
@@ -130,7 +131,7 @@ Markdown isn't just for documentation; it's a medium for **visual storytelling**
 
 ### The Technical Canvas
 \`\`\`javascript
-// Lumina's rendering engine
+// Markie's rendering engine
 function render(content, theme) {
   return content.map(part => part.style(theme));
 }
@@ -145,6 +146,7 @@ function render(content, theme) {
 
 ---
 
-#### Crafted in the Studio.
+#### Crafted in Markie.
+
 Export your designs as high-resolution PNGs or vector SVGs for posters, social media, or print.
 `;

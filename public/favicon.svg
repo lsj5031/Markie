@@ -1,12 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="128" fill="#eb3b5a"/>
-  <rect width="512" height="512" rx="128" fill="white" fill-opacity="0.2"/>
-  <text x="50%" y="50%" 
-        font-family="system-ui, -apple-system, 'Plus Jakarta Sans', 'Helvetica Neue', sans-serif" 
-        font-weight="800" 
-        font-size="340" 
-        fill="white" 
-        text-anchor="middle" 
-        dominant-baseline="central"
-        dy="24">L</text>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="128" fill="#EB3B5A" />
+  <path
+    d="M136 368V144C136 135.163 143.163 128 152 128H176C182.868 128 189.043 132.327 191.688 138.761L256 295.147L320.312 138.761C322.957 132.327 329.132 128 336 128H360C368.837 128 376 135.163 376 144V368C376 376.837 368.837 384 360 384H328C319.163 384 312 376.837 312 368V232L269.414 335.586C266.386 342.946 259.261 347.79 251.328 347.79H260.672C252.739 347.79 245.614 342.946 242.586 335.586L200 232V368C200 376.837 192.837 384 184 384H152C143.163 384 136 376.837 136 368Z"
+    fill="white" />
 </svg>
