@@ -17,6 +17,7 @@ export interface Theme {
     containerPadding: string;
     border?: string;
     shadow?: string;
+    backdropFilter?: string;
   };
 }
 

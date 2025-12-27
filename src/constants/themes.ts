@@ -114,6 +114,109 @@ export const THEMES: Theme[] = [
       border: '3px solid #000',
       shadow: '6px 6px 0px #000'
     }
+  },
+  {
+    id: 'neon-cyberpunk',
+    name: 'Neon Cyberpunk',
+    description: 'Vibrant neon colors on dark background with futuristic feel.',
+    styles: {
+      fontFamily: "'JetBrains Mono', monospace",
+      headingFont: "'Orbitron', sans-serif",
+      backgroundColor: '#0a0a1a',
+      textColor: '#e0e0ff',
+      accentColor: '#00f7ff',
+      codeBackground: '#1a1a3a',
+      borderRadius: '8px',
+      containerPadding: '3rem',
+      border: '1px solid #00f7ff',
+      shadow: '0 0 20px rgba(0, 247, 255, 0.3)'
+    }
+  },
+  {
+    id: 'scandinavian-light',
+    name: 'Scandi Minimal',
+    description: 'Light, airy design with soft pastels and clean typography.',
+    styles: {
+      fontFamily: "'Inter', sans-serif",
+      headingFont: "'Playfair Display', serif",
+      backgroundColor: '#f8f9fa',
+      textColor: '#2c3e50',
+      accentColor: '#3498db',
+      codeBackground: '#ecf0f1',
+      borderRadius: '12px',
+      containerPadding: '4rem',
+      border: 'none',
+      shadow: '0 4px 12px rgba(0,0,0,0.05)'
+    }
+  },
+  {
+    id: 'dark-academia',
+    name: 'Dark Academia',
+    description: 'Rich dark tones with classic serif typography for scholarly feel.',
+    styles: {
+      fontFamily: "'Lora', serif",
+      headingFont: "'Lora', serif",
+      backgroundColor: '#1a120b',
+      textColor: '#f5f5f5',
+      accentColor: '#d4af37',
+      codeBackground: '#2a1e18',
+      borderRadius: '0px',
+      containerPadding: '4rem',
+      border: '1px solid #d4af37',
+      shadow: '0 8px 24px rgba(212, 175, 55, 0.15)'
+    }
+  },
+  {
+    id: 'glassmorphism',
+    name: 'Glass UI',
+    description: 'Translucent elements with frosted glass effect.',
+    styles: {
+      fontFamily: "'Inter', sans-serif",
+      headingFont: "'Poppins', sans-serif",
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      textColor: '#ffffff',
+      accentColor: '#8e44ad',
+      codeBackground: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: '16px',
+      containerPadding: '3rem',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      shadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+      backdropFilter: 'blur(10px)'
+    }
+  },
+  {
+    id: 'retro-futurism',
+    name: 'Retro Futurism',
+    description: 'Bold colors and geometric shapes inspired by 80s sci-fi.',
+    styles: {
+      fontFamily: "'Rajdhani', sans-serif",
+      headingFont: "'Bebas Neue', sans-serif",
+      backgroundColor: '#1a1a2e',
+      textColor: '#ffffff',
+      accentColor: '#ff6b6b',
+      codeBackground: '#16213e',
+      borderRadius: '0px',
+      containerPadding: '3rem',
+      border: '2px solid #ff6b6b',
+      shadow: '0 0 20px rgba(255, 107, 107, 0.3)'
+    }
+  },
+  {
+    id: 'corporate-pro',
+    name: 'Corporate Pro',
+    description: 'Professional business layout with clean, authoritative design.',
+    styles: {
+      fontFamily: "'Roboto', sans-serif",
+      headingFont: "'Montserrat', sans-serif",
+      backgroundColor: '#ffffff',
+      textColor: '#2c3e50',
+      accentColor: '#2980b9',
+      codeBackground: '#f5f7fa',
+      borderRadius: '4px',
+      containerPadding: '4rem',
+      border: '1px solid #e0e0e0',
+      shadow: '0 2px 8px rgba(0,0,0,0.08)'
+    }
   }
 ];
 
