@@ -7,8 +7,8 @@ export const THEMES: Theme[] = [
     name: 'Classic Editorial',
     description: 'Baskervville serif for a timeless news-journal aesthetic.',
     styles: {
-      fontFamily: "'Baskervville', serif",
-      headingFont: "'Baskervville', serif",
+      fontFamily: "'Baskervville', 'Songti SC', 'Noto Serif SC', 'SimSun', serif",
+      headingFont: "'Baskervville', 'Songti SC', 'Noto Serif SC', 'SimSun', serif",
       backgroundColor: '#ffffff',
       textColor: '#121212',
       accentColor: '#000000',
@@ -23,8 +23,8 @@ export const THEMES: Theme[] = [
     name: 'Studio Minimal',
     description: 'Clean sans-serif with generous white space and soft greys.',
     styles: {
-      fontFamily: "'Plus Jakarta Sans', sans-serif",
-      headingFont: "'Plus Jakarta Sans', sans-serif",
+      fontFamily: "'Plus Jakarta Sans', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans SC', sans-serif",
+      headingFont: "'Plus Jakarta Sans', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans SC', sans-serif",
       backgroundColor: '#fafafa',
       textColor: '#222222',
       accentColor: '#6366f1',
@@ -39,8 +39,8 @@ export const THEMES: Theme[] = [
     name: 'Vogue Night',
     description: 'High-fashion editorial style with Instrument Serif.',
     styles: {
-      fontFamily: "'Instrument Serif', serif",
-      headingFont: "'Instrument Serif', serif",
+      fontFamily: "'Instrument Serif', 'Songti SC', 'Noto Serif SC', 'SimSun', serif",
+      headingFont: "'Instrument Serif', 'Songti SC', 'Noto Serif SC', 'SimSun', serif",
       backgroundColor: '#0a0a0a',
       textColor: '#ffffff',
       accentColor: '#ffffff',
@@ -55,8 +55,8 @@ export const THEMES: Theme[] = [
     name: 'Swiss Typographic',
     description: 'Heavy Archivo Black headings on a functional grey grid.',
     styles: {
-      fontFamily: "'Inter', sans-serif",
-      headingFont: "'Archivo Black', sans-serif",
+      fontFamily: "'Inter', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans SC', sans-serif",
+      headingFont: "'Archivo Black', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans SC', sans-serif",
       backgroundColor: '#ebebeb',
       textColor: '#000000',
       accentColor: '#e11d48',
@@ -71,8 +71,8 @@ export const THEMES: Theme[] = [
     name: 'Tech Blueprint',
     description: 'High-contrast monospaced layout for technical documentation.',
     styles: {
-      fontFamily: "'JetBrains Mono', monospace",
-      headingFont: "'JetBrains Mono', monospace",
+      fontFamily: "'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', monospace",
+      headingFont: "'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', monospace",
       backgroundColor: '#ffffff',
       textColor: '#0a0a0a',
       accentColor: '#2563eb',
@@ -87,8 +87,8 @@ export const THEMES: Theme[] = [
     name: 'Bauhaus Redux',
     description: 'Strict primary color palette with geometric sans.',
     styles: {
-      fontFamily: "'Inter', sans-serif",
-      headingFont: "'Inter', sans-serif",
+      fontFamily: "'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+      headingFont: "'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif",
       backgroundColor: '#fffcf2',
       textColor: '#1a1a1b',
       accentColor: '#eb3b5a',
@@ -103,8 +103,8 @@ export const THEMES: Theme[] = [
     name: 'Brutalist Print',
     description: 'Raw, unpolished aesthetics with extreme shadows.',
     styles: {
-      fontFamily: "'Inter', sans-serif",
-      headingFont: "'Inter', sans-serif",
+      fontFamily: "'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+      headingFont: "'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif",
       backgroundColor: '#ffffff',
       textColor: '#000000',
       accentColor: '#000000',
@@ -120,8 +120,8 @@ export const THEMES: Theme[] = [
     name: 'Neon Cyberpunk',
     description: 'Vibrant neon colors on dark background with futuristic feel.',
     styles: {
-      fontFamily: "'JetBrains Mono', monospace",
-      headingFont: "'Orbitron', sans-serif",
+      fontFamily: "'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', monospace",
+      headingFont: "'Orbitron', 'PingFang SC', 'Microsoft YaHei', sans-serif",
       backgroundColor: '#0a0a1a',
       textColor: '#e0e0ff',
       accentColor: '#00f7ff',
@@ -137,8 +137,8 @@ export const THEMES: Theme[] = [
     name: 'Scandi Minimal',
     description: 'Light, airy design with soft pastels and clean typography.',
     styles: {
-      fontFamily: "'Inter', sans-serif",
-      headingFont: "'Playfair Display', serif",
+      fontFamily: "'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+      headingFont: "'Playfair Display', 'Songti SC', 'Noto Serif SC', serif",
       backgroundColor: '#f8f9fa',
       textColor: '#2c3e50',
       accentColor: '#3498db',
@@ -154,8 +154,8 @@ export const THEMES: Theme[] = [
     name: 'Dark Academia',
     description: 'Rich dark tones with classic serif typography for scholarly feel.',
     styles: {
-      fontFamily: "'Lora', serif",
-      headingFont: "'Lora', serif",
+      fontFamily: "'Lora', 'Songti SC', 'Noto Serif SC', serif",
+      headingFont: "'Lora', 'Songti SC', 'Noto Serif SC', serif",
       backgroundColor: '#1a120b',
       textColor: '#f5f5f5',
       accentColor: '#d4af37',
@@ -166,31 +166,14 @@ export const THEMES: Theme[] = [
       shadow: '0 8px 24px rgba(212, 175, 55, 0.15)'
     }
   },
-  {
-    id: 'glassmorphism',
-    name: 'Glass UI',
-    description: 'Translucent elements with frosted glass effect.',
-    styles: {
-      fontFamily: "'Inter', sans-serif",
-      headingFont: "'Poppins', sans-serif",
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      textColor: '#ffffff',
-      accentColor: '#8e44ad',
-      codeBackground: 'rgba(255, 255, 255, 0.1)',
-      borderRadius: '16px',
-      containerPadding: '3rem',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      shadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-      backdropFilter: 'blur(10px)'
-    }
-  },
+
   {
     id: 'retro-futurism',
     name: 'Retro Futurism',
     description: 'Bold colors and geometric shapes inspired by 80s sci-fi.',
     styles: {
-      fontFamily: "'Rajdhani', sans-serif",
-      headingFont: "'Bebas Neue', sans-serif",
+      fontFamily: "'Rajdhani', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+      headingFont: "'Bebas Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif",
       backgroundColor: '#1a1a2e',
       textColor: '#ffffff',
       accentColor: '#ff6b6b',
@@ -206,8 +189,8 @@ export const THEMES: Theme[] = [
     name: 'Corporate Pro',
     description: 'Professional business layout with clean, authoritative design.',
     styles: {
-      fontFamily: "'Roboto', sans-serif",
-      headingFont: "'Montserrat', sans-serif",
+      fontFamily: "'Roboto', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+      headingFont: "'Montserrat', 'PingFang SC', 'Microsoft YaHei', sans-serif",
       backgroundColor: '#ffffff',
       textColor: '#2c3e50',
       accentColor: '#2980b9',
@@ -216,6 +199,40 @@ export const THEMES: Theme[] = [
       containerPadding: '4rem',
       border: '1px solid #e0e0e0',
       shadow: '0 2px 8px rgba(0,0,0,0.08)'
+    }
+  },
+  {
+    id: 'ink-and-scroll',
+    name: 'Ink & Scroll (水墨)',
+    description: 'Traditional Chinese aesthetic with textured paper and serif typography.',
+    styles: {
+      fontFamily: "'Noto Serif SC', 'Songti SC', 'SimSun', serif",
+      headingFont: "'Noto Serif SC', 'Songti SC', 'SimSun', serif",
+      backgroundColor: '#f4f1ea',
+      textColor: '#2b2b2b',
+      accentColor: '#8b0000',
+      codeBackground: '#e8e4db',
+      borderRadius: '2px',
+      containerPadding: '4rem',
+      border: 'double 6px #8b0000',
+      shadow: '4px 4px 12px rgba(0,0,0,0.1)'
+    }
+  },
+  {
+    id: 'modern-oriental',
+    name: 'Red Oriental (现代)',
+    description: 'Bold modern Chinese design with high contrast red and black.',
+    styles: {
+      fontFamily: "'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', sans-serif",
+      headingFont: "'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', sans-serif",
+      backgroundColor: '#f5f5f5',
+      textColor: '#1a1a1a',
+      accentColor: '#d63031',
+      codeBackground: '#ffffff',
+      borderRadius: '8px',
+      containerPadding: '4rem',
+      border: '3px solid #d63031',
+      shadow: '8px 8px 0px rgba(214, 48, 49, 0.2)'
     }
   }
 ];

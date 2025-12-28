@@ -29,7 +29,7 @@ const createSandbox = (): HTMLElement => {
 const getExportDimensions = (
   size: ExportSize,
 ): { width: number; height: number } => {
-  const baseWidth = 2480; // High resolution for print quality (approx. 10.5 inches at 240 DPI)
+  const baseWidth = 794; // Standard A4 width at 96 DPI (keeps content proportional)
   const exportWidth = baseWidth;
   const exportHeight =
     size === "A4" ? Math.round(baseWidth * 1.4142) : baseWidth;
@@ -398,7 +398,7 @@ const createContinuousExport = async (
 
     const dataUrl = await htmlToImage.toPng(container, {
      quality: 1.0,
-     pixelRatio: 3, // Increased from 2 to 3 for higher resolution
+     pixelRatio: 4, // Increased from 3 to 4 for ultra-high resolution
      backgroundColor,
 
      width: width, // Explicitly set width to match container
@@ -588,7 +588,7 @@ export const exportPreview = async (
 
             const dataUrl = await htmlToImage.toPng(pageContainer, {
              quality: 1.0,
-             pixelRatio: 3, // Increased from 2 to 3 for higher resolution
+             pixelRatio: 4, // Increased from 3 to 4 for ultra-high resolution
              backgroundColor,
 
              width: width, // Explicitly set width to match page size

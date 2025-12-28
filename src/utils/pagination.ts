@@ -17,7 +17,7 @@ const SQUARE_ASPECT_RATIO = 1.0;
 export const getDimensions = (
   exportSize: string,
 ): { width: number; height: number } => {
-  const baseWidth = 1240; // Match export dimensions for consistent pagination
+  const baseWidth = 794; // Match export dimensions (A4 @ 96 DPI)
   const width = baseWidth;
   const height =
     exportSize === "A4"
@@ -185,64 +185,57 @@ export const paginateHtml = async (
     } = await createMeasurementIframe(exportSize, theme, renderedHtml, padding);
     iframe = measurementIframe;
 
-    const { width: _width, height } = getDimensions(exportSize);
-    const usablePageHeight = height - paddingTop * 2;
-
+    const { height: pageHeight } = getDimensions(exportSize);
+    
+    // Get all top-level elements from the fully rendered content
+    // We clone them to detach from the live nodelist when we start moving them
+    const sourceNodes = Array.from(contentWrapper.children).map(node => node.cloneNode(true));
+    
+    // Clear the wrapper to start filling pages one by one
+    contentWrapper.innerHTML = '';
+    
     const pages: string[] = [];
-    const fullContentHtml = contentWrapper.innerHTML;
-
-    // Calculate number of pages based on content height
-    let numPages = Math.ceil(totalHeight / usablePageHeight);
-
-    // More robust check for extra pages: if the last page has very little content (less than 10% of page height),
-    // and it's mostly empty, we should remove it unless it's substantial content
-    if (numPages > 1) {
-      const lastPageStartHeight = (numPages - 1) * usablePageHeight;
-      const lastPageContentHeight = totalHeight - lastPageStartHeight;
-
-      // If last page has less than 15% content or less than 50px, it's likely an artifact
-      if (lastPageContentHeight < Math.max(usablePageHeight * 0.15, 50)) {
-        numPages--;
+    
+    // Threshold to prevent infinite loops with single giant elements
+    // If an element is taller than the page, we force a break after it.
+    
+    let i = 0;
+    while (i < sourceNodes.length) {
+      const node = sourceNodes[i];
+      contentWrapper.appendChild(node);
+      
+      // Check if we've exceeded the page height
+      if (contentWrapper.scrollHeight > pageHeight) {
+        // If this is the only element on the page, it's just too big.
+        // We have to accept it (it will be clipped) to avoid an infinite loop of rejecting it.
+        if (contentWrapper.children.length === 1) {
+          pages.push(contentWrapper.innerHTML);
+          contentWrapper.innerHTML = '';
+          i++; // Move to next node
+        } else {
+          // If we have other content, this node caused the overflow.
+          // Remove it, save the current page, and try adding this node to the NEXT page.
+          contentWrapper.removeChild(node);
+          pages.push(contentWrapper.innerHTML);
+          contentWrapper.innerHTML = '';
+          
+          // We DO NOT increment 'i' here, so the loop processes the same node again
+          // but on a fresh, empty page.
+        }
+      } else {
+        // Did not overflow, move to next node
+        i++;
       }
     }
-
-    // Ensure at least one page for content that exists.
-    if (totalHeight > 0 && numPages === 0) {
-      numPages = 1;
+    
+    // Push any remaining content as the final page
+    if (contentWrapper.children.length > 0) {
+      pages.push(contentWrapper.innerHTML);
     }
 
-    // Verify that the content actually needs the calculated number of pages
-    const _actualContentHeight = numPages * usablePageHeight;
-    if (numPages > 1 && totalHeight <= (numPages - 1) * usablePageHeight + 10) {
-      // If content fits in one fewer page with 10px buffer, reduce page count
-      numPages--;
-    }
-
-    for (let i = 0; i < numPages; i++) {
-      const yOffset = -(i * usablePageHeight);
-
-      // Each page is a div that contains the *full* content,
-      // but the content is shifted using a transform to show the correct "slice".
-      // Fix: Ensure each page has consistent height and proper overflow handling
-      const pageHtml = `
-        <div style="width: 100%; height: ${usablePageHeight}px; overflow: hidden; position: relative; box-sizing: border-box;">
-          <div style="position: absolute; width: 100%; transform: translateY(${yOffset}px); top: 0; left: 0;">
-            ${fullContentHtml}
-          </div>
-        </div>
-      `;
-      pages.push(pageHtml);
-    }
-
-    console.log(`📊 Pagination debug:
-      - Total content height: ${totalHeight}px
-      - Page height: ${height}px  
-      - Padding top: ${paddingTop}px
-      - Usable page height: ${usablePageHeight}px
-      - Calculated pages: ${numPages}
-      - Content HTML length: ${fullContentHtml.length} chars`);
-    console.log(`📊 Pagination complete: ${pages.length} pages created.`);
+    console.log(`📊 Smart Pagination complete: ${pages.length} pages created.`);
     return pages;
+
   } catch (error) {
     console.error("Pagination failed:", error);
     return [renderedHtml]; // Fallback to a single page on error.
