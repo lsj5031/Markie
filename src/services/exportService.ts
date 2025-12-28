@@ -457,6 +457,11 @@ export const exportPreview = async (
     return;
   }
 
+  // Sanitize HTML content to remove invalid XML characters (like ESC - char 27)
+  // which might cause SVG export errors or other issues.
+  // We preserve Tab (9), Newline (10), and Carriage Return (13).
+  const sanitizedHtml = htmlContent.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+
   const htmlToImage = await import("html-to-image");
   const sandbox = createSandbox();
   try {
@@ -481,7 +486,7 @@ export const exportPreview = async (
 
       const contentDiv = document.createElement("div");
       contentDiv.classList.add("markdown-body");
-      contentDiv.innerHTML = htmlContent;
+      contentDiv.innerHTML = sanitizedHtml;
       Object.assign(contentDiv.style, {
         width: "100%",
         height: "auto",
@@ -525,7 +530,7 @@ export const exportPreview = async (
         case "CONTINUOUS":
           // Export as one continuous tall image
           await createContinuousExport(
-            htmlContent,
+            sanitizedHtml,
             fileName,
             width,
             backgroundColor,
@@ -538,7 +543,7 @@ export const exportPreview = async (
         default:
           // Original paginated export (multiple page PNGs)
           const pages = await paginateHtml(
-            htmlContent,
+            sanitizedHtml,
             size,
             theme,
             padding, // Pass explicit padding for consistency with export
