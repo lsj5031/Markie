@@ -8,7 +8,7 @@ Transform your markdown into production-ready editorial layouts with real-time v
 
 ## 🎨 Features
 
-- **6 Curated Themes**: From classic editorial to modern studio styles
+- **14 Curated Themes**: From classic editorial to modern studio styles
 - **Real-time Preview**: See your markdown rendered with theme styles instantly
 - **Multiple Export Modes**: Pages (paginated) and Continuous (long image) exports
 - **Export Sizes**: A4 and Square formats
@@ -26,8 +26,7 @@ Fully functional with comprehensive export capabilities. All known issues resolv
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. Run the app:
    `npm run dev`
 
 ## 📋 Export Modes Explained
@@ -80,23 +79,30 @@ Fully functional with comprehensive export capabilities. All known issues resolv
 
 ## 🎨 Themes
 
-Choose from 6 professionally designed themes:
+Choose from 14 professionally designed themes:
 
-- **Classic Editorial**: Timeless serif design
-- **Studio Minimal**: Clean sans-serif with white space
-- **Vogue Night**: High-fashion dark theme
-- **Swiss Typographic**: Bold headers on functional grid
-- **Tech Blueprint**: High-contrast monospace layout
-- **Bauhaus Redux**: Primary colors with geometric sans
-- **Brutalist Print**: Raw aesthetics with extreme shadows
+- **Classic Editorial**: Baskervville serif for a timeless news-journal aesthetic
+- **Studio Minimal**: Clean sans-serif with generous white space and soft greys
+- **Vogue Night**: High-fashion editorial style with Instrument Serif
+- **Swiss Typographic**: Heavy Archivo Black headings on a functional grey grid
+- **Tech Blueprint**: High-contrast monospaced layout for technical documentation
+- **Bauhaus Redux**: Strict primary color palette with geometric sans
+- **Brutalist Print**: Raw, unpolished aesthetics with extreme shadows
+- **Neon Cyberpunk**: Vibrant neon colors on dark background with futuristic feel
+- **Scandi Minimal**: Light, airy design with soft pastels and clean typography
+- **Dark Academia**: Rich dark tones with classic serif typography
+- **Retro Futurism**: Bold colors and geometric shapes inspired by 80s sci-fi
+- **Corporate Pro**: Professional business layout with clean, authoritative design
+- **Ink & Scroll**: Traditional Chinese aesthetic with textured paper
+- **Red Oriental**: Bold modern Chinese design within high contrast red and black
 
 ## 📸 Export Options
 
 - **Formats**: PNG (high-resolution) and SVG (vector)
 - **Sizes**: A4 and Square formats
-- **Padding**: Configurable (10px-100px)
+- **Padding**: Configurable (32px-128px)
 - **Modes**: Pages and Continuous export
-- **Quality**: High pixel ratio (2x) with automatic file naming
+- **Quality**: Ultra-high pixel ratio (4x) with automatic file naming
 
 ## 🛠️ Tech Stack
 
@@ -122,7 +128,7 @@ npm run dev
 npm run build
 
 # Run tests
-npx playwright test
+npm test
 
 # Lint code
 npx oxlint
@@ -134,7 +140,3 @@ npx oxlint
 - **Automated pre-commit hooks** for code quality
 - **Comprehensive test coverage** with Playwright
 - **TypeScript strict mode** for type safety
-
-## 📄 View in AI Studio
-
-[Open in AI Studio](https://ai.studio/apps/drive/195K5cTOxnuKv86bjuaTHnkEumq6bqWHa)

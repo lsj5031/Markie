@@ -2,11 +2,18 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "noEmit": true,
+    "strict": true
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
 }
