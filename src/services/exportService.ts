@@ -29,7 +29,7 @@ const createSandbox = (): HTMLElement => {
 const getExportDimensions = (
   size: ExportSize,
 ): { width: number; height: number } => {
-  const baseWidth = 1240; // A good resolution for print quality (approx. 10.5 inches at 120 DPI)
+  const baseWidth = 794; // Standard A4 width at 96 DPI (keeps content proportional)
   const exportWidth = baseWidth;
   const exportHeight =
     size === "A4" ? Math.round(baseWidth * 1.4142) : baseWidth;
@@ -397,15 +397,20 @@ const createContinuousExport = async (
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     const dataUrl = await htmlToImage.toPng(container, {
-      quality: 1.0,
-      pixelRatio: 2,
-      backgroundColor,
+     quality: 1.0,
+     pixelRatio: 4, // Increased from 3 to 4 for ultra-high resolution
+     backgroundColor,
 
-      width: width, // Explicitly set width to match container
-      height: container.scrollHeight, // Explicitly set height to content height
-      skipFonts: true, // Prevent font embedding errors on Firefox
-      // Prevent crash on image error - use a transparent 1x1 pixel
-      imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+     width: width, // Explicitly set width to match container
+     height: container.scrollHeight, // Explicitly set height to content height
+     skipFonts: true, // Prevent font embedding errors on Firefox
+     // Prevent crash on image error - use a transparent 1x1 pixel
+     imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+     // Enable anti-aliasing for smoother edges
+     style: {
+       imageRendering: 'optimizeQuality',
+       shapeRendering: 'geometricPrecision'
+     }
     });
 
     downloadFile(dataUrl, `${fileName}-continuous.png`);
@@ -498,12 +503,17 @@ export const exportPreview = async (
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       const dataUrl = await htmlToImage.toSvg(container, {
-        quality: 1.0,
-        pixelRatio: 2, // Match PNG quality
-        backgroundColor,
-        skipFonts: true, // Prevent font embedding errors on Firefox
-        // Prevent crash on image error - use a transparent 1x1 pixel
-        imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+       quality: 1.0,
+       pixelRatio: 3, // Increased from 2 to 3 for higher resolution
+       backgroundColor,
+       skipFonts: true, // Prevent font embedding errors on Firefox
+       // Prevent crash on image error - use a transparent 1x1 pixel
+       imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+       // Enable anti-aliasing for smoother edges
+       style: {
+         imageRendering: 'optimizeQuality',
+         shapeRendering: 'geometricPrecision'
+       }
       });
       downloadFile(dataUrl, `${fileName}.svg`);
       return;
@@ -577,15 +587,20 @@ export const exportPreview = async (
             await new Promise((resolve) => setTimeout(resolve, 200));
 
             const dataUrl = await htmlToImage.toPng(pageContainer, {
-              quality: 1.0,
-              pixelRatio: 2, // Higher pixel ratio for sharper images
-              backgroundColor,
+             quality: 1.0,
+             pixelRatio: 4, // Increased from 3 to 4 for ultra-high resolution
+             backgroundColor,
 
-              width: width, // Explicitly set width to match page size
-              height: height, // Explicitly set height to match page size
-              skipFonts: true, // Prevent font embedding errors on Firefox
-              // Prevent crash on image error - use a transparent 1x1 pixel
-              imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+             width: width, // Explicitly set width to match page size
+             height: height, // Explicitly set height to match page size
+             skipFonts: true, // Prevent font embedding errors on Firefox
+             // Prevent crash on image error - use a transparent 1x1 pixel
+             imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+             // Enable anti-aliasing for smoother edges
+             style: {
+               imageRendering: 'optimizeQuality',
+               shapeRendering: 'geometricPrecision'
+             }
             });
 
             const pageFileName =
