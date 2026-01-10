@@ -143,7 +143,7 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
       border: 2px solid #313244;
       color: #cdd6f4;
       white-space: pre-wrap;
-      word-wrap: break-word;
+      word-break: break-word;
     }
     
     .markdown-body pre code {
