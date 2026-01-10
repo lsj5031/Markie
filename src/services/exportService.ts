@@ -134,7 +134,7 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
     .markdown-body pre {
       padding: 1.5em;
       border-radius: 0px;
-      overflow-x: auto;
+      overflow: visible;
       margin: 1.5em 0;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.85em;
@@ -142,6 +142,8 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
       background: #1e1e2e;
       border: 2px solid #313244;
       color: #cdd6f4;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
     
     .markdown-body pre code {
@@ -150,6 +152,8 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
       padding: 0;
       font-size: inherit;
       border: none;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
     
     .markdown-body code {
