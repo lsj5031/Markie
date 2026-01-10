@@ -1,4 +1,5 @@
 import { Theme } from "../types";
+import { getThemeStyles } from "./themeHelpers";
 
 /**
  * Corresponds to the A4 aspect ratio for height calculation
@@ -65,6 +66,7 @@ const createMeasurementIframe = async (
   totalHeight: number;
   paddingTop: number;
 }> => {
+  const styles = getThemeStyles(theme);
   const { width: _width } = getDimensions(exportSize);
 
   const iframe = document.createElement("iframe");
@@ -91,27 +93,17 @@ const createMeasurementIframe = async (
         <head>
           <style>
             *, *::before, *::after { box-sizing: border-box; }
-            body { margin: 0; font-family: ${theme.styles.fontFamily}; color: ${
-              theme.styles.textColor
-            }; background-color: ${theme.styles.backgroundColor}; }
+            body { margin: 0; font-family: ${styles.fontFamily}; color: ${styles.textColor}; background-color: ${styles.backgroundColor}; }
             .content-wrapper { padding: ${padding}px; width: 100%; }
-            h1, h2, h3, h4, h5, h6 { font-family: ${theme.styles.headingFont}; color: ${
-              theme.styles.accentColor
-            }; }
+            h1, h2, h3, h4, h5, h6 { font-family: ${styles.headingFont}; color: ${styles.accentColor}; }
             img, svg { max-width: 100%; height: auto; display: block; }
             pre, code { white-space: pre-wrap; word-break: break-word; }
-            pre { background: ${theme.styles.codeBackground}; color: ${
-              theme.styles.textColor
-            }; padding: 1.25em; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); overflow-x: auto; }
-            code { background: rgba(0,0,0,0.08); color: ${
-              theme.styles.accentColor
-            }; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
-            a { color: ${theme.styles.accentColor}; border-bottom: 1px solid ${
-              theme.styles.accentColor
-            }; text-decoration: none; }
-            strong { color: ${theme.styles.accentColor}; font-weight: 700; }
-            hr { border-color: ${theme.styles.textColor}; opacity: 0.15; }
-            ul li::marker, ol li::marker { color: ${theme.styles.accentColor}; }
+            pre { background: ${styles.codeBackground}; color: ${styles.textColor}; padding: 1.25em; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); overflow-x: auto; }
+            code { background: rgba(0,0,0,0.08); color: ${styles.accentColor}; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+            a { color: ${styles.accentColor}; border-bottom: 1px solid ${styles.accentColor}; text-decoration: none; }
+            strong { color: ${styles.accentColor}; font-weight: 700; }
+            hr { border-color: ${styles.textColor}; opacity: 0.15; }
+            ul li::marker, ol li::marker { color: ${styles.accentColor}; }
             ol { list-style-type: decimal; padding-left: 1.5em; }
             ul { list-style-type: disc; padding-left: 1.5em; }
           </style>

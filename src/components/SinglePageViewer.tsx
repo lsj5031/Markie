@@ -8,6 +8,8 @@ interface SinglePageViewerProps {
   exportSize: ExportSize;
 }
 
+import { getThemeStyles } from "../utils/themeHelpers";
+
 export const SinglePageViewer: React.FC<SinglePageViewerProps> = ({
   htmlContent,
   theme,
@@ -19,6 +21,8 @@ export const SinglePageViewer: React.FC<SinglePageViewerProps> = ({
     exportSize,
     false, // Pagination disabled - shows single page
   );
+
+  const styles = getThemeStyles(theme);
 
   if (isLoading) {
     return (
@@ -32,11 +36,11 @@ export const SinglePageViewer: React.FC<SinglePageViewerProps> = ({
     <div
       id="preview-content"
       className="w-full h-full"
-      style={{ 
-        overflowY: "auto", 
+      style={{
+        overflowY: "auto",
         height: "100%",
-        backgroundColor: theme.styles.backgroundColor,
-        color: theme.styles.textColor,
+        backgroundColor: styles.backgroundColor,
+        color: styles.textColor,
       }}
       dangerouslySetInnerHTML={{ __html: pages[0] || "" }}
     />

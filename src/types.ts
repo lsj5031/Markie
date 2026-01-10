@@ -2,25 +2,6 @@ export type ExportFormat = "PNG" | "SVG";
 export type ExportSize = "SQUARE" | "A4" | "CUSTOM";
 export type ExportMode = "PAGES" | "CONTINUOUS";
 
-export interface Theme {
-  id: string;
-  name: string;
-  description: string;
-  styles: {
-    fontFamily: string;
-    headingFont: string;
-    backgroundColor: string;
-    textColor: string;
-    accentColor: string;
-    codeBackground: string;
-    borderRadius: string;
-    containerPadding: string;
-    border?: string;
-    shadow?: string;
-    backdropFilter?: string;
-  };
-}
-
 export interface AppState {
   markdown: string;
   themeId: string;
@@ -37,3 +18,9 @@ export interface ExportOptions {
   padding: number;
   mode: ExportMode;
 }
+
+// New Theme System
+import { Theme as NewTheme, ThemeTokens } from './constants/themes/schema';
+export type { NewTheme, ThemeTokens };
+
+export type Theme = NewTheme;

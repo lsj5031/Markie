@@ -51,84 +51,98 @@ body {
    Typography & Markdown Defaults
    ============================================ */
 .markdown-body {
-    line-height: 1.65;
-    color: inherit;
+    line-height: var(--line-height-body, 1.65);
+    color: var(--theme-text);
+    background-color: var(--theme-bg);
+    font-family: var(--theme-font);
 }
 
-.markdown-body h1 {
-    font-size: 1.8em;
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 0.5em;
-    letter-spacing: -0.02em;
-}
-
-.markdown-body h2 {
-    font-size: 1.4em;
-    font-weight: 700;
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+    font-family: var(--theme-heading-font);
+    color: var(--theme-heading, var(--theme-text));
+    line-height: var(--line-height-heading, 1.2);
     margin-top: 1.5em;
     margin-bottom: 0.5em;
-    letter-spacing: -0.01em;
 }
 
-.markdown-body h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 1.2em;
-    margin-bottom: 0.4em;
-}
+.markdown-body h1 { font-size: 2.25em; font-weight: 800; letter-spacing: -0.025em; }
+.markdown-body h2 { font-size: 1.8em; font-weight: 700; letter-spacing: -0.025em; padding-bottom: 0.3em; border-bottom: 1px solid var(--theme-border, transparent); }
+.markdown-body h3 { font-size: 1.5em; font-weight: 600; letter-spacing: -0.0125em; }
+.markdown-body h4 { font-size: 1.25em; font-weight: 600; }
 
 .markdown-body p {
-    font-size: 0.95em;
-    margin-bottom: 1.2em;
+    margin-bottom: 1.25em;
+}
+
+.markdown-body a {
+    color: var(--theme-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.markdown-body a:hover {
+    border-bottom-color: var(--theme-accent);
+}
+
+.markdown-body strong {
+    font-weight: 700;
+    color: var(--theme-heading, inherit);
 }
 
 .markdown-body blockquote {
-    padding-left: 1.5em;
-    border-left: 2px solid currentColor;
+    padding: 1em 1em 1em 1.25em;
+    margin: 1.5em 0;
+    border-left: 4px solid var(--theme-blockquote-border, var(--theme-accent));
+    background: var(--theme-blockquote-bg, transparent);
+    color: var(--theme-blockquote-text, var(--theme-muted));
     font-style: italic;
-    opacity: 0.8;
-    margin: 2em 0;
+    border-radius: var(--radius-sm, 4px);
 }
 
 .markdown-body pre {
-    padding: 1.5em;
-    border-radius: 0px;
+    padding: 1.25em;
     overflow-x: auto;
     margin: 1.5em 0;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85em;
-    line-height: 1.6;
-    background: #1e1e2e;
-    border: 2px solid #313244;
-    color: #cdd6f4;
+    font-family: var(--theme-mono-font, 'JetBrains Mono', monospace);
+    font-size: 0.9em;
+    line-height: 1.5;
+    background: var(--theme-code-bg, #1e1e2e);
+    color: var(--theme-code-text, #cdd6f4);
+    border: 1px solid var(--theme-code-border, rgba(0,0,0,0.1));
+    border-radius: var(--radius-md, 6px);
 }
 
 .markdown-body pre code {
     background: transparent;
     color: inherit;
     padding: 0;
-    font-size: inherit;
+    border: none;
+    font-family: inherit;
 }
 
 .markdown-body code {
-    font-family: 'JetBrains Mono', monospace;
-    padding: 0.2em 0.5em;
-    border-radius: 2px;
-    font-size: 0.88em;
-    background: #313244;
-    /* Dark background */
-    color: #cdd6f4;
-    /* Light text */
-    border: 1px solid #45475a;
-    /* Slightly lighter border */
+    font-family: var(--theme-mono-font, 'JetBrains Mono', monospace);
+    padding: 0.2em 0.4em;
+    font-size: 0.875em;
+    background: var(--theme-code-bg, rgba(0,0,0,0.05));
+    color: var(--theme-code-text, inherit);
+    border-radius: 4px;
+    border: 1px solid var(--theme-code-border, transparent);
 }
 
 .markdown-body hr {
     margin: 3em 0;
     border: 0;
-    border-top: 1px solid currentColor;
-    opacity: 0.2;
+    border-top-width: 1px;
+    border-top-style: var(--theme-hr-style, solid);
+    border-top-color: var(--theme-hr-color, var(--theme-border));
+    opacity: 0.6;
 }
 
 .markdown-body table {
@@ -137,26 +151,40 @@ body {
     margin: 2em 0;
 }
 
-.markdown-body th,
-.markdown-body td {
-    border: 2px solid var(--studio-tertiary);
-    padding: 1em;
+.markdown-body th {
+    background: var(--theme-table-header-bg, rgba(0,0,0,0.05));
+    color: var(--theme-table-header-text, inherit);
+    font-weight: 600;
     text-align: left;
+    padding: 0.75em 1em;
+    border: 1px solid var(--theme-table-border, rgba(0,0,0,0.1));
 }
 
-.markdown-body th {
-    font-weight: 700;
-    opacity: 1;
-    background: var(--studio-secondary);
-    color: var(--studio-text);
+.markdown-body td {
+    background: var(--theme-table-row-bg, transparent);
+    padding: 0.75em 1em;
+    border: 1px solid var(--theme-table-border, rgba(0,0,0,0.1));
 }
 
 .markdown-body img {
-    border-radius: 0px;
+    max-width: 100%;
     margin: 2em 0;
-    width: 100%;
-    object-fit: cover;
-    border: 4px solid var(--studio-text);
+    border-radius: var(--radius-md, 8px);
+    box-shadow: var(--shadow-sm);
+}
+
+.markdown-body ul, 
+.markdown-body ol {
+    margin-bottom: 1.25em;
+    padding-left: 1.625em;
+}
+
+.markdown-body li {
+    margin-bottom: 0.375em;
+}
+
+.markdown-body li::marker {
+    color: var(--theme-accent);
 }
 
 /* ============================================

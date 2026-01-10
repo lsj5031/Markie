@@ -18,6 +18,7 @@ import { Header } from "./components/Header";
 import * as Icons from "./components/Icons";
 
 import { generateCuteName } from "./utils/nameGenerator";
+import { getThemeStyles } from "./utils/themeHelpers";
 
 
 
@@ -238,19 +239,83 @@ const App: React.FC = () => {
     [markdown],
   );
 
-  // Generate CSS variables for the theme
-  const themeVars = {
-    "--theme-bg": activeTheme.styles.backgroundColor,
-    "--theme-text": activeTheme.styles.textColor,
-    "--theme-accent": activeTheme.styles.accentColor,
-    "--theme-font": activeTheme.styles.fontFamily,
-    "--theme-heading-font": activeTheme.styles.headingFont,
-    "--theme-code-bg": activeTheme.styles.codeBackground,
-    "--theme-padding": `${exportPadding}px`,
-    "--theme-radius": activeTheme.styles.borderRadius,
-    "--theme-border": activeTheme.styles.border || "none",
-    "--theme-shadow": activeTheme.styles.shadow || "none",
-  } as React.CSSProperties;
+  // Generate CSS variables for the theme (New & Old System Compatibility)
+  const themeVars = useMemo(() => {
+    // Get unified styles for basic properties - acts as compatibility layer
+    const styles = getThemeStyles(activeTheme);
+
+    // Base variables derived primarily from shared styles
+    const vars: Record<string, string> = {
+      '--theme-bg': styles.backgroundColor,
+      '--theme-text': styles.textColor,
+      '--theme-accent': styles.accentColor,
+      '--theme-border': styles.borderColor,
+
+      // Font families
+      '--theme-font': styles.fontFamily,
+      '--theme-heading-font': styles.headingFont,
+      '--theme-mono-font': styles.monoFont,
+
+      // Component baselines
+      '--theme-code-bg': styles.codeBackground,
+
+      // Padding (using state)
+      "--theme-padding": `${exportPadding}px`,
+    };
+
+    // If it's a new theme, inject all detailed tokens using the correct schema
+    // If it's a new theme, inject all detailed tokens using the correct schema
+    // if ('tokens' in activeTheme) { // Redundant now
+    const t = activeTheme.tokens;
+
+    // Detailed Colors
+    vars['--theme-primary'] = t.primary;
+    vars['--theme-secondary'] = t.secondary;
+    vars['--theme-muted'] = t.muted;
+
+    // Typography weights
+    vars['--font-weight-normal'] = t.fontWeight.normal.toString();
+    vars['--font-weight-bold'] = t.fontWeight.bold.toString();
+    vars['--font-weight-heading'] = t.fontWeight.bold.toString();
+
+    // Radius
+    vars['--radius-sm'] = t.borderRadius.sm;
+    vars['--radius-md'] = t.borderRadius.md;
+    vars['--radius-lg'] = t.borderRadius.lg;
+    vars['--radius-full'] = t.borderRadius.full;
+    vars['--theme-radius'] = t.borderRadius.md; // Compat
+
+    // Spacing
+    vars['--spacing-section'] = t.spacing.section;
+    vars['--spacing-container'] = t.spacing.container;
+    vars['--spacing-element'] = t.spacing.element;
+
+    // Shadows
+    vars['--shadow-sm'] = t.shadow.sm;
+    vars['--shadow-md'] = t.shadow.md;
+    vars['--shadow-lg'] = t.shadow.lg;
+    vars['--theme-shadow'] = t.shadow.md; // Compat
+
+    // Component Specific
+    vars['--theme-code-text'] = t.components.code.text;
+    vars['--theme-code-border'] = t.components.code.border;
+
+    vars['--theme-blockquote-bg'] = t.components.blockquote.background;
+    vars['--theme-blockquote-border'] = t.components.blockquote.border;
+    vars['--theme-blockquote-text'] = t.components.blockquote.text;
+
+    vars['--theme-table-header-bg'] = t.components.table.headerBackground;
+    vars['--theme-table-header-text'] = t.components.table.headerText;
+    vars['--theme-table-row-bg'] = t.components.table.rowBackground;
+    vars['--theme-table-border'] = t.components.table.border;
+
+    vars['--theme-hr-color'] = t.components.hr.color;
+    vars['--theme-hr-style'] = t.components.hr.style;
+
+    // }
+
+    return vars as React.CSSProperties;
+  }, [activeTheme, exportPadding]);
 
   return (
     <div
@@ -324,56 +389,85 @@ const App: React.FC = () => {
           </div>
 
           {/* Theme list with redesigned cards - auto-scrolls to active theme */}
-          {/* Theme list with Grid Layout */}
+          {/* Theme list with Grouped Grid Layout */}
           <div className="flex-1 overflow-y-auto p-5">
-            <div className="grid grid-cols-2 gap-4">
-              {THEMES.map((t) => {
-                const isActive = themeId === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setThemeId(t.id)}
-                    data-active={isActive}
-                    title={`${t.name}: ${t.description}`}
-                    className={`theme-card group relative flex flex-col text-left w-full rounded-xl ${isActive ? "active" : ""}`}
-                  >
-                    {/* Miniature Preview */}
-                    <div
-                      className="w-full aspect-square rounded-lg mb-2 shadow-inner relative overflow-hidden ring-1 ring-black/5"
-                      style={{ backgroundColor: t.styles.backgroundColor }}
-                    >
-                      {/* Abstract Content representation */}
-                      <div
-                        className="absolute top-2 left-2 right-2 h-1 rounded-full opacity-20"
-                        style={{ backgroundColor: t.styles.textColor }}
-                      />
-                      <div
-                        className="absolute top-4 left-2 w-1/2 h-1 rounded-full opacity-20"
-                        style={{ backgroundColor: t.styles.textColor }}
-                      />
-                      <div
-                        className="absolute bottom-2 right-2 w-4 h-4 rounded-full opacity-80 shadow-sm"
-                        style={{ backgroundColor: t.styles.accentColor }}
-                      />
-                    </div>
+            {(
+              [
+                "editorial",
+                "modern",
+                "technical",
+                "artistic",
+                "minimalist",
+                "other",
+              ] as const
+            ).map((category) => {
+              const categoryThemes = THEMES.filter(
+                (t) => ("category" in t ? t.category : "other") === category,
+              );
 
-                    <div className="flex justify-between items-start gap-1">
-                      <span
-                        className="text-[10px] font-bold leading-tight line-clamp-2"
-                        style={{ color: "var(--studio-text)" }}
-                      >
-                        {t.name}
-                      </span>
-                      {isActive && (
-                        <div className="w-3 h-3 text-[var(--studio-accent)] shrink-0">
-                          <Icons.Check />
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+              if (categoryThemes.length === 0) return null;
+
+              return (
+                <div key={category} className="mb-6 last:mb-0">
+                  <h3
+                    className="text-[10px] font-black uppercase tracking-[0.15em] mb-3 px-1 opacity-40 ml-1"
+                    style={{ color: "var(--studio-text)" }}
+                  >
+                    {category}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {categoryThemes.map((t) => {
+                      const isActive = themeId === t.id;
+                      const styles = getThemeStyles(t);
+
+                      return (
+                        <button
+                          key={t.id}
+                          onClick={() => setThemeId(t.id)}
+                          data-active={isActive}
+                          title={`${t.name}: ${t.description}`}
+                          className={`theme-card group relative flex flex-col text-left w-full rounded-xl ${isActive ? "active" : ""}`}
+                        >
+                          {/* Miniature Preview */}
+                          <div
+                            className="w-full aspect-square rounded-lg mb-2 shadow-inner relative overflow-hidden ring-1 ring-black/5"
+                            style={{ backgroundColor: styles.backgroundColor }}
+                          >
+                            {/* Abstract Content representation */}
+                            <div
+                              className="absolute top-2 left-2 right-2 h-1 rounded-full opacity-20"
+                              style={{ backgroundColor: styles.textColor }}
+                            />
+                            <div
+                              className="absolute top-4 left-2 w-1/2 h-1 rounded-full opacity-20"
+                              style={{ backgroundColor: styles.textColor }}
+                            />
+                            <div
+                              className="absolute bottom-2 right-2 w-4 h-4 rounded-full opacity-80 shadow-sm"
+                              style={{ backgroundColor: styles.accentColor }}
+                            />
+                          </div>
+
+                          <div className="flex justify-between items-start gap-1">
+                            <span
+                              className="text-[10px] font-bold leading-tight line-clamp-2"
+                              style={{ color: "var(--studio-text)" }}
+                            >
+                              {t.name}
+                            </span>
+                            {isActive && (
+                              <div className="w-3 h-3 text-[var(--studio-accent)] shrink-0">
+                                <Icons.Check />
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Sidebar footer */}
@@ -720,11 +814,11 @@ const App: React.FC = () => {
                       color: var(--theme-accent);
                     }
                     #preview-content pre {
-                      background: #1e1e2e;
-                      color: #cdd6f4;
+                      background: var(--theme-code-bg);
+                      color: var(--theme-code-text);
                       padding: 1.25em;
                       border-radius: 4px;
-                      border: 1px solid #313244;
+                      border: 1px solid var(--theme-code-border);
                       overflow-x: auto;
                     }
                     #preview-content pre code {
@@ -734,18 +828,41 @@ const App: React.FC = () => {
                       border: none;
                     }
                     #preview-content code {
-                      background: rgba(0,0,0,0.08);
-                      color: var(--theme-accent);
+                      background: var(--theme-code-bg);
+                      color: var(--theme-code-text);
                       padding: 0.15em 0.4em;
                       border-radius: 3px;
                       font-size: 0.9em;
+                      border: 1px solid var(--theme-code-border);
                     }
                     #preview-content a { color: var(--theme-accent); border-bottom: 1px solid var(--theme-accent); text-decoration: none; }
                     #preview-content strong { color: var(--theme-accent); font-weight: 700; }
-                    #preview-content hr { border-color: var(--theme-text); opacity: 0.15; }
+                    #preview-content hr { border-color: var(--theme-hr-color); border-style: var(--theme-hr-style); opacity: 0.5; }
                     #preview-content ul li::marker, #preview-content ol li::marker { color: var(--theme-accent); }
                     #preview-content ol { list-style-type: decimal; padding-left: 1.5em; }
                     #preview-content ul { list-style-type: disc; padding-left: 1.5em; }
+                    #preview-content blockquote {
+                      padding-left: 1rem;
+                      border-left: 4px solid var(--theme-blockquote-border);
+                      background: var(--theme-blockquote-bg);
+                      color: var(--theme-blockquote-text);
+                    }
+                    #preview-content table {
+                      width: 100%;
+                      border-collapse: collapse;
+                    }
+                    #preview-content th {
+                      background: var(--theme-table-header-bg);
+                      color: var(--theme-table-header-text);
+                      border: 1px solid var(--theme-table-border);
+                      padding: 0.5rem;
+                      font-weight: 600;
+                    }
+                    #preview-content td {
+                      background: var(--theme-table-row-bg);
+                      border: 1px solid var(--theme-table-border);
+                      padding: 0.5rem;
+                    } 
                  `,
                     }}
                   />

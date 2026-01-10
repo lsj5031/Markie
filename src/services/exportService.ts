@@ -1,6 +1,7 @@
 // import * as htmlToImage from "html-to-image"; // Removed for lazy loading
 import { ExportFormat, ExportSize, ExportMode, Theme } from "../types";
 import { paginateHtml } from "../utils/pagination";
+import { getThemeStyles } from "../utils/themeHelpers";
 
 /**
  * Creates and configures a sandbox container for exports.
@@ -42,12 +43,13 @@ const getExportDimensions = (
  * NOTE: This function does NOT reset padding - container padding should be set before calling this
  */
 const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
+  const styles = getThemeStyles(theme);
   // Apply base styles - NOTE: padding is intentionally NOT reset here
   // to preserve container padding set before this function is called
   Object.assign(element.style, {
-    fontFamily: theme.styles.fontFamily,
-    color: theme.styles.textColor,
-    backgroundColor: theme.styles.backgroundColor,
+    fontFamily: styles.fontFamily,
+    color: styles.textColor,
+    backgroundColor: styles.backgroundColor,
     lineHeight: "1.65",
     margin: "0",
     // padding is NOT set here to preserve containerPadding
@@ -64,9 +66,9 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
     * { box-sizing: border-box; }
     
     body { 
-      font-family: ${theme.styles.fontFamily};
-      color: ${theme.styles.textColor};
-      background-color: ${theme.styles.backgroundColor};
+      font-family: ${styles.fontFamily};
+      color: ${styles.textColor};
+      background-color: ${styles.backgroundColor};
       margin: 0;
       padding: 0;
       line-height: 1.65;
@@ -74,8 +76,8 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
     
     .markdown-body {
       line-height: 1.65;
-      color: ${theme.styles.textColor};
-      font-family: ${theme.styles.fontFamily};
+      color: ${styles.textColor};
+      font-family: ${styles.fontFamily};
     }
     
     .markdown-body h1,
@@ -84,15 +86,15 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
     .markdown-body h4,
     .markdown-body h5,
     .markdown-body h6 {
-      color: ${theme.styles.accentColor};
-      font-family: ${theme.styles.headingFont};
+      color: ${styles.accentColor};
+      font-family: ${styles.headingFont};
     }
     
     .markdown-body p,
     .markdown-body li,
     .markdown-body td,
     .markdown-body blockquote {
-      color: ${theme.styles.textColor};
+      color: ${styles.textColor};
     }
     
     .markdown-body h1 {
@@ -125,7 +127,7 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
     
     .markdown-body blockquote {
       padding-left: 1.5em;
-      border-left: 2px solid ${theme.styles.accentColor};
+      border-left: 2px solid ${styles.accentColor};
       font-style: italic;
       opacity: 0.8;
       margin: 2em 0;
@@ -167,26 +169,26 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
     }
     
     .markdown-body a {
-      color: ${theme.styles.accentColor};
-      border-bottom: 1px solid ${theme.styles.accentColor};
+      color: ${styles.accentColor};
+      border-bottom: 1px solid ${styles.accentColor};
       text-decoration: none;
     }
     
     .markdown-body strong {
-      color: ${theme.styles.accentColor};
+      color: ${styles.accentColor};
       font-weight: 700;
     }
     
     .markdown-body hr {
       margin: 3em 0;
       border: 0;
-      border-top: 1px solid ${theme.styles.textColor};
+      border-top: 1px solid ${styles.textColor};
       opacity: 0.2;
     }
     
     .markdown-body ul li::marker,
     .markdown-body ol li::marker {
-      color: ${theme.styles.accentColor};
+      color: ${styles.accentColor};
     }
     
     .markdown-body ol {
@@ -207,7 +209,7 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
     
     .markdown-body th,
     .markdown-body td {
-      border: 2px solid ${theme.styles.accentColor};
+      border: 2px solid ${styles.accentColor};
       padding: 1em;
       text-align: left;
     }
@@ -215,8 +217,8 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
     .markdown-body th {
       font-weight: 700;
       opacity: 1;
-      background: ${theme.styles.accentColor};
-      color: ${theme.styles.backgroundColor};
+      background: ${styles.accentColor};
+      color: ${styles.backgroundColor};
     }
     
     .markdown-body img {
@@ -224,7 +226,7 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
       margin: 2em 0;
       width: 100%;
       object-fit: cover;
-      border: 4px solid ${theme.styles.textColor};
+      border: 4px solid ${styles.textColor};
     }
   `;
   element.appendChild(style);
@@ -241,6 +243,7 @@ const createContinuousExport = async (
   theme: Theme,
   padding: number,
 ): Promise<void> => {
+  const styles = getThemeStyles(theme);
   const htmlToImage = await import("html-to-image");
   const sandbox = createSandbox();
 
@@ -269,8 +272,8 @@ const createContinuousExport = async (
       margin: "0",
       padding: "0",
       transform: "none",
-      color: theme.styles.textColor,
-      fontFamily: theme.styles.fontFamily,
+      color: styles.textColor,
+      fontFamily: styles.fontFamily,
     });
 
     container.appendChild(contentDiv);
@@ -338,6 +341,7 @@ export const exportPreview = async (
   mode: ExportMode = "PAGES",
 ): Promise<void> => {
   if (!element) return;
+  const styles = getThemeStyles(theme);
   if (!htmlContent) {
     console.error("No HTML content provided for export.");
     return;
@@ -379,8 +383,8 @@ export const exportPreview = async (
         margin: "0",
         padding: "0",
         transform: "none",
-        color: theme.styles.textColor,
-        fontFamily: theme.styles.fontFamily,
+        color: styles.textColor,
+        fontFamily: styles.fontFamily,
       });
 
       container.appendChild(contentDiv);
