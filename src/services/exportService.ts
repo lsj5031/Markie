@@ -37,18 +37,18 @@ const getExportDimensions = (
 };
 
 /**
- * Applies theme styles to an element with comprehensive markdown styling
+ * Applies unified theme and markdown styles to an element for export.
+ * This consolidates both theme styling and markdown-body styling to avoid conflicts.
  * NOTE: This function does NOT reset padding - container padding should be set before calling this
  */
-const applyThemeStyles = (element: HTMLElement, theme: Theme): void => {
+const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
   // Apply base styles - NOTE: padding is intentionally NOT reset here
   // to preserve container padding set before this function is called
   Object.assign(element.style, {
     fontFamily: theme.styles.fontFamily,
     color: theme.styles.textColor,
     backgroundColor: theme.styles.backgroundColor,
-    lineHeight: "1.6",
-    fontSize: "14px",
+    lineHeight: "1.65",
     margin: "0",
     // padding is NOT set here to preserve containerPadding
   });
@@ -57,163 +57,27 @@ const applyThemeStyles = (element: HTMLElement, theme: Theme): void => {
   const existingStyles = element.querySelectorAll('style[data-export="true"]');
   existingStyles.forEach(style => style.remove());
 
-  // Add comprehensive internal styling for markdown elements
+  // Add unified styling that matches the preview appearance
   const style = document.createElement("style");
   style.setAttribute("data-export", "true");
   style.textContent = `
     * { box-sizing: border-box; }
     
     body { 
-      font-family: ${theme.styles.fontFamily} !important;
-      color: ${theme.styles.textColor} !important;
-      background-color: ${theme.styles.backgroundColor} !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      line-height: 1.6 !important;
+      font-family: ${theme.styles.fontFamily};
+      color: ${theme.styles.textColor};
+      background-color: ${theme.styles.backgroundColor};
+      margin: 0;
+      padding: 0;
+      line-height: 1.65;
     }
     
-    h1, h2, h3, h4, h5, h6 { 
-      font-family: ${theme.styles.headingFont} !important; 
-      color: ${theme.styles.accentColor} !important;
-      margin: 1.5rem 0 1rem 0 !important;
-      font-weight: 700 !important;
-      line-height: 1.3 !important;
-    }
-    
-    h1 { font-size: 2rem !important; border-bottom: 2px solid ${theme.styles.accentColor}40; }
-    h2 { font-size: 1.75rem !important; }
-    h3 { font-size: 1.5rem !important; }
-    h4 { font-size: 1.25rem !important; }
-    
-    p { 
-      margin: 1rem 0 !important;
-      color: ${theme.styles.textColor} !important;
-    }
-    
-    pre { 
-      background: ${theme.styles.codeBackground} !important; 
-      color: ${theme.styles.textColor} !important; 
-      padding: 1.25rem !important; 
-      border-radius: 4px !important; 
-      border: 1px solid rgba(0,0,0,0.1) !important; 
-      overflow-x: auto !important;
-      margin: 1.5rem 0 !important;
-      font-family: 'JetBrains Mono', monospace !important;
-      font-size: 0.875rem !important;
-      line-height: 1.5 !important;
-    }
-    
-    code { 
-      background: rgba(0,0,0,0.08) !important; 
-      color: ${theme.styles.accentColor} !important; 
-      padding: 0.15rem 0.4rem !important; 
-      border-radius: 3px !important; 
-      font-size: 0.9em !important;
-      font-family: 'JetBrains Mono', monospace !important;
-    }
-    
-    pre code {
-      background: transparent !important;
-      color: inherit !important;
-      padding: 0 !important;
-    }
-    
-    a { 
-      color: ${theme.styles.accentColor} !important; 
-      border-bottom: 1px solid ${theme.styles.accentColor} !important; 
-      text-decoration: none !important;
-    }
-    
-    a:hover {
-      border-bottom-width: 2px !important;
-    }
-    
-    strong { 
-      color: ${theme.styles.accentColor} !important; 
-      font-weight: 700 !important; 
-    }
-    
-    em {
-      color: ${theme.styles.textColor} !important;
-      font-style: italic !important;
-    }
-    
-    hr { 
-      border: none !important;
-      border-top: 1px solid ${theme.styles.textColor}20 !important;
-      margin: 2rem 0 !important;
-    }
-    
-    ul, ol { 
-      margin: 1rem 0 !important;
-      padding-left: 2rem !important;
-    }
-    
-    ul li, ol li {
-      margin: 0.5rem 0 !important;
-      color: ${theme.styles.textColor} !important;
-    }
-    
-    ul li::marker, ol li::marker { 
-      color: ${theme.styles.accentColor} !important;
-    }
-    
-    ol { 
-      list-style-type: decimal !important; 
-    }
-    
-    ul { 
-      list-style-type: disc !important; 
-    }
-    
-    blockquote {
-      border-left: 4px solid ${theme.styles.accentColor} !important;
-      padding-left: 1rem !important;
-      margin: 1.5rem 0 !important;
-      color: ${theme.styles.textColor}80 !important;
-      font-style: italic !important;
-    }
-    
-    table {
-      border-collapse: collapse !important;
-      width: 100% !important;
-      margin: 1.5rem 0 !important;
-    }
-    
-    th, td {
-      border: 1px solid ${theme.styles.textColor}30 !important;
-      padding: 0.75rem !important;
-      text-align: left !important;
-    }
-    
-    th {
-      background-color: ${theme.styles.backgroundColor}80 !important;
-      font-weight: 700 !important;
-      color: ${theme.styles.textColor} !important;
-    }
-    
-    img {
-      max-width: 100% !important;
-      height: auto !important;
-      display: block !important;
-      margin: 1rem 0 !important;
-    }
-  `;
-  element.appendChild(style);
-};
-
-/**
- * Applies markdown-body specific styles to match the preview appearance.
- * These styles mirror the CSS rules from index.css for consistent export.
- */
-const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
-  const style = document.createElement("style");
-  style.textContent = `
     .markdown-body {
       line-height: 1.65;
-      color: ${theme.styles.textColor} !important;
+      color: ${theme.styles.textColor};
       font-family: ${theme.styles.fontFamily};
     }
+    
     .markdown-body h1,
     .markdown-body h2,
     .markdown-body h3,
@@ -223,12 +87,14 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
       color: ${theme.styles.accentColor};
       font-family: ${theme.styles.headingFont};
     }
+    
     .markdown-body p,
     .markdown-body li,
     .markdown-body td,
     .markdown-body blockquote {
       color: ${theme.styles.textColor};
     }
+    
     .markdown-body h1 {
       font-size: 1.8em;
       font-weight: 800;
@@ -236,6 +102,7 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
       margin-bottom: 0.5em;
       letter-spacing: -0.02em;
     }
+    
     .markdown-body h2 {
       font-size: 1.4em;
       font-weight: 700;
@@ -243,16 +110,19 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
       margin-bottom: 0.5em;
       letter-spacing: -0.01em;
     }
+    
     .markdown-body h3 {
       font-size: 1.1em;
       font-weight: 600;
       margin-top: 1.2em;
       margin-bottom: 0.4em;
     }
+    
     .markdown-body p {
       font-size: 0.95em;
       margin-bottom: 1.2em;
     }
+    
     .markdown-body blockquote {
       padding-left: 1.5em;
       border-left: 2px solid ${theme.styles.accentColor};
@@ -260,6 +130,7 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
       opacity: 0.8;
       margin: 2em 0;
     }
+    
     .markdown-body pre {
       padding: 1.5em;
       border-radius: 0px;
@@ -272,6 +143,7 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
       border: 2px solid #313244;
       color: #cdd6f4;
     }
+    
     .markdown-body pre code {
       background: transparent;
       color: inherit;
@@ -279,6 +151,7 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
       font-size: inherit;
       border: none;
     }
+    
     .markdown-body code {
       font-family: 'JetBrains Mono', monospace;
       padding: 0.2em 0.5em;
@@ -288,50 +161,60 @@ const applyMarkdownBodyStyles = (element: HTMLElement, theme: Theme): void => {
       color: #cdd6f4;
       border: 1px solid #45475a;
     }
+    
     .markdown-body a {
       color: ${theme.styles.accentColor};
       border-bottom: 1px solid ${theme.styles.accentColor};
       text-decoration: none;
     }
+    
     .markdown-body strong {
       color: ${theme.styles.accentColor};
       font-weight: 700;
     }
+    
     .markdown-body hr {
       margin: 3em 0;
       border: 0;
       border-top: 1px solid ${theme.styles.textColor};
       opacity: 0.2;
     }
+    
     .markdown-body ul li::marker,
     .markdown-body ol li::marker {
       color: ${theme.styles.accentColor};
     }
+    
     .markdown-body ol {
       list-style-type: decimal;
       padding-left: 1.5em;
     }
+    
     .markdown-body ul {
       list-style-type: disc;
       padding-left: 1.5em;
     }
+    
     .markdown-body table {
       width: 100%;
       border-collapse: collapse;
       margin: 2em 0;
     }
+    
     .markdown-body th,
     .markdown-body td {
       border: 2px solid ${theme.styles.accentColor};
       padding: 1em;
       text-align: left;
     }
+    
     .markdown-body th {
       font-weight: 700;
       opacity: 1;
       background: ${theme.styles.accentColor};
       color: ${theme.styles.backgroundColor};
     }
+    
     .markdown-body img {
       border-radius: 0px;
       margin: 2em 0;
@@ -389,9 +272,8 @@ const createContinuousExport = async (
     container.appendChild(contentDiv);
     sandbox.appendChild(container);
 
-    // Apply theme styles and markdown-body styles for consistent appearance
-    applyThemeStyles(container, theme);
-    applyMarkdownBodyStyles(container, theme);
+    // Apply unified export styles for consistent appearance
+    applyExportStyles(container, theme);
 
     await (document as any).fonts?.ready;
     await new Promise((resolve) => setTimeout(resolve, 200));
@@ -500,9 +382,8 @@ export const exportPreview = async (
       container.appendChild(contentDiv);
       sandbox.appendChild(container);
 
-      // Apply theme and markdown-body styles for consistent appearance
-      applyThemeStyles(container, theme);
-      applyMarkdownBodyStyles(container, theme);
+      // Apply unified export styles for consistent appearance
+      applyExportStyles(container, theme);
 
       await (document as any).fonts?.ready;
       await new Promise((resolve) => setTimeout(resolve, 200));
@@ -584,9 +465,8 @@ export const exportPreview = async (
             pageContainer.appendChild(contentWrapper);
             sandbox.appendChild(pageContainer);
 
-            // Apply theme styles to each page
-            applyThemeStyles(pageContainer, theme);
-            applyMarkdownBodyStyles(pageContainer, theme);
+            // Apply unified export styles to each page
+            applyExportStyles(pageContainer, theme);
 
             await (document as any).fonts?.ready;
             await new Promise((resolve) => setTimeout(resolve, 200));
