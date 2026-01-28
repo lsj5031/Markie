@@ -20,7 +20,14 @@ import * as Icons from "./components/Icons";
 import { generateCuteName } from "./utils/nameGenerator";
 import { getThemeStyles } from "./utils/themeHelpers";
 
-
+const THEME_CATEGORIES = [
+  "editorial",
+  "modern",
+  "technical",
+  "artistic",
+  "minimalist",
+  "other",
+] as const;
 
 const App: React.FC = () => {
   const [markdown, setMarkdown] = useState<string>(
@@ -317,6 +324,15 @@ const App: React.FC = () => {
     return vars as React.CSSProperties;
   }, [activeTheme, exportPadding]);
 
+  const groupedThemes = useMemo(() => {
+    return THEME_CATEGORIES.reduce((acc, category) => {
+      acc[category] = THEMES.filter(
+        (t) => ("category" in t ? t.category : "other") === category,
+      );
+      return acc;
+    }, {} as Record<string, typeof THEMES>);
+  }, []);
+
   return (
     <div
       className="relative flex flex-col h-[100dvh] overflow-hidden text-sm selection:bg-[#eb3b5a]/20"
@@ -391,19 +407,8 @@ const App: React.FC = () => {
           {/* Theme list with redesigned cards - auto-scrolls to active theme */}
           {/* Theme list with Grouped Grid Layout */}
           <div className="flex-1 overflow-y-auto p-5">
-            {(
-              [
-                "editorial",
-                "modern",
-                "technical",
-                "artistic",
-                "minimalist",
-                "other",
-              ] as const
-            ).map((category) => {
-              const categoryThemes = THEMES.filter(
-                (t) => ("category" in t ? t.category : "other") === category,
-              );
+            {THEME_CATEGORIES.map((category) => {
+              const categoryThemes = groupedThemes[category] || [];
 
               if (categoryThemes.length === 0) return null;
 
