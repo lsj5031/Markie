@@ -502,9 +502,9 @@ export const exportPreview = async (
                 : `${fileName}.png`;
             downloadFile(dataUrl, pageFileName);
 
-            // Add a delay between downloads to prevent browsers from blocking multiple downloads
+            // Yield to the main thread to allow the browser to process the download
             if (i < pages.length - 1) {
-              await new Promise((resolve) => setTimeout(resolve, 500));
+              await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
             }
 
             sandbox.removeChild(pageContainer); // Clean up after each page
