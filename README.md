@@ -6,6 +6,8 @@
 
 Transform your markdown into production-ready editorial layouts with real-time visual feedback and high-quality exports.
 
+**Live Demo**: [https://markie.liu.nz/](https://markie.liu.nz/)
+
 ## 🎨 Features
 
 - **14 Curated Themes**: From classic editorial to modern studio styles
@@ -140,3 +142,17 @@ npx oxlint
 - **Automated pre-commit hooks** for code quality
 - **Comprehensive test coverage** with Playwright
 - **TypeScript strict mode** for type safety
+
+## 🤝 Contributing
+
+Contributions are always welcome! Please check out our [Contributing Guide](CONTRIBUTING.md) for guidelines on how to proceed.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.

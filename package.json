@@ -1,7 +1,16 @@
 {
   "name": "markie",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Transform your markdown into production-ready editorial layouts with real-time visual feedback and high-quality exports.",
+  "author": "Leo",
+  "license": "MIT",
+  "keywords": [
+    "markdown",
+    "editor",
+    "typography",
+    "export",
+    "react"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
