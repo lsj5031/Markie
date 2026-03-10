@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="100%" alt="Markie Banner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+  <img width="128" alt="Markie Logo" src="./public/favicon.svg" />
   
   <h1>✨ Markie ✨</h1>
   <p><strong>Transform your Markdown into production-ready editorial layouts with real-time visual feedback and high-quality exports.</strong></p>
