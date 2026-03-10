@@ -115,7 +115,8 @@ export const swiss = createTheme({
   id: "minimalist-swiss",
   name: "Swiss International",
   category: "minimal",
-  description: "Objective clarity, mathematical precision, and strong grid structures.",
+  description:
+    "Objective clarity, mathematical precision, and strong grid structures.",
   isDark: false,
   tokens,
 });

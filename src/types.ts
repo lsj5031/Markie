@@ -20,7 +20,7 @@ export interface ExportOptions {
 }
 
 // New Theme System
-import { Theme as NewTheme, ThemeTokens } from './constants/themes/schema';
+import { Theme as NewTheme, ThemeTokens } from "./constants/themes/schema";
 export type { NewTheme, ThemeTokens };
 
 export type Theme = NewTheme;

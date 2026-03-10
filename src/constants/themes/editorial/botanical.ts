@@ -115,7 +115,8 @@ export const botanical = createTheme({
   id: "editorial-botanical",
   name: "Botanical",
   category: "editorial",
-  description: "Organic softness with earthy tones and elegant serif typography.",
+  description:
+    "Organic softness with earthy tones and elegant serif typography.",
   isDark: false,
   tokens,
 });

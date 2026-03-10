@@ -18,7 +18,7 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
   onPageChange,
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [direction, setDirection] = useState<'next' | 'prev'>('next');
+  const [direction, setDirection] = useState<"next" | "prev">("next");
   // Use a counter to force unique keys for animation replay
   const animationKeyRef = useRef(0);
   const { pages, isLoading, pageCount } = usePagination(
@@ -40,12 +40,12 @@ export const MultiPageViewer: React.FC<MultiPageViewerProps> = ({
   useEffect(() => {
     (window as unknown as Record<string, unknown>).__multiPageNav = {
       goToPreviousPage: () => {
-        setDirection('prev');
+        setDirection("prev");
         animationKeyRef.current += 1;
         setCurrentPage((prev) => Math.max(0, prev - 1));
       },
       goToNextPage: () => {
-        setDirection('next');
+        setDirection("next");
         animationKeyRef.current += 1;
         setCurrentPage((prev) => Math.min(pageCount - 1, prev + 1));
       },

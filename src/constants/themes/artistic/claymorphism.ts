@@ -115,7 +115,8 @@ export const claymorphism = createTheme({
   id: "artistic-clay",
   name: "Claymorphism",
   category: "artistic",
-  description: "High-fidelity digital clay with soft lighting and tactile depth.",
+  description:
+    "High-fidelity digital clay with soft lighting and tactile depth.",
   isDark: false,
   tokens,
 });

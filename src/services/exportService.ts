@@ -57,7 +57,7 @@ const applyExportStyles = (element: HTMLElement, theme: Theme): void => {
 
   // Remove any existing style tags to avoid conflicts
   const existingStyles = element.querySelectorAll('style[data-export="true"]');
-  existingStyles.forEach(style => style.remove());
+  existingStyles.forEach((style) => style.remove());
 
   // Add unified styling that matches the preview appearance
   const style = document.createElement("style");
@@ -250,7 +250,7 @@ const createContinuousExport = async (
   try {
     // Use the theme's containerPadding for consistent appearance with preview
     // const themePadding = theme.styles.containerPadding;
-    
+
     const container = document.createElement("div");
     Object.assign(container.style, {
       width: `${width}px`,
@@ -286,20 +286,21 @@ const createContinuousExport = async (
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     const dataUrl = await htmlToImage.toPng(container, {
-     quality: 1.0,
-     pixelRatio: 4, // Increased from 3 to 4 for ultra-high resolution
-     backgroundColor,
+      quality: 1.0,
+      pixelRatio: 4, // Increased from 3 to 4 for ultra-high resolution
+      backgroundColor,
 
-     width: width, // Explicitly set width to match container
-     height: container.scrollHeight, // Explicitly set height to content height
-     skipFonts: true, // Prevent font embedding errors on Firefox
-     // Prevent crash on image error - use a transparent 1x1 pixel
-     imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-     // Enable anti-aliasing for smoother edges
-     style: {
-       imageRendering: 'optimizeQuality',
-       shapeRendering: 'geometricPrecision'
-     }
+      width: width, // Explicitly set width to match container
+      height: container.scrollHeight, // Explicitly set height to content height
+      skipFonts: true, // Prevent font embedding errors on Firefox
+      // Prevent crash on image error - use a transparent 1x1 pixel
+      imagePlaceholder:
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+      // Enable anti-aliasing for smoother edges
+      style: {
+        imageRendering: "optimizeQuality",
+        shapeRendering: "geometricPrecision",
+      },
     });
 
     downloadFile(dataUrl, `${fileName}-continuous.png`);
@@ -321,7 +322,7 @@ const downloadFile = (dataUrl: string, name: string): void => {
 /**
  * Exports the provided element to the specified format (PNG, SVG).
  * Handles both single-page and multi-page exports using theme padding for consistency.
- * 
+ *
  * @param element - The preview container element (used for styles like background color)
  * @param format - Export format (PNG or SVG)
  * @param size - Export size (A4 or SQUARE)
@@ -350,7 +351,10 @@ export const exportPreview = async (
   // Sanitize HTML content to remove invalid XML characters (like ESC - char 27)
   // which might cause SVG export errors or other issues.
   // We preserve Tab (9), Newline (10), and Carriage Return (13).
-  const sanitizedHtml = htmlContent.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+  const sanitizedHtml = htmlContent.replace(
+    /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,
+    "",
+  );
 
   const htmlToImage = await import("html-to-image");
   const sandbox = createSandbox();
@@ -362,7 +366,7 @@ export const exportPreview = async (
     if (format === "SVG") {
       // Use the theme's containerPadding for consistent appearance with preview
       // const themePadding = theme.styles.containerPadding;
-      
+
       const container = document.createElement("div");
       Object.assign(container.style, {
         width: `${width}px`,
@@ -397,17 +401,18 @@ export const exportPreview = async (
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       const dataUrl = await htmlToImage.toSvg(container, {
-       quality: 1.0,
-       pixelRatio: 3, // Increased from 2 to 3 for higher resolution
-       backgroundColor,
-       skipFonts: true, // Prevent font embedding errors on Firefox
-       // Prevent crash on image error - use a transparent 1x1 pixel
-       imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-       // Enable anti-aliasing for smoother edges
-       style: {
-         imageRendering: 'optimizeQuality',
-         shapeRendering: 'geometricPrecision'
-       }
+        quality: 1.0,
+        pixelRatio: 3, // Increased from 2 to 3 for higher resolution
+        backgroundColor,
+        skipFonts: true, // Prevent font embedding errors on Firefox
+        // Prevent crash on image error - use a transparent 1x1 pixel
+        imagePlaceholder:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+        // Enable anti-aliasing for smoother edges
+        style: {
+          imageRendering: "optimizeQuality",
+          shapeRendering: "geometricPrecision",
+        },
       });
       downloadFile(dataUrl, `${fileName}.svg`);
       return;
@@ -448,7 +453,7 @@ export const exportPreview = async (
             // padding to avoid double-padding that creates blank spaces.
             const pageContainer = document.createElement("div");
             pageContainer.className = element.className;
-            
+
             Object.assign(pageContainer.style, {
               width: `${width}px`,
               height: `${height}px`,
@@ -480,20 +485,21 @@ export const exportPreview = async (
             await new Promise((resolve) => setTimeout(resolve, 200));
 
             const dataUrl = await htmlToImage.toPng(pageContainer, {
-             quality: 1.0,
-             pixelRatio: 4, // Increased from 3 to 4 for ultra-high resolution
-             backgroundColor,
+              quality: 1.0,
+              pixelRatio: 4, // Increased from 3 to 4 for ultra-high resolution
+              backgroundColor,
 
-             width: width, // Explicitly set width to match page size
-             height: height, // Explicitly set height to match page size
-             skipFonts: true, // Prevent font embedding errors on Firefox
-             // Prevent crash on image error - use a transparent 1x1 pixel
-             imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-             // Enable anti-aliasing for smoother edges
-             style: {
-               imageRendering: 'optimizeQuality',
-               shapeRendering: 'geometricPrecision'
-             }
+              width: width, // Explicitly set width to match page size
+              height: height, // Explicitly set height to match page size
+              skipFonts: true, // Prevent font embedding errors on Firefox
+              // Prevent crash on image error - use a transparent 1x1 pixel
+              imagePlaceholder:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+              // Enable anti-aliasing for smoother edges
+              style: {
+                imageRendering: "optimizeQuality",
+                shapeRendering: "geometricPrecision",
+              },
             });
 
             const pageFileName =
@@ -504,7 +510,9 @@ export const exportPreview = async (
 
             // Yield to the main thread to allow the browser to process the download
             if (i < pages.length - 1) {
-              await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+              await new Promise((resolve) =>
+                requestAnimationFrame(() => resolve(undefined)),
+              );
             }
 
             sandbox.removeChild(pageContainer); // Clean up after each page
@@ -514,12 +522,17 @@ export const exportPreview = async (
     }
   } catch (error: any) {
     console.error("Export failed:", error);
-    
+
     // Check if it's an image loading error (Event object from img tag)
-    if (error instanceof Event && (error.target as HTMLElement)?.tagName === 'IMG') {
-       alert("Export warning: One or more images failed to load. The export has completed with placeholders.");
+    if (
+      error instanceof Event &&
+      (error.target as HTMLElement)?.tagName === "IMG"
+    ) {
+      alert(
+        "Export warning: One or more images failed to load. The export has completed with placeholders.",
+      );
     } else {
-       alert(`Export failed: ${error.message || "Unknown error"}`);
+      alert(`Export failed: ${error.message || "Unknown error"}`);
     }
   } finally {
     document.body.removeChild(sandbox);

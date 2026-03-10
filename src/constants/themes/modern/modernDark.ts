@@ -115,7 +115,8 @@ export const modernDark = createTheme({
   id: "modern-linear-dark",
   name: "Modern Dark",
   category: "modern",
-  description: "Cinematic, technical minimalism with ambient lighting and precision details.",
+  description:
+    "Cinematic, technical minimalism with ambient lighting and precision details.",
   isDark: true,
   tokens,
 });

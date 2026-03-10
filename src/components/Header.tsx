@@ -25,8 +25,8 @@ export const Header: React.FC<HeaderProps> = ({
   exportMode,
   setExportMode,
   onExport,
-  onToggleThemes,
-  isThemesOpen,
+  onToggleThemes: _onToggleThemes,
+  isThemesOpen: _isThemesOpen,
   padding,
   setPadding,
   className = "",
@@ -114,7 +114,10 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
             aria-label="Page Setup"
-            className={`action-btn secondary ${isSettingsOpen ? "bg-[rgba(235,59,90,0.08)]" : ""}`}
+            aria-expanded={isSettingsOpen}
+            aria-controls="page-setup-dropdown"
+            aria-haspopup="true"
+            className={`action-btn secondary ${isSettingsOpen ? "bg-[var(--studio-accent-10)]" : ""}`}
           >
             <Icons.Layout />
             <span className="hidden md:block">Page Setup</span>
@@ -132,17 +135,18 @@ export const Header: React.FC<HeaderProps> = ({
                 backgroundColor: "var(--studio-surface)",
                 border: "1px solid var(--studio-border)",
                 borderRadius: "12px",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+                boxShadow: "var(--studio-shadow-lg)",
                 zIndex: 50,
                 overflow: "hidden",
               }}
+              id="page-setup-dropdown"
             >
               {/* Dropdown Header */}
               <div
                 style={{
                   padding: "12px 16px",
                   borderBottom: "1px solid var(--studio-border)",
-                  backgroundColor: "rgba(26,26,27,0.02)",
+                  backgroundColor: "var(--studio-border-2)",
                 }}
               >
                 <span
@@ -182,7 +186,7 @@ export const Header: React.FC<HeaderProps> = ({
                       gridTemplateColumns: "1fr 1fr",
                       gap: "6px",
                       padding: "4px",
-                      backgroundColor: "rgba(26,26,27,0.04)",
+                      backgroundColor: "var(--studio-border-4)",
                       borderRadius: "8px",
                     }}
                   >
@@ -192,6 +196,7 @@ export const Header: React.FC<HeaderProps> = ({
                         onClick={() => setExportSize(size)}
                         style={{
                           padding: "8px 12px",
+                          minHeight: "44px",
                           fontSize: "12px",
                           fontWeight: 600,
                           borderRadius: "6px",
@@ -199,11 +204,17 @@ export const Header: React.FC<HeaderProps> = ({
                           cursor: "pointer",
                           transition: "all 0.2s",
                           backgroundColor:
-                            exportSize === size ? "#fff" : "transparent",
-                          color: exportSize === size ? "#000" : "#666",
+                            exportSize === size
+                              ? "var(--studio-text)"
+                              : "transparent",
+                          color:
+                            exportSize === size
+                              ? "var(--studio-bg)"
+                              : "var(--studio-text)",
+                          opacity: exportSize === size ? 1 : 0.6,
                           boxShadow:
                             exportSize === size
-                              ? "0 2px 6px rgba(0,0,0,0.08)"
+                              ? "var(--studio-shadow-sm)"
                               : "none",
                         }}
                       >
@@ -235,7 +246,7 @@ export const Header: React.FC<HeaderProps> = ({
                       gridTemplateColumns: "1fr 1fr",
                       gap: "6px",
                       padding: "4px",
-                      backgroundColor: "rgba(26,26,27,0.04)",
+                      backgroundColor: "var(--studio-border-4)",
                       borderRadius: "8px",
                     }}
                   >
@@ -248,6 +259,7 @@ export const Header: React.FC<HeaderProps> = ({
                         onClick={() => setExportMode(mode.value as ExportMode)}
                         style={{
                           padding: "8px 12px",
+                          minHeight: "44px",
                           fontSize: "12px",
                           fontWeight: 600,
                           borderRadius: "6px",
@@ -255,11 +267,17 @@ export const Header: React.FC<HeaderProps> = ({
                           cursor: "pointer",
                           transition: "all 0.2s",
                           backgroundColor:
-                            exportMode === mode.value ? "#fff" : "transparent",
-                          color: exportMode === mode.value ? "#000" : "#666",
+                            exportMode === mode.value
+                              ? "var(--studio-text)"
+                              : "transparent",
+                          color:
+                            exportMode === mode.value
+                              ? "var(--studio-bg)"
+                              : "var(--studio-text)",
+                          opacity: exportMode === mode.value ? 1 : 0.6,
                           boxShadow:
                             exportMode === mode.value
-                              ? "0 2px 6px rgba(0,0,0,0.08)"
+                              ? "var(--studio-shadow-sm)"
                               : "none",
                         }}
                       >
@@ -312,6 +330,9 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={() => setIsExportOpen(!isExportOpen)}
             aria-label="Export"
+            aria-expanded={isExportOpen}
+            aria-controls="export-dropdown"
+            aria-haspopup="true"
             className="action-btn primary"
           >
             <Icons.Export />
@@ -330,17 +351,18 @@ export const Header: React.FC<HeaderProps> = ({
                 backgroundColor: "var(--studio-surface)",
                 border: "1px solid var(--studio-border)",
                 borderRadius: "12px",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+                boxShadow: "var(--studio-shadow-lg)",
                 zIndex: 50,
                 overflow: "hidden",
               }}
+              id="export-dropdown"
             >
               {/* Dropdown Header */}
               <div
                 style={{
                   padding: "12px 16px",
                   borderBottom: "1px solid var(--studio-border)",
-                  backgroundColor: "rgba(26,26,27,0.02)",
+                  backgroundColor: "var(--studio-border-2)",
                 }}
               >
                 <span
@@ -375,7 +397,8 @@ export const Header: React.FC<HeaderProps> = ({
                     transition: "background-color 0.2s",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.04)")
+                    (e.currentTarget.style.backgroundColor =
+                      "var(--studio-border-4)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.backgroundColor = "transparent")
@@ -386,7 +409,7 @@ export const Header: React.FC<HeaderProps> = ({
                       width: "36px",
                       height: "36px",
                       borderRadius: "8px",
-                      backgroundColor: "rgba(235,59,90,0.1)",
+                      backgroundColor: "var(--studio-accent-10)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -448,7 +471,8 @@ export const Header: React.FC<HeaderProps> = ({
                     transition: "background-color 0.2s",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.04)")
+                    (e.currentTarget.style.backgroundColor =
+                      "var(--studio-border-4)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.backgroundColor = "transparent")
@@ -459,7 +483,7 @@ export const Header: React.FC<HeaderProps> = ({
                       width: "36px",
                       height: "36px",
                       borderRadius: "8px",
-                      backgroundColor: "rgba(0,61,130,0.1)",
+                      backgroundColor: "var(--studio-tertiary-10)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -508,7 +532,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div
                   style={{
                     height: "1px",
-                    backgroundColor: "rgba(26,26,27,0.08)",
+                    backgroundColor: "var(--studio-border-8)",
                     margin: "6px 8px",
                   }}
                 />
@@ -535,7 +559,7 @@ export const Header: React.FC<HeaderProps> = ({
                       width: "36px",
                       height: "36px",
                       borderRadius: "8px",
-                      border: "1px dashed rgba(26,26,27,0.25)",
+                      border: "1px dashed var(--studio-border-25)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",

@@ -178,39 +178,41 @@ export const paginateHtml = async (
     iframe = measurementIframe;
 
     const { height: pageHeight } = getDimensions(exportSize);
-    
+
     // Get all top-level elements from the fully rendered content
     // We clone them to detach from the live nodelist when we start moving them
-    const sourceNodes = Array.from(contentWrapper.children).map(node => node.cloneNode(true));
-    
+    const sourceNodes = Array.from(contentWrapper.children).map((node) =>
+      node.cloneNode(true),
+    );
+
     // Clear the wrapper to start filling pages one by one
-    contentWrapper.innerHTML = '';
-    
+    contentWrapper.innerHTML = "";
+
     const pages: string[] = [];
-    
+
     // Threshold to prevent infinite loops with single giant elements
     // If an element is taller than the page, we force a break after it.
-    
+
     let i = 0;
     while (i < sourceNodes.length) {
       const node = sourceNodes[i];
       contentWrapper.appendChild(node);
-      
+
       // Check if we've exceeded the page height
       if (contentWrapper.scrollHeight > pageHeight) {
         // If this is the only element on the page, it's just too big.
         // We have to accept it (it will be clipped) to avoid an infinite loop of rejecting it.
         if (contentWrapper.children.length === 1) {
           pages.push(contentWrapper.innerHTML);
-          contentWrapper.innerHTML = '';
+          contentWrapper.innerHTML = "";
           i++; // Move to next node
         } else {
           // If we have other content, this node caused the overflow.
           // Remove it, save the current page, and try adding this node to the NEXT page.
           contentWrapper.removeChild(node);
           pages.push(contentWrapper.innerHTML);
-          contentWrapper.innerHTML = '';
-          
+          contentWrapper.innerHTML = "";
+
           // We DO NOT increment 'i' here, so the loop processes the same node again
           // but on a fresh, empty page.
         }
@@ -219,7 +221,7 @@ export const paginateHtml = async (
         i++;
       }
     }
-    
+
     // Push any remaining content as the final page
     if (contentWrapper.children.length > 0) {
       pages.push(contentWrapper.innerHTML);
@@ -227,7 +229,6 @@ export const paginateHtml = async (
 
     console.log(`📊 Smart Pagination complete: ${pages.length} pages created.`);
     return pages;
-
   } catch (error) {
     console.error("Pagination failed:", error);
     return [renderedHtml]; // Fallback to a single page on error.

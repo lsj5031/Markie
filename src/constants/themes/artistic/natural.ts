@@ -115,7 +115,8 @@ export const natural = createTheme({
   id: "artistic-natural",
   name: "Organic Natural",
   category: "artistic",
-  description: "Wabi-sabi aesthetic with amorphous soft shapes and earth tones.",
+  description:
+    "Wabi-sabi aesthetic with amorphous soft shapes and earth tones.",
   isDark: false,
   tokens,
 });

@@ -115,7 +115,8 @@ export const industrial = createTheme({
   id: "technical-industrial",
   name: "Industrial",
   category: "technical",
-  description: "Tactile precision with neumorphic depth and mechanical details.",
+  description:
+    "Tactile precision with neumorphic depth and mechanical details.",
   isDark: false,
   tokens,
 });

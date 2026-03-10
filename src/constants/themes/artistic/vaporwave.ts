@@ -115,7 +115,8 @@ export const vaporwave = createTheme({
   id: "artistic-vaporwave",
   name: "Vaporwave",
   category: "artistic",
-  description: "Retro-futuristic synthetic reality with neon glows and digital grids.",
+  description:
+    "Retro-futuristic synthetic reality with neon glows and digital grids.",
   isDark: true,
   tokens,
 });

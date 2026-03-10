@@ -115,7 +115,8 @@ export const classicSerif = createTheme({
   id: "editorial-serif",
   name: "Classic Serif",
   category: "editorial",
-  description: "Typographic elegance through classical restraint and warm ivory tones.",
+  description:
+    "Typographic elegance through classical restraint and warm ivory tones.",
   isDark: false,
   tokens,
 });

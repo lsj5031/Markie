@@ -115,7 +115,8 @@ export const terminal = createTheme({
   id: "technical-terminal",
   name: "Terminal CLI",
   category: "technical",
-  description: "Brutally functional, high-contrast, retro command line interface.",
+  description:
+    "Brutally functional, high-contrast, retro command line interface.",
   isDark: true,
   tokens,
 });

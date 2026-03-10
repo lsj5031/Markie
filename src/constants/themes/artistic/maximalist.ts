@@ -115,7 +115,8 @@ export const maximalist = createTheme({
   id: "artistic-maximalist",
   name: "Dopamine",
   category: "artistic",
-  description: "Unapologetic excess with clashing colors, patterns, and sensory overload.",
+  description:
+    "Unapologetic excess with clashing colors, patterns, and sensory overload.",
   isDark: true,
   tokens,
 });

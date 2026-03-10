@@ -115,7 +115,8 @@ export const bauhaus = createTheme({
   id: "artistic-bauhaus",
   name: "Bauhaus",
   category: "artistic",
-  description: "Constructivist modernism with pure geometry and primary colors.",
+  description:
+    "Constructivist modernism with pure geometry and primary colors.",
   isDark: false,
   tokens,
 });

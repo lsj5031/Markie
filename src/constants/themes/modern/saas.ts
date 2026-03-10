@@ -115,7 +115,8 @@ export const saas = createTheme({
   id: "modern-saas",
   name: "SaaS Minimal",
   category: "modern",
-  description: "Confident, professional design with electric blue accents and sophisticated typography.",
+  description:
+    "Confident, professional design with electric blue accents and sophisticated typography.",
   isDark: false,
   tokens,
 });

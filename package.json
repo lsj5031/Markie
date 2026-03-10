@@ -17,6 +17,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "playwright test",
+    "lint": "oxlint",
+    "format": "prettier --write .",
     "prepare": "husky"
   },
   "dependencies": {

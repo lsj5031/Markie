@@ -20,9 +20,9 @@ export interface ThemeTokens {
     base: string;
     lg: string;
     xl: string;
-    '2xl': string;
-    '3xl': string;
-    '4xl': string;
+    "2xl": string;
+    "3xl": string;
+    "4xl": string;
   };
   fontWeight: {
     normal: number;
@@ -110,16 +110,16 @@ export interface ThemeTokens {
   };
 }
 
-export type ThemeCategory = 
-  | 'editorial' 
-  | 'artistic' 
-  | 'technical' 
-  | 'professional' 
-  | 'minimal' 
-  | 'modern' 
-  | 'organic' 
-  | 'premium' 
-  | 'motion';
+export type ThemeCategory =
+  | "editorial"
+  | "artistic"
+  | "technical"
+  | "professional"
+  | "minimal"
+  | "modern"
+  | "organic"
+  | "premium"
+  | "motion";
 
 export interface Theme {
   id: string;

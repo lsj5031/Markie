@@ -116,7 +116,8 @@ export const corporate = createTheme({
   id: "modern-corporate",
   name: "Corporate Trust",
   category: "modern",
-  description: "Professional SaaS aesthetic with trust-building blues and clean geometry.",
+  description:
+    "Professional SaaS aesthetic with trust-building blues and clean geometry.",
   isDark: false,
   tokens,
 });

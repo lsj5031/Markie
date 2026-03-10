@@ -115,7 +115,8 @@ export const cyberpunk = createTheme({
   id: "technical-cyberpunk",
   name: "Cyberpunk Glitch",
   category: "technical",
-  description: "High-tech low-life aesthetic with neon glows and glitch effects.",
+  description:
+    "High-tech low-life aesthetic with neon glows and glitch effects.",
   isDark: true,
   tokens,
 });
