@@ -150,6 +150,13 @@ const createMeasurementIframe = async (
   }
 };
 
+interface NodeMetrics {
+  height: number;
+  marginTop: number;
+  marginBottom: number;
+  outerHTML: string;
+}
+
 /**
  * Paginates HTML content into an array of page strings.
  * This method uses CSS transforms to "scroll" the content within a fixed-size container for each page.
@@ -172,60 +179,92 @@ export const paginateHtml = async (
     const {
       iframe: measurementIframe,
       contentWrapper,
-      totalHeight,
-      paddingTop,
     } = await createMeasurementIframe(exportSize, theme, renderedHtml, padding);
     iframe = measurementIframe;
 
     const { height: pageHeight } = getDimensions(exportSize);
 
-    // Get all top-level elements from the fully rendered content
-    // We clone them to detach from the live nodelist when we start moving them
-    const sourceNodes = Array.from(contentWrapper.children).map((node) =>
-      node.cloneNode(true),
-    );
+    // 1. Measure Phase: Get metrics for all children
+    const children = Array.from(contentWrapper.children) as HTMLElement[];
+    const nodeMetrics: NodeMetrics[] = children.map((node) => {
+      const style = window.getComputedStyle(node);
+      return {
+        height: node.offsetHeight,
+        marginTop: parseFloat(style.marginTop) || 0,
+        marginBottom: parseFloat(style.marginBottom) || 0,
+        outerHTML: node.outerHTML,
+      };
+    });
 
-    // Clear the wrapper to start filling pages one by one
-    contentWrapper.innerHTML = "";
+    // 2. Calculation Phase: Group nodes into pages
+    const pagesNodes: string[][] = [];
+    let currentPageNodes: string[] = [];
+    
+    const wrapperPaddingTop = padding;
+    const wrapperPaddingBottom = padding;
+    
+    let currentY = wrapperPaddingTop;
+    let prevMarginBottom = 0;
 
-    const pages: string[] = [];
+    for (let i = 0; i < nodeMetrics.length; i++) {
+      const node = nodeMetrics[i];
+      const isFirstOnPage = currentPageNodes.length === 0;
 
-    // Threshold to prevent infinite loops with single giant elements
-    // If an element is taller than the page, we force a break after it.
-
-    let i = 0;
-    while (i < sourceNodes.length) {
-      const node = sourceNodes[i];
-      contentWrapper.appendChild(node);
-
-      // Check if we've exceeded the page height
-      if (contentWrapper.scrollHeight > pageHeight) {
-        // If this is the only element on the page, it's just too big.
-        // We have to accept it (it will be clipped) to avoid an infinite loop of rejecting it.
-        if (contentWrapper.children.length === 1) {
-          pages.push(contentWrapper.innerHTML);
-          contentWrapper.innerHTML = "";
-          i++; // Move to next node
-        } else {
-          // If we have other content, this node caused the overflow.
-          // Remove it, save the current page, and try adding this node to the NEXT page.
-          contentWrapper.removeChild(node);
-          pages.push(contentWrapper.innerHTML);
-          contentWrapper.innerHTML = "";
-
-          // We DO NOT increment 'i' here, so the loop processes the same node again
-          // but on a fresh, empty page.
-        }
+      let addedHeight = 0;
+      let effectiveMargin = 0;
+      
+      if (isFirstOnPage) {
+        // First element on page: Top margin doesn't collapse with container padding
+        effectiveMargin = node.marginTop;
       } else {
-        // Did not overflow, move to next node
-        i++;
+        // Siblings: Margins collapse
+        effectiveMargin = Math.max(prevMarginBottom, node.marginTop);
+      }
+
+      addedHeight = effectiveMargin + node.height;
+
+      // Calculate potential total height if we add this node.
+      // We do NOT include the bottom margin of the current node in the check.
+      // If the node fits but its bottom margin overflows, it's just whitespace at the bottom of the page,
+      // which is acceptable (and matches how the browser's scrollHeight often behaves with overflow:visible or how we want to pack content).
+      const projectedHeight = currentY + addedHeight + wrapperPaddingBottom;
+
+      // Check if we need to break page
+      // Note: If it's the first element on the page, we allow it even if it overflows
+      // to avoid infinite loops (same as original logic).
+      // We use a small tolerance (1px) because scrollHeight is an integer and might round down
+      // slightly differently than our float calculation.
+      if (!isFirstOnPage && projectedHeight > pageHeight + 1) {
+        // Finish current page
+        pagesNodes.push(currentPageNodes);
+        currentPageNodes = [];
+
+        // Start new page with this node
+        // Reset Y to top padding
+        currentY = wrapperPaddingTop;
+
+        // Recalculate metrics for being first on new page
+        effectiveMargin = node.marginTop;
+        addedHeight = effectiveMargin + node.height;
+
+        currentPageNodes.push(node.outerHTML);
+        currentY += addedHeight;
+        prevMarginBottom = node.marginBottom;
+      } else {
+        // Add to current page
+        currentPageNodes.push(node.outerHTML);
+        currentY += addedHeight;
+        prevMarginBottom = node.marginBottom;
       }
     }
 
     // Push any remaining content as the final page
-    if (contentWrapper.children.length > 0) {
-      pages.push(contentWrapper.innerHTML);
+    if (currentPageNodes.length > 0) {
+      pagesNodes.push(currentPageNodes);
     }
+
+    // 3. Render Phase: Create HTML strings
+    const pages = pagesNodes.map(nodes => nodes.join(''));
 
     console.log(`📊 Smart Pagination complete: ${pages.length} pages created.`);
     return pages;
