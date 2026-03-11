@@ -9,6 +9,7 @@ interface PreviewProps {
   themeVars: React.CSSProperties;
   canvasScale: number;
   setCanvasScale: React.Dispatch<React.SetStateAction<number>>;
+  isManualZoom: boolean;
   setIsManualZoom: React.Dispatch<React.SetStateAction<boolean>>;
   fitMode: "page" | "width";
   setFitMode: React.Dispatch<React.SetStateAction<"page" | "width">>;
@@ -41,6 +42,7 @@ export const Preview: React.FC<PreviewProps> = ({
   themeVars,
   canvasScale,
   setCanvasScale,
+  isManualZoom,
   setIsManualZoom,
   fitMode,
   setFitMode,

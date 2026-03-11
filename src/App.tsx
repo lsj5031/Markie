@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
+import { getDimensions } from "./utils/pagination";
 import { MobileNavBar } from "./components/MobileNavBar";
 import { THEMES, INITIAL_MARKDOWN } from "./constants/themes";
 import { ExportFormat, ExportSize, ExportMode, Theme } from "./types";
@@ -35,7 +36,7 @@ const App: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [editorWidth, setEditorWidth] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
-  const [_isManualZoom, setIsManualZoom] = useState(false);
+  const [isManualZoom, setIsManualZoom] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isReaderMode, setIsReaderMode] = useState(false);
   const [exportPadding, setExportPadding] = useState<number>(64);
@@ -81,6 +82,51 @@ const App: React.FC = () => {
   );
 
   const themeVars = useThemeVars(activeTheme, exportPadding);
+
+  // Auto-fit scaling: compute canvasScale to fit the preview container
+  useEffect(() => {
+    if (isManualZoom) return;
+
+    const container = previewContainerRef.current;
+    if (!container) return;
+
+    const computeScale = () => {
+      const containerRect = container.getBoundingClientRect();
+      // Account for padding in the container (32px each side on desktop, 16px on mobile)
+      const paddingX = isMobile ? 32 : 64;
+      const paddingY = isMobile ? 152 : 152; // includes bottom padding for pagination
+      const availableWidth = containerRect.width - paddingX;
+      const availableHeight = containerRect.height - paddingY;
+
+      const dims = getDimensions(exportSize);
+      const canvasWidth =
+        previewLayout === "double" && exportMode === "PAGES"
+          ? dims.width * 2 + 32
+          : dims.width;
+      const canvasHeight = dims.height;
+
+      let scale: number;
+      if (fitMode === "width") {
+        scale = availableWidth / canvasWidth;
+      } else {
+        // "page" mode: fit both dimensions
+        const scaleX = availableWidth / canvasWidth;
+        const scaleY = availableHeight / canvasHeight;
+        scale = Math.min(scaleX, scaleY);
+      }
+
+      // Clamp between 0.1 and 2
+      scale = Math.min(2, Math.max(0.1, scale));
+      setCanvasScale(scale);
+    };
+
+    computeScale();
+
+    const observer = new ResizeObserver(() => computeScale());
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, [isManualZoom, fitMode, exportSize, previewLayout, exportMode, isMobile, isReaderMode, isFocusMode, isSidebarCollapsed]);
 
   const goToPreviousPage = useCallback(() => {
     setDirection("prev");
@@ -258,6 +304,7 @@ const App: React.FC = () => {
           setMarkdown={setMarkdown}
           isFocusMode={isFocusMode}
           setIsFocusMode={setIsFocusMode}
+          isReaderMode={isReaderMode}
           setIsReaderMode={setIsReaderMode}
           isMobile={isMobile}
           mobileTab={mobileTab}
@@ -279,6 +326,7 @@ const App: React.FC = () => {
           themeVars={themeVars}
           canvasScale={canvasScale}
           setCanvasScale={setCanvasScale}
+          isManualZoom={isManualZoom}
           setIsManualZoom={setIsManualZoom}
           fitMode={fitMode}
           setFitMode={setFitMode}

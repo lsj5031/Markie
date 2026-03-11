@@ -5,6 +5,7 @@ interface EditorProps {
   setMarkdown: (md: string) => void;
   isFocusMode: boolean;
   setIsFocusMode: (f: boolean) => void;
+  isReaderMode: boolean;
   setIsReaderMode: (r: boolean) => void;
   isMobile: boolean;
   mobileTab: "editor" | "preview";
@@ -16,6 +17,7 @@ export const Editor: React.FC<EditorProps> = ({
   setMarkdown,
   isFocusMode,
   setIsFocusMode,
+  isReaderMode,
   setIsReaderMode,
   isMobile,
   mobileTab,
@@ -28,9 +30,9 @@ export const Editor: React.FC<EditorProps> = ({
           ? `mobile-pane ${mobileTab === "editor" ? "active flex" : "inactive"}`
           : "flex"
       } ${isFocusMode && !isMobile ? "flex-1" : ""} 
-      ${!isMobile && !isFocusMode ? "" : ""} 
       ${!isMobile && !isFocusMode && editorWidth === 0 ? "hidden" : ""}`}
       style={{
+        display: isReaderMode && !isMobile ? "none" : undefined,
         flex: isFocusMode
           ? "1"
           : isMobile
