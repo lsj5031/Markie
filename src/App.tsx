@@ -11,6 +11,7 @@ import { THEMES, INITIAL_MARKDOWN } from "./constants/themes";
 import { ExportFormat, ExportSize, ExportMode, Theme } from "./types";
 import { exportPreview } from "./services/exportService";
 import { usePagination } from "./hooks/usePagination";
+import { useDebounce } from "./hooks/useDebounce";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { Editor } from "./components/Editor";
@@ -63,9 +64,11 @@ const App: React.FC = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  const debouncedMarkdown = useDebounce(markdown, 150);
+
   const renderedHtml = useMemo(
-    () => DOMPurify.sanitize(marked.parse(markdown) as string),
-    [markdown],
+    () => DOMPurify.sanitize(marked.parse(debouncedMarkdown) as string),
+    [debouncedMarkdown],
   );
 
   const activeTheme: Theme = useMemo(
