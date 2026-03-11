@@ -180,8 +180,8 @@ export const paginateHtml = async (
     const { height: pageHeight } = getDimensions(exportSize);
     
     // Get all top-level elements from the fully rendered content
-    // We clone them to detach from the live nodelist when we start moving them
-    const sourceNodes = Array.from(contentWrapper.children).map(node => node.cloneNode(true));
+    // We use the detached nodes directly to avoid unnecessary cloning
+    const sourceNodes = Array.from(contentWrapper.children);
     
     // Clear the wrapper to start filling pages one by one
     contentWrapper.innerHTML = '';
