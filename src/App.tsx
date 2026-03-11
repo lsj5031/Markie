@@ -12,6 +12,7 @@ import { THEMES, INITIAL_MARKDOWN } from "./constants/themes";
 import { ExportFormat, ExportSize, ExportMode, Theme } from "./types";
 import { exportPreview } from "./services/exportService";
 import { getDimensions } from "./utils/pagination";
+import { useDebounce } from "./hooks/useDebounce";
 import { MultiPageViewer } from "./components/MultiPageViewer";
 import { SinglePageViewer } from "./components/SinglePageViewer";
 import { Header } from "./components/Header";
@@ -241,9 +242,11 @@ const App: React.FC = () => {
     }
   };
 
+  const debouncedMarkdown = useDebounce(markdown, 150);
+
   const renderedHtml = useMemo(
-    () => DOMPurify.sanitize(marked.parse(markdown) as string),
-    [markdown],
+    () => DOMPurify.sanitize(marked.parse(debouncedMarkdown) as string),
+    [debouncedMarkdown],
   );
 
   // Generate CSS variables for the theme (New & Old System Compatibility)
